@@ -16,7 +16,7 @@ class MyUserChangeForm(UserChangeForm):
 class MyUserCreationForm(UserCreationForm):
 
     error_message = UserCreationForm.error_messages.update({
-        'duplicate_username': 'This username has already been taken.'
+        'duplicate_username': 'Este nombre de usuario/a ya ha sido utilizado.'
     })
 
     class Meta(UserCreationForm.Meta):
@@ -36,7 +36,12 @@ class MyUserAdmin(AuthUserAdmin):
     form = MyUserChangeForm
     add_form = MyUserCreationForm
     fieldsets = (
-            ('User Profile', {'fields': ('name',)}),
+            ('User Profile', {'fields': ('name','dni','usuario_rayuela','es_usuario','id_usuario','foto')}),
     ) + AuthUserAdmin.fieldsets
-    list_display = ('username', 'name', 'is_superuser')
+    list_display = ('username', 'name', 'is_superuser', 'foto_html')
     search_fields = ['name']
+
+    class Media:
+        css = {
+            'all': ('css/admin/mi_admin.css',)
+        }

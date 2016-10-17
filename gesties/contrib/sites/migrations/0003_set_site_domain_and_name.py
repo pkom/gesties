@@ -18,7 +18,7 @@ def update_site_forward(apps, schema_editor):
         id=settings.SITE_ID,
         defaults={
             'domain': 'maestrojuancalero',
-            'name': 'Gestion Alumnado en Centros de Secundaria'
+            'name': 'Gestión Alumnado Centros Secundaria'
         }
     )
 

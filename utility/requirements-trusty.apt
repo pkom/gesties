@@ -23,3 +23,8 @@ libwebp-dev
 ##django-extensions
 graphviz-dev
 
+##ldap
+python-ldap
+libldap2-dev
+libsasl2-dev
+libssl-dev

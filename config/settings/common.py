@@ -46,6 +46,7 @@ LOCAL_APPS = (
     # custom users app
     'gesties.users.apps.UsersConfig',
     # Your stuff: custom apps go here
+    'gesties.cursos.apps.CursosConfig',
 )
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
@@ -99,7 +100,7 @@ MANAGERS = ADMINS
 # ------------------------------------------------------------------------------
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#databases
 DATABASES = {
-    'default': env.db('DATABASE_URL', default='postgres:///gesties'),
+    'default': env.db('DATABASE_URL', default='postgres://gesties:gesties@localhost/gesties_dev'),
 }
 DATABASES['default']['ATOMIC_REQUESTS'] = True
 
@@ -113,7 +114,7 @@ DATABASES['default']['ATOMIC_REQUESTS'] = True
 TIME_ZONE = 'Europe/Madrid'
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#language-code
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'es-es'
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#site-id
 SITE_ID = 1
@@ -211,6 +212,9 @@ AUTH_PASSWORD_VALIDATORS = [
     },
     {
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'OPTIONS': {
+            'min_length': 7,
+        }
     },
     {
         'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
@@ -223,6 +227,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # AUTHENTICATION CONFIGURATION
 # ------------------------------------------------------------------------------
 AUTHENTICATION_BACKENDS = (
+    'django_auth_ldap.backend.LDAPBackend',
     'django.contrib.auth.backends.ModelBackend',
     'allauth.account.auth_backends.AuthenticationBackend',
 )
@@ -230,9 +235,9 @@ AUTHENTICATION_BACKENDS = (
 # Some really nice defaults
 ACCOUNT_AUTHENTICATION_METHOD = 'username'
 ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
+ACCOUNT_EMAIL_VERIFICATION = 'none'
 
-ACCOUNT_ALLOW_REGISTRATION = env.bool('DJANGO_ACCOUNT_ALLOW_REGISTRATION', True)
+ACCOUNT_ALLOW_REGISTRATION = env.bool('DJANGO_ACCOUNT_ALLOW_REGISTRATION', False)
 ACCOUNT_ADAPTER = 'gesties.users.adapters.AccountAdapter'
 SOCIALACCOUNT_ADAPTER = 'gesties.users.adapters.SocialAccountAdapter'
 
@@ -251,3 +256,77 @@ ADMIN_URL = r'^admin/'
 
 # Your common stuff: Below this line define 3rd party library settings
 # ------------------------------------------------------------------------------
+# Size for images uploaded
+MAX_WIDTH = 100
+MAX_HEIGHT = 100
+
+
+########## DJANGO-AUTH-LDAP CONFIGURATION
+import ldap
+from django_auth_ldap.config import LDAPSearch, GroupOfNamesType
+
+AUTH_LDAP_GLOBAL_OPTIONS = { ldap.OPT_X_TLS_REQUIRE_CERT: False }
+
+AUTH_LDAP_SERVER_URI = env('AUTH_LDAP_SERVER_URI', default= "ldap://ldap")
+AUTH_LDAP_START_TLS = True
+
+# Autenticacion por usuario django
+AUTH_LDAP_BIND_DN = env("AUTH_LDAP_BIND_DN", default="cn=replica,dc=instituto,dc=extremadura,dc=es")
+AUTH_LDAP_BIND_PASSWORD = env("AUTH_LDAP_BIND_PASSWORD", default="replica")
+AUTH_LDAP_USER_SEARCH = LDAPSearch("ou=People,dc=instituto,dc=extremadura,dc=es",
+    ldap.SCOPE_SUBTREE, "(uid=%(user)s)")
+
+# Autenticacion directa del usuario, pero no obtengo el dni...
+#AUTH_LDAP_USER_DN_TEMPLATE = "uid=%(user)s,ou=People,dc=instituto,dc=extremadura,dc=es"
+
+# Set up the basic group parameters.
+AUTH_LDAP_GROUP_SEARCH = LDAPSearch("ou=Group,dc=instituto,dc=extremadura,dc=es",
+    ldap.SCOPE_SUBTREE, "(objectClass=groupOfNames)"
+)
+AUTH_LDAP_GROUP_TYPE = GroupOfNamesType(name_attr="cn")
+
+# Simple group restrictions
+AUTH_LDAP_REQUIRE_GROUP = "cn=teachers,ou=Group,dc=instituto,dc=extremadura,dc=es"
+AUTH_LDAP_DENY_GROUP = "cn=students,ou=Group,dc=instituto,dc=extremadura,dc=es"
+
+# Populate the Django user from the LDAP directory.
+AUTH_LDAP_USER_ATTR_MAP = {
+    "first_name": "givenName",
+    "last_name": "sn",
+    "name"  : "cn",
+    "dni"   : "employeeNumber",
+    "usuario_rayuela" : "uid"
+}
+
+AUTH_LDAP_PROFILE_ATTR_MAP = {
+    "dni": "employeeNumber",
+    "usuario_rayuela": "uid"
+}
+
+AUTH_LDAP_USER_FLAGS_BY_GROUP = {
+    "is_active": "cn=teachers,ou=Group,dc=instituto,dc=extremadura,dc=es",
+    "is_staff": "cn=teachers,ou=Group,dc=instituto,dc=extremadura,dc=es",
+#    "is_superuser": "cn=superuser,ou=django,ou=groups,dc=example,dc=com"
+}
+
+#AUTH_LDAP_PROFILE_FLAGS_BY_GROUP = {
+#    "is_awesome": "cn=awesome,ou=django,ou=groups,dc=example,dc=com",
+#}
+
+# This is the default, but I like to be explicit.
+AUTH_LDAP_ALWAYS_UPDATE_USER = True
+
+# Use LDAP group membership to calculate group permissions.
+AUTH_LDAP_FIND_GROUP_PERMS = True
+
+# Cache group memberships for an hour to minimize LDAP traffic
+AUTH_LDAP_CACHE_GROUPS = True
+AUTH_LDAP_GROUP_CACHE_TIMEOUT = 3600
+
+#import logging
+
+#logger = logging.getLogger('django_auth_ldap')
+#logger.addHandler(logging.StreamHandler())
+#logger.setLevel(logging.DEBUG)
+
+########## END DJANGO-AUTH-LDAP CONFIGURATION
