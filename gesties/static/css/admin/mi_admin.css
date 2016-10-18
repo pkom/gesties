@@ -1,3 +1,9 @@
+/* admin User*/
 .field-is_superuser, .field-name, .field-username, .action-checkbox {
+  vertical-align: middle;
+}
+
+/* admin Configies*/
+.field-codigo_centro, .field-nombre_centro, .field-curso_defecto {
   vertical-align: middle;
 }
