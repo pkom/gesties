@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals, absolute_import
-
 from slugify import slugify
 
 from django.utils.encoding import python_2_unicode_compatible
-from django.core.urlresolvers import reverse
 from django.db import models
 
 @python_2_unicode_compatible
@@ -33,9 +31,6 @@ class Curso(models.Model):
 
     def __str__(self):
         return self.curso
-
-    def get_absolute_url(self):
-        return reverse('cursos:detalle', kwargs={'slug': self.slug})
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.curso)

@@ -47,6 +47,8 @@ LOCAL_APPS = (
     'gesties.users.apps.UsersConfig',
     # Your stuff: custom apps go here
     'gesties.cursos.apps.CursosConfig',
+    'gesties.configies.apps.ConfigiesConfig',
+    'gesties.alumnos.apps.AlumnosConfig',
 )
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps

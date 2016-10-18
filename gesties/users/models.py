@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals, absolute_import
 
-from PIL import Image
-
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.core.urlresolvers import reverse
@@ -10,6 +8,8 @@ from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.html import format_html
 from django.contrib.staticfiles.templatetags.staticfiles import static
+
+from gesties.utils.images import fit
 #from django_auth_ldap.backend import populate_user
 
 
@@ -26,26 +26,6 @@ from django.contrib.staticfiles.templatetags.staticfiles import static
 #    user.save()
 
 #populate_user.connect(update_user)
-
-# para reducir imágenes
-def fit(file_path, max_width=None, max_height=None, save_as=None):
-    # Open file
-    img = Image.open(file_path)
-
-    # Store original image width and height
-    w, h = img.size
-
-    # Replace width and height by the maximum values
-    w = int(max_width or w)
-    h = int(max_height or h)
-
-    # Proportinally resize
-    img.thumbnail((w, h), Image.ANTIALIAS)
-
-    # Save in (optional) 'save_as' or in the original path
-    img.save(save_as or file_path)
-
-    return True
 
 
 def upload_to(instance, filename):
