@@ -33,13 +33,14 @@ class MyUserCreationForm(UserCreationForm):
 
 @admin.register(User)
 class MyUserAdmin(AuthUserAdmin):
+    ordering = ['last_name', 'first_name',]
     form = MyUserChangeForm
     add_form = MyUserCreationForm
     fieldsets = (
             ('User Profile', {'fields': ('name','dni','usuario_rayuela','es_usuario','id_usuario','foto')}),
     ) + AuthUserAdmin.fieldsets
-    list_display = ('username', 'name', 'is_superuser', 'foto_html')
-    search_fields = ['name']
+    list_display = ('username', 'last_name', 'first_name', 'is_superuser', 'foto_html')
+    search_fields = ['last_name', 'first_name',]
 
     class Media:
         css = {

@@ -4,9 +4,11 @@ from slugify import slugify
 
 from django.utils.encoding import python_2_unicode_compatible
 from django.db import models
+from model_utils.models import TimeStampedModel
+
 
 @python_2_unicode_compatible
-class Curso(models.Model):
+class Curso(TimeStampedModel):
     curso = models.CharField('Curso', help_text='Curso Académico', unique=True,
                              blank=False, max_length=9, db_index=True)
     retrasos_amonestacion = models.PositiveSmallIntegerField('Número de retrasos para amonestación',
@@ -27,7 +29,7 @@ class Curso(models.Model):
                                                help_text='Fecha de inicio del tercer trimestre')
     fin_tercer_primer_trimestre = models.DateField('Fecha fin tercer trimestre',
                                                help_text='Fecha de fin del tercer trimestre')
-    slug = models.CharField('Slug', blank=False, unique=True, max_length=9)
+    slug = models.SlugField('Slug', blank=False, unique=True, max_length=9)
 
     def __str__(self):
         return self.curso

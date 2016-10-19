@@ -1,5 +1,10 @@
 /* admin User*/
-.field-is_superuser, .field-name, .field-username, .action-checkbox {
+.field-is_superuser, .field-name, .field-username, .field-last_name, .field-first_name, .action-checkbox {
+  vertical-align: middle;
+}
+
+/* alumnos*/
+.field-nie, .field-apellidos, .field-nombre, .field-fecha_nacimiento, .field-first_name, .action-checkbox {
   vertical-align: middle;
 }
 

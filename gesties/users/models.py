@@ -44,7 +44,7 @@ class User(AbstractUser):
     id_usuario = models.CharField('ID Rayuela', help_text='ID Rayuela', blank=True, max_length=20)
 
     def __str__(self):
-        return self.username
+        return u'{0}, {1}'.format(self.last_name, self.first_name)
 
     def get_absolute_url(self):
         return reverse('users:detail', kwargs={'username': self.username})
@@ -63,3 +63,9 @@ class User(AbstractUser):
         super(User, self).save(*args, **kwargs)
         if self.foto:
             fit(self.foto.path, settings.MAX_WIDTH, settings.MAX_HEIGHT)
+
+
+    class Meta:
+        verbose_name = 'usuario'
+        verbose_name_plural = 'usuarios'
+        ordering = ['last_name', 'first_name']

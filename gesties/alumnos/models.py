@@ -6,6 +6,7 @@ from django.utils.encoding import python_2_unicode_compatible
 from django.db import models
 from django.utils.html import format_html
 from model_utils.models import TimeStampedModel
+from django.contrib.staticfiles.templatetags.staticfiles import static
 
 from gesties.utils.images import fit
 from gesties.cursos.models import Curso
@@ -19,7 +20,7 @@ class Alumno(TimeStampedModel):
     apellidos = models.CharField(max_length=100)
     fecha_nacimiento = models.DateField(blank=True, null=True)
     usuario_rayuela = models.CharField(max_length=20, blank=True)
-    foto = models.ImageField(upload_to='alumnos', blank=True, default='')
+    foto = models.ImageField(upload_to='alumnos/', max_length=200, blank=True, default='')
     telefono = models.CharField(max_length=50, blank=True)
     email = models.EmailField(max_length=50, blank=True)
 
@@ -35,36 +36,21 @@ class Alumno(TimeStampedModel):
             'border-radius:50%;background-size:100% auto;background-image:url({})"></div>',
             heigth,
             width,
-            self.foto.url if self.foto else None,
+            self.foto.url if self.foto else static('avatars/nobody.png'),
         )
     foto_html.short_description = u'Fotografía del/la alumno/a'
     foto_html.allow_tags = True
 
-    def save(self, *args, **kwargs):
-        super(Alumno, self).save(*args, **kwargs)
-        if self.foto:
-            fit(self.foto.path, settings.MAX_WIDTH, settings.MAX_HEIGHT)
+#    def save(self, *args, **kwargs):
+#        super(Alumno, self).save(*args, **kwargs)
+#        if self.foto:
+#            fit(self.foto.path, settings.MAX_WIDTH, settings.MAX_HEIGHT)
 
     class Meta:
         verbose_name = "alumno/a"
         verbose_name_plural = "alumno/as"
         index_together = (("apellidos", "nombre"),)
         ordering = ['apellidos', 'nombre' ]
-
-
-@python_2_unicode_compatible
-class CursoAlumno(TimeStampedModel):
-
-    curso = models.ForeignKey(Curso, related_name='cursoalumnos')
-    alumno = models.ForeignKey(Alumno, related_name='alumnos')
-
-    def __str__(self):
-        return u"{0} - {1}" % (self.curso, self.alumno)
-
-    class Meta:
-        verbose_name = "Alumno/as por curso"
-        unique_together = (("curso", "alumno"),)
-        ordering = ['alumno__apellidos', 'alumno__nombre' ]
 
 
 @python_2_unicode_compatible

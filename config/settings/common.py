@@ -49,6 +49,9 @@ LOCAL_APPS = (
     'gesties.cursos.apps.CursosConfig',
     'gesties.configies.apps.ConfigiesConfig',
     'gesties.alumnos.apps.AlumnosConfig',
+    'gesties.grupos.apps.GruposConfig',
+    'gesties.departamentos.apps.DepartamentosConfig',
+    'gesties.rayuela.apps.RayuelaConfig',
 )
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
