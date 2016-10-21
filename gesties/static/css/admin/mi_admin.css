@@ -12,3 +12,13 @@
 .field-codigo_centro, .field-nombre_centro, .field-curso_defecto {
   vertical-align: middle;
 }
+
+/* admin CursoGrupoAlumno y CursoGrupoProfesor */
+.field-curso_grupo, .field-alumno, .field-profesor {
+  vertical-align: middle;
+}
+
+/* tutores legales*/
+.field-dni {
+  vertical-align: middle;
+}

@@ -12,8 +12,10 @@ from gesties.cursos.models import Curso
 @python_2_unicode_compatible
 class Rayuela(TimeStampedModel):
     TIPO = (
-        ('PR', 'Profesores'),
-        ('AL', 'Alumnos'),
+        ('PR', 'Profesores XML Rayuela'),
+        ('AL', 'Alumnos ZIP Rayuela'),
+        ('DA', 'Datos adicionales alumnos ODS rayuela'),
+        ('TU', 'Datos de tutores legales ODS rayuela'),
     )
     curso = models.ForeignKey(Curso)
     tipo = models.CharField(max_length=2, choices=TIPO)

@@ -53,6 +53,10 @@ class CursoGrupoAlumno(TimeStampedModel):
     def __str__(self):
         return u"{0} - {1} ".format(self.curso_grupo, self.alumno)
 
+    def foto_html(self):
+        return (self.alumno.foto_html())
+    foto_html.short_description = 'Fotografía'
+
     class Meta:
         verbose_name = "Grupos y alumno/a"
         unique_together = (("curso_grupo", "alumno"),)
@@ -66,6 +70,10 @@ class CursoGrupoProfesor(TimeStampedModel):
 
     def __str__(self):
         return u"{0} - {1} ".format(self.curso_grupo, self.profesor)
+
+    def foto_html(self):
+        return (self.profesor.foto_html())
+    foto_html.short_description = 'Fotografía'
 
     class Meta:
         verbose_name = "Grupos y profesore/a"

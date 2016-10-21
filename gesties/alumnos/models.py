@@ -18,9 +18,14 @@ class Alumno(TimeStampedModel):
     nie = models.CharField(unique=True, max_length=15, db_index=True)
     nombre = models.CharField(max_length=100)
     apellidos = models.CharField(max_length=100)
+    dni = models.CharField('D.N.I.', help_text='Número del DNI', blank=True, max_length=20, db_index=True)
+    direccion = models.CharField('Dirección', help_text='Dirección', blank=True, max_length=200)
+    codigo_postal = models.CharField('Código Postal', help_text='Código Postal', blank=True, max_length=10)
+    localidad = models.CharField('Localidad', help_text='Localidad', blank=True, max_length=100)
+    provincia = models.CharField('Provincia', help_text='Provincia', blank=True, max_length=100)
     fecha_nacimiento = models.DateField(blank=True, null=True)
     usuario_rayuela = models.CharField(max_length=20, blank=True)
-    foto = models.ImageField(upload_to='alumnos/', max_length=200, blank=True, default='')
+    foto = models.ImageField(upload_to='alumnos', max_length=200, blank=True, default='')
     telefono = models.CharField(max_length=50, blank=True)
     email = models.EmailField(max_length=50, blank=True)
 
@@ -81,7 +86,7 @@ class Tutor(TimeStampedModel):
             'border-radius:50%;background-size:100% auto;background-image:url({})"></div>',
             heigth,
             width,
-            self.foto.url if self.foto else None,
+            self.foto.url if self.foto else static('avatars/nobody.png')
         )
     foto_html.short_description = u'Fotografía del/la tutor/a'
     foto_html.allow_tags = True

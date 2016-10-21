@@ -46,3 +46,4 @@ redis>=2.10.5
 
 # Your custom requirements go here
 django-auth-ldap==1.2.8
+pyexcel-ods3

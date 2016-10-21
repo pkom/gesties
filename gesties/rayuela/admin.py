@@ -2,13 +2,15 @@
 from __future__ import absolute_import, unicode_literals
 import os, os.path, shutil
 import xml.sax.handler
+from pyexcel_ods3 import get_data
+import json
 
 from django.core.files import File
 from django.contrib import admin
 
 from gesties.utils.zip import descomprime
 from gesties.users.models import User
-from gesties.alumnos.models import Alumno
+from gesties.alumnos.models import Alumno, Tutor
 from gesties.departamentos.models import Departamento, CursoDepartamento, CursoDepartamentoProfesor
 from gesties.grupos.models import Grupo, CursoGrupo, CursoGrupoAlumno, CursoGrupoProfesor
 from .models import Rayuela
@@ -191,10 +193,12 @@ def import_data(modeladmin, request, queryset):
                     'fecha_nacimiento': self.fechanacimiento,
                     'usuario_rayuela': self.login
                 }
+                alumno, created = Alumno.objects.update_or_create(nie=self.nie, defaults=updated_values)
                 if self.nombrefichero:
                     ficherofoto = os.path.join(self.dirname, self.nombrefichero)
-                    #updated_values['foto'] = File(open(ficherofoto))
-                alumno, created = Alumno.objects.update_or_create(nie=self.nie, defaults=updated_values)
+                    myfile = File(open(ficherofoto, 'rb'))
+                    alumno.foto.save(self.nombrefichero, myfile)
+                    myfile.close()
                 self.resultado += u'<ul>Procesando alumno %s' % (alumno)
                 if created:
                     self.resultado += u'<li>Se ha creado el alumno %s</li>' % (alumno)
@@ -265,6 +269,7 @@ def import_data(modeladmin, request, queryset):
             handler = ProfesorHandler(request, queryset)
             parser.setContentHandler(handler)
             parser.parse(rayuela.archivo.path)
+            rayuela.resultado = handler.get_resultado()
         elif rayuela.tipo == 'AL':
             temp = descomprime(rayuela.archivo.path)
             handler = AlumnoHandler(request, queryset, temp)
@@ -274,7 +279,79 @@ def import_data(modeladmin, request, queryset):
                 shutil.rmtree(temp)
             except:
                 pass
-        rayuela.resultado = handler.get_resultado()
+            rayuela.resultado = handler.get_resultado()
+        elif rayuela.tipo == 'DA':
+            rayuela.resultado = u'<h5>Resultado del proceso</h5><ul>'
+            data = get_data(rayuela.archivo.path)
+            datos_alumnos = data['Alumnado del centro'][1:]
+            for datos_alumno in datos_alumnos:
+                alumno = Alumno.objects.get(nie=datos_alumno[2])
+                if alumno:
+                    rayuela.resultado += u'<li>Procesando alumno {}</li>'.format(alumno)
+                    alumno.dni = datos_alumno[3]
+                    alumno.direccion = datos_alumno[4]
+                    alumno.codigo_postal = datos_alumno[5]
+                    alumno.localidad = datos_alumno[6]
+                    alumno.provincia = datos_alumno[9]
+                    alumno.telefono = datos_alumno[10] + ' ' + datos_alumno[11]
+                    alumno.email = datos_alumno[12]
+                    alumno.save()
+                    #dni primer tutor
+                    lista_tutores = []
+                    if datos_alumno[18]:
+                        #procesamos primer tutor
+                        updated_values = {
+                            'nombre' : datos_alumno[21],
+                            'apellidos' : datos_alumno[19] + ' ' + datos_alumno[20]
+                        }
+                        tutor, created = Tutor.objects.get_or_create(dni=datos_alumno[18], defaults=updated_values)
+                        if not created:
+                            tutor.nombre = datos_alumno[21]
+                            tutor.apellidos = datos_alumno[19] + ' ' + datos_alumno[20]
+                            tutor.save()
+                        lista_tutores.append(tutor)
+                    #dni segundo tutor
+                    if datos_alumno[23]:
+                        #procesamos segundo
+                        updated_values = {
+                            'nombre' : datos_alumno[26],
+                            'apellidos' : datos_alumno[24] + ' ' + datos_alumno[25]
+                        }
+                        tutor, created = Tutor.objects.get_or_create(dni=datos_alumno[23], defaults=updated_values)
+                        if not created:
+                            tutor.nombre = datos_alumno[26]
+                            tutor.apellidos = datos_alumno[24] + ' ' + datos_alumno[25]
+                            tutor.save()
+
+                        lista_tutores.append(tutor)
+                    if len(lista_tutores) > 0:
+                        alumno.tutores.set(lista_tutores)
+            rayuela.resultado += u'</ul>'
+        elif rayuela.tipo == 'TU':
+            rayuela.resultado = u'<h5>Resultado del proceso</h5><ul>'
+            data = get_data(rayuela.archivo.path)
+            datos_tutores = data['Registro de tutores del centro'][1:]
+            for datos_tutor in datos_tutores:
+                updated_values = {
+                    'telefono1' : datos_tutor[2],
+                    'telefono2' : datos_tutor[3],
+                    'domicilio' : datos_tutor[4],
+                    'codigo_postal' : datos_tutor[5],
+                    'municipio' : datos_tutor[6],
+                    'provincia' : datos_tutor[7]
+                }
+                tutor, created = Tutor.objects.get_or_create(dni=datos_tutor[1], defaults=updated_values)
+                if not created:
+                    tutor.telefono1 = datos_tutor[2]
+                    tutor.telefono2 = datos_tutor[3]
+                    tutor.domicilio = datos_tutor[4]
+                    tutor.codigo_postal = datos_tutor[5]
+                    tutor.municipio = datos_tutor[6]
+                    tutor.provincia = datos_tutor[7]
+                    tutor.save()
+                rayuela.resultado += u'<li>Procesando tutor {}</li>'.format(tutor)
+            rayuela.resultado += u'</ul>'
+
         rayuela.procesado = True
         rayuela.save()
 

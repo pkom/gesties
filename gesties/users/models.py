@@ -59,10 +59,10 @@ class User(AbstractUser):
         )
     foto_html.short_description = u'Fotografía'
 
-    def save(self, *args, **kwargs):
-        super(User, self).save(*args, **kwargs)
-        if self.foto:
-            fit(self.foto.path, settings.MAX_WIDTH, settings.MAX_HEIGHT)
+#    def save(self, *args, **kwargs):
+#        super(User, self).save(*args, **kwargs)
+#        if self.foto:
+#            fit(self.foto.path, settings.MAX_WIDTH, settings.MAX_HEIGHT)
 
 
     class Meta:
