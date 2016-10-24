@@ -28,6 +28,7 @@ class Alumno(TimeStampedModel):
     foto = models.ImageField(upload_to='alumnos', max_length=200, blank=True, default='')
     telefono = models.CharField(max_length=50, blank=True)
     email = models.EmailField(max_length=50, blank=True)
+    expediente = models.CharField(max_length=10, blank=True)
 
     def __str__(self):
         return u"{0}, {1}".format(self.apellidos, self.nombre)

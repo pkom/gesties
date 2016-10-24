@@ -295,6 +295,7 @@ def import_data(modeladmin, request, queryset):
                     alumno.provincia = datos_alumno[9]
                     alumno.telefono = datos_alumno[10] + ' ' + datos_alumno[11]
                     alumno.email = datos_alumno[12]
+                    alumno.expediente = datos_alumno[37]
                     alumno.save()
                     #dni primer tutor
                     lista_tutores = []

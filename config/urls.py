@@ -8,6 +8,9 @@ from django.contrib import admin
 from django.views.generic import TemplateView
 from django.views import defaults as default_views
 
+from gesties.utils.listados import listin_telefonico, etiquetas_alumnos
+
+
 urlpatterns = [
     url(r'^$', TemplateView.as_view(template_name='pages/home.html'), name='home'),
     url(r'^about/$', TemplateView.as_view(template_name='pages/about.html'), name='about'),
@@ -20,8 +23,10 @@ urlpatterns = [
     url(r'^accounts/', include('allauth.urls')),
 
     # Your stuff: custom urls includes go here
+    url(r'^listados/listin/(?P<curso>[0-9])/$', listin_telefonico, name='listin'),
+    url(r'^listados/etiquetas/(?P<curso>[0-9])/$', etiquetas_alumnos, name='etiquetas'),
 
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+              ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:
     # This allows the error pages to be debugged during development, just visit

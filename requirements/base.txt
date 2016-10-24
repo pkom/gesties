@@ -46,4 +46,6 @@ redis>=2.10.5
 
 # Your custom requirements go here
 django-auth-ldap==1.2.8
-pyexcel-ods3
+pyexcel-ods3==0.2.1
+reportlab==3.3.0
+pylabels==1.2.1
