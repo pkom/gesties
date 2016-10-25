@@ -24,8 +24,9 @@ urlpatterns = [
 
     # Your stuff: custom urls includes go here
     url(r'^listados/listin/(?P<curso>[0-9])/$', listin_telefonico, name='listin'),
+    url(r'^listados/listin/(?P<curso>[0-9])/(?P<grupo>[\w-]+)/$', listin_telefonico, name='listin_grupo'),
     url(r'^listados/etiquetas/(?P<curso>[0-9])/$', etiquetas_alumnos, name='etiquetas'),
-
+    url(r'^listados/etiquetas/(?P<curso>[0-9])/(?P<grupo>[\w-]+)/$', etiquetas_alumnos, name='etiquetas_grupo'),
               ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:

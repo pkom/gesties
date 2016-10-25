@@ -3,73 +3,137 @@ from io import BytesIO
 from django.http import HttpResponse, Http404
 from django.contrib.auth.decorators import login_required
 
-from reportlab.platypus import SimpleDocTemplate, Paragraph, TableStyle, PageTemplate, Frame
+from reportlab.platypus import BaseDocTemplate, PageTemplate, Frame
+from reportlab.platypus.flowables import Flowable
 from reportlab.lib.styles import getSampleStyleSheet
-from reportlab.lib import colors
 from reportlab.lib.units import cm
-from reportlab.lib.pagesizes import A4
-from reportlab.platypus import Table
 from reportlab.graphics import shapes
 import labels
 
 from gesties.grupos.models import CursoGrupoAlumno
+from gesties.configies.models import Configies
+
+
+class EntradaListin(Flowable):
+
+    def __init__(self, size=None, alumno=None):
+        if size is None: size=2.6*cm
+        #self.xoffset = xoffset
+        self.size = size
+        # normal size is 4 inches
+        #self.scale = size/(4.0*cm)
+        self.alumno = alumno
+
+    def wrap(self, *args):
+        return (0, self.size)
+
+    def draw(self):
+        canvas = self.canv
+        canvas.roundRect(0, 0, 500, self.size, radius=4)
+        if self.alumno.alumno.foto:
+            canvas.drawImage(self.alumno.alumno.foto.path, 5, 15, 40, 45)
+        tutores = self.alumno.alumno.tutores.all()
+        l = 0
+        for tutor in tutores:
+            canvas.setFont("Helvetica", size=10)
+            canvas.drawString(50, 5 + l, "Tutor Legal:")
+            canvas.setFont("Helvetica-Bold", size=10)
+            canvas.drawString(105, 5 + l, str(tutor))
+            canvas.setFont("Helvetica", size=10)
+            canvas.drawString(340, 5 + l, "Teléfonos:")
+            canvas.setFont("Helvetica-Bold", size=10)
+            canvas.drawString(390, 5 + l, tutor.telefono1 + '/' + tutor.telefono2)
+            l += 10
+
+        canvas.setFont("Helvetica", size = 10)
+        canvas.drawString(50, 45 + l, "Alumno/a:")
+        canvas.setFont("Helvetica-Bold", size = 10)
+        canvas.drawString(105, 45 + l, str(self.alumno.alumno))
+        canvas.setFont("Helvetica", size = 10)
+        canvas.drawString(415, 45 + l, "Grupo:")
+        canvas.setFont("Helvetica-Bold", size = 10)
+        canvas.drawString(450, 45 + l, str(self.alumno.curso_grupo.grupo))
+        canvas.setFont("Helvetica", size = 10)
+        canvas.drawString(50, 35 + l, "Expediente:")
+        canvas.setFont("Helvetica-Bold", size = 10)
+        canvas.drawString(105, 35 + l, self.alumno.alumno.expediente)
+        canvas.setFont("Helvetica", size = 10)
+        canvas.drawString(135, 35 + l, "Fecha Nac.:")
+        canvas.setFont("Helvetica-Bold", size = 10)
+        canvas.drawString(190, 35 + l, self.alumno.alumno.fecha_nacimiento.strftime('%d/%m/%Y'))
+        canvas.setFont("Helvetica", size = 10)
+        canvas.drawString(245, 35 + l, "D.N.I.:")
+        canvas.setFont("Helvetica-Bold", size = 10)
+        canvas.drawString(275, 35 + l, self.alumno.alumno.dni)
+        canvas.setFont("Helvetica", size = 10)
+        canvas.drawString(340, 35 + l, "N.I.E.:")
+        canvas.setFont("Helvetica-Bold", size = 10)
+        canvas.drawString(370, 35 + l, self.alumno.alumno.nie)
+        canvas.setFont("Helvetica", size = 10)
+        canvas.drawString(50, 25 + l, "Teléfonos:")
+        canvas.setFont("Helvetica-Bold", size = 10)
+        canvas.drawString(105, 25 + l, self.alumno.alumno.telefono)
+        canvas.setFont("Helvetica", size = 10)
+        canvas.drawString(50, 15 + l, "Dirección:")
+        canvas.setFont("Helvetica-Bold", size = 10)
+        canvas.drawString(105, 15 + l, self.alumno.alumno.direccion + ' ' + self.alumno.alumno.localidad + ' (' +
+                                   self.alumno.alumno.codigo_postal + ') ' + self.alumno.alumno.provincia)
+        canvas.setFont("Helvetica", size=10)
+        canvas.drawString(50, 5 + l, "Tutor Grup:")
+        canvas.setFont("Helvetica-Bold", size=10)
+        canvas.drawString(105, 5 + l, str(self.alumno.curso_grupo.tutor))
 
 
 @login_required
-def listin_telefonico(request, curso):
+def listin_telefonico(request, curso=None, grupo=None):
+    if not curso:
+        curso = request.session.get('curso')
     alumnos = CursoGrupoAlumno.objects.filter(curso_grupo__curso_id=curso).order_by('alumno')
+    if grupo:
+        alumnos = alumnos.filter(curso_grupo__grupo__grupo=grupo).order_by('alumno')
     if len(alumnos) == 0:
         raise Http404
     # Create the HttpResponse object with the appropriate PDF headers.
     response = HttpResponse(content_type='application/pdf')
     #response['Content-Disposition'] = 'attachment; filename="listin.pdf"'
     response['Content-Disposition'] = 'filename="listin.pdf"'
-
-    def inicio_pagina(canvas, document):
-        canvas.saveState()
-        canvas.setFont('Times-Roman', 19)
-        canvas.drawString(cm, 0.75 * cm, "Página %d" % doc.page)
-        canvas.restoreState()
-
     # Create the PDF object, using the response object as its "file."
     buff = BytesIO()
-    pageTemplate = PageTemplate(onPage=inicio_pagina)
-    doc = SimpleDocTemplate(buff,
-                            pagesize=A4,
-                            rightMargin=10,
-                            leftMargin=20,
-                            topMargin=20,
-                            bottomMargin=10,
-                            )
-    pdf = []
     styles = getSampleStyleSheet()
-    header = Paragraph("Curso: "+str(alumnos[0].curso_grupo.curso)+" Listado Telefónico de Alumno/as", styles['Title'])
-    pdf.append(header)
-    headings = ('Apellidos', 'Nombre','DNI','Foto','Expediente','Teléfonos')
-    todosalumnos = [(alumno.alumno.apellidos, alumno.alumno.nombre, alumno.alumno.dni,
-                     alumno.alumno.foto,alumno.alumno.expediente,
-                     alumno.alumno.telefono) for alumno in alumnos]
-    t = Table([headings] + todosalumnos)
-    #t = Table(todosalumnos)
-
-    t.setStyle(TableStyle(
-        [
-            ('GRID', (0, 0), (3, -1), 1, colors.dodgerblue),
-            ('LINEBELOW', (0, 0), (-1, 0), 2, colors.darkblue),
-            ('BACKGROUND', (0, 0), (-1, 0), colors.dodgerblue)
-        ]
-    ))
-    pdf.append(t)
-    doc.addPageTemplates([pageTemplate])
-    doc.build(pdf)
+    Elements = []
+    doc = BaseDocTemplate(buff, leftMargin = 2 * cm, rightMargin = 0.5 * cm,
+                          topMargin = 2 * cm, bottomMargin = 1 * cm, showBoundary=0)
+    cabecera1 = request.session.get('centro', Configies.objects.all()[0].nombre_centro)
+    cabecera2 = "Curso "+str(alumnos[0].curso_grupo.curso)+" - Listado telefónico de alumno/as " + (("- Grupo: "+grupo) if grupo else "")
+    def cabeceraYpie(canvas, doc):
+        canvas.saveState()
+        canvas.setFont('Helvetica-Bold', 14)
+        canvas.drawCentredString(21 * cm / 2, 29 * cm, cabecera1)
+        canvas.drawCentredString(21 * cm / 2, 28 * cm, cabecera2)
+        canvas.setFont('Times-Roman', 10)
+        canvas.drawCentredString(21 * cm /2, cm, "Página {}".format(doc.page))
+        canvas.restoreState()
+    # normal frame as for SimpleFlowDocument
+    frameT = Frame(doc.leftMargin, doc.bottomMargin, doc.width, doc.height, id='normal')
+    for alumno in alumnos:
+        Elements.append(EntradaListin(alumno=alumno))
+    doc.addPageTemplates([PageTemplate(id='OneCol', frames=frameT, onPage=cabeceraYpie)])
+    # start the construction of the pdf
+    doc.build(Elements)
     response.write(buff.getvalue())
     buff.close()
     return response
 
 
 @login_required
-def etiquetas_alumnos(request, curso):
+def etiquetas_alumnos(request, curso=None, grupo=None):
+    if not curso:
+        curso = request.session.get('curso')
     alumnos = CursoGrupoAlumno.objects.filter(curso_grupo__curso_id=curso).order_by('alumno')
+    if grupo:
+        alumnos = alumnos.filter(curso_grupo__grupo__grupo=grupo).order_by('alumno')
+    if len(alumnos) == 0:
+        raise Http404
     if len(alumnos) == 0:
         raise Http404
     # Create the HttpResponse object with the appropriate PDF headers.
