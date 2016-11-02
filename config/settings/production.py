@@ -94,6 +94,8 @@ MediaRootS3BotoStorage = lambda: S3BotoStorage(location='media')
 
 #MEDIA_URL = 'https://s3.amazonaws.com/%s/media/' % AWS_STORAGE_BUCKET_NAME
 
+MEDIA_ROOT = str(ROOT_DIR('mediafiles'))
+
 # Static Assets
 # ------------------------
 
