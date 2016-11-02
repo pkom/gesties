@@ -28,3 +28,7 @@ python-ldap
 libldap2-dev
 libsasl2-dev
 libssl-dev
+
+# otras
+libxml2-dev
+libxslt1-dev
