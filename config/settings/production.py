@@ -50,7 +50,7 @@ X_FRAME_OPTIONS = 'DENY'
 # ------------------------------------------------------------------------------
 # Hosts/domain names that are valid for this site
 # See https://docs.djangoproject.com/en/1.6/ref/settings/#allowed-hosts
-ALLOWED_HOSTS = env.list('DJANGO_ALLOWED_HOSTS', default=['maestrojuancalero'])
+ALLOWED_HOSTS = env.list('DJANGO_ALLOWED_HOSTS', default=['maestrojuancalero', 'iesmjuancalero.ddns.net'])
 # END SITE CONFIGURATION
 
 INSTALLED_APPS += ('gunicorn', )
@@ -93,6 +93,8 @@ MediaRootS3BotoStorage = lambda: S3BotoStorage(location='media')
 #DEFAULT_FILE_STORAGE = 'config.settings.production.MediaRootS3BotoStorage'
 
 #MEDIA_URL = 'https://s3.amazonaws.com/%s/media/' % AWS_STORAGE_BUCKET_NAME
+
+MEDIA_ROOT = str(ROOT_DIR('mediafiles'))
 
 # Static Assets
 # ------------------------
