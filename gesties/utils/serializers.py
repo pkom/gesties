@@ -11,4 +11,4 @@ class serializer(object):
         self.instance = instance
 
     def serializer(self):
-        return json.loads(serializers.serialize('json', [self.instance, ]))[0].get('fields')
+        return json.loads(serializers.serialize('json', [self.instance, ]))[0]

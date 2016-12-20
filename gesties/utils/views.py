@@ -16,3 +16,12 @@ def index(request):
     # messages.error(request, 'error')
     return TemplateResponse(request, 'pages/index.html', contexto)
 
+@login_required
+def about(request):
+    contexto = {}
+    # messages.debug(request, 'debug')
+    # messages.info(request, 'info')
+    # messages.success(request, 'success')
+    # messages.warning(request, 'warning')
+    # messages.error(request, 'error')
+    return TemplateResponse(request, 'pages/about.html', contexto)
