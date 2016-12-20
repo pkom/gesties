@@ -11,6 +11,7 @@ from reportlab.lib.units import cm
 from reportlab.graphics import shapes
 import labels
 
+from gesties.cursos.models import Curso
 from gesties.grupos.models import CursoGrupoAlumno
 from gesties.configies.models import Configies
 
@@ -88,8 +89,14 @@ class EntradaListin(Flowable):
 @login_required
 def listin_telefonico(request, curso=None, grupo=None):
     if not curso:
-        curso = request.session.get('curso_academico').get('fields').get('slug')
-    alumnos = CursoGrupoAlumno.objects.filter(curso_grupo__curso__slug=curso).order_by('alumno')
+        curso = request.session.get('curso_academico').get('pk')
+    else:
+        curso_qs = Curso.objects.filter(slug=curso)
+        if curso_qs:
+            curso = curso_qs[0].id
+        else:
+            raise Http404
+    alumnos = CursoGrupoAlumno.objects.filter(curso_grupo__curso_id=curso).order_by('alumno')
     if grupo:
         alumnos = alumnos.filter(curso_grupo__grupo__grupo=grupo).order_by('alumno')
     if len(alumnos) == 0:
@@ -129,12 +136,16 @@ def listin_telefonico(request, curso=None, grupo=None):
 @login_required
 def etiquetas_alumnos(request, curso=None, grupo=None):
     if not curso:
-        curso = request.session.get('curso_academico').get('fields').get('slug')
-    alumnos = CursoGrupoAlumno.objects.filter(curso_grupo__curso__slug=curso).order_by('alumno')
+        curso = request.session.get('curso_academico').get('pk')
+    else:
+        curso_qs = Curso.objects.filter(slug=curso)
+        if curso_qs:
+            curso = curso_qs[0].id
+        else:
+            raise Http404
+    alumnos = CursoGrupoAlumno.objects.filter(curso_grupo__curso_id=curso).order_by('alumno')
     if grupo:
         alumnos = alumnos.filter(curso_grupo__grupo__grupo=grupo).order_by('alumno')
-    if len(alumnos) == 0:
-        raise Http404
     if len(alumnos) == 0:
         raise Http404
     # Create the HttpResponse object with the appropriate PDF headers.
