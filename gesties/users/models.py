@@ -8,6 +8,8 @@ from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.html import format_html
 from django.contrib.staticfiles.templatetags.staticfiles import static
+from django.contrib.auth.signals import user_logged_in
+
 
 from gesties.utils.images import fit
 #from django_auth_ldap.backend import populate_user
@@ -26,6 +28,13 @@ from gesties.utils.images import fit
 #    user.save()
 
 #populate_user.connect(update_user)
+
+
+def do_login(sender, user, request, **kwargs):
+    print("Usuario " + user.username + " ha iniciado sesión")
+
+# Activar signal para ejecutar algo cada vez que se hace login
+#user_logged_in.connect(do_login)
 
 
 def upload_to(instance, filename):

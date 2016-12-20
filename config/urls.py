@@ -9,18 +9,18 @@ from django.views.generic import TemplateView
 from django.views import defaults as default_views
 
 from gesties.utils.listados import listin_telefonico, etiquetas_alumnos
-
+from gesties.utils.views import index
 
 urlpatterns = [
-    url(r'^$', TemplateView.as_view(template_name='pages/home.html'), name='home'),
-    url(r'^about/$', TemplateView.as_view(template_name='pages/about.html'), name='about'),
+    url(r'^$', index, name='home'),
+#    url(r'^about/$', login_required(TemplateView.as_view(template_name='pages/about.html')), name='about'),
 
     # Django Admin, use {% url 'admin:index' %}
     url(settings.ADMIN_URL, admin.site.urls),
 
     # User management
     url(r'^users/', include('gesties.users.urls', namespace='users')),
-    url(r'^accounts/', include('allauth.urls')),
+    #url(r'^accounts/', include('allauth.urls')),
 
     # Your stuff: custom urls includes go here
     url(r'^listados/listin/(?P<curso>[0-9])/$', listin_telefonico, name='listin'),

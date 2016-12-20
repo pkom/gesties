@@ -1,0 +1,40 @@
+{% extends "acebase.html" %}
+
+{% block page_header_1 %}Inicio{% endblock %}
+{% block page_header_2 %}Información del sistema{% endblock %}
+
+
+{% block contenido %}
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="widget-box">
+                <div class="widget-header widget-header-flat">
+                    <h4 class="widget-title smaller">Información</h4>
+                </div>
+                <div class="widget-body">
+                    <div class="widget-main">
+                        <dl id="dt-list-1" class="">
+                            <dt>Perfíl del usuari@</dt>
+                                {% if request.session.esResponsable %}
+                                    <dd>Tienes asignado el perfíl de responsable de centro</dd>
+                                {% endif %}
+                                {% if request.session.esJefe %}
+                                    <dd>Tienes asignado el perfíl de jefe del departamento de <strong>{{ request.session.jefatura.nombre_dpto }}</strong></dd>
+                                {% endif %}
+                                {% if request.session.esJefe %}
+                                    <dd>Tienes asignado el perfíl de tutor/a de grupo <strong>{{ request.session.tutoria.nombre_grupo }}</strong></dd>
+                                {% endif %}
+                            <dt>Último inicio de sesión</dt>
+                            <dd>{{ request.user.last_login }}</dd>
+                            <dt>Usuarios con sesiones no caducadas</dt>
+                                {%  for usuario in usuarios %}
+                                    <dd>{{ usuario.get_full_name }}</dd>
+                                {% endfor %}
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+

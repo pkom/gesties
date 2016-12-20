@@ -2,10 +2,15 @@
 from __future__ import absolute_import, unicode_literals
 
 from django.conf.urls import url
+from django.contrib.auth import views as auth_views
 
 from . import views
 
+
 urlpatterns = [
+#    url(r'^login/$', auth_views.login, name='login'),
+    url(r'^login/$', views.Userlogin, name='login'),
+    url(r'^logout/$', auth_views.logout, name='logout'),
     url(
         regex=r'^$',
         view=views.UserListView.as_view(),

@@ -36,9 +36,9 @@ DJANGO_APPS = (
 )
 THIRD_PARTY_APPS = (
     'crispy_forms',  # Form layouts
-    'allauth',  # registration
-    'allauth.account',  # registration
-    'allauth.socialaccount',  # registration
+#    'allauth',  # registration
+#    'allauth.account',  # registration
+#    'allauth.socialaccount',  # registration
 )
 
 # Apps specific for this project go here.
@@ -234,7 +234,7 @@ AUTH_PASSWORD_VALIDATORS = [
 AUTHENTICATION_BACKENDS = (
     'django_auth_ldap.backend.LDAPBackend',
     'django.contrib.auth.backends.ModelBackend',
-    'allauth.account.auth_backends.AuthenticationBackend',
+#    'allauth.account.auth_backends.AuthenticationBackend',
 )
 
 # Some really nice defaults
@@ -249,8 +249,9 @@ SOCIALACCOUNT_ADAPTER = 'gesties.users.adapters.SocialAccountAdapter'
 # Custom user app defaults
 # Select the correct user model
 AUTH_USER_MODEL = 'users.User'
-LOGIN_REDIRECT_URL = 'users:redirect'
-LOGIN_URL = 'account_login'
+LOGIN_REDIRECT_URL = 'home'
+LOGIN_URL = 'users:login'
+LOGOUT_REDIRECT_URL = 'users:login'
 
 # SLUGLIFIER
 AUTOSLUG_SLUGIFY_FUNCTION = 'slugify.slugify'
@@ -261,6 +262,9 @@ ADMIN_URL = r'^admin/'
 
 # Your common stuff: Below this line define 3rd party library settings
 # ------------------------------------------------------------------------------
+# Cierra sesión cuando se cierra el navegador
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+
 # Size for images uploaded
 MAX_WIDTH = 100
 MAX_HEIGHT = 100
