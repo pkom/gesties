@@ -1,0 +1,118 @@
+<title>Inicio - Gesties</title>
+
+<div class="page-header">
+	<h1>
+		Inicio
+		<small>
+			<i class="ace-icon fa fa-angle-double-right"></i>
+			Información del Sistema
+		</small>
+	</h1>
+</div>
+
+
+<div class="row">
+    <div class="widget-box">
+        <div class="widget-header widget-header-flat">
+            <h4 class="widget-title">{{ request.user }} ({{ request.user.dni }})</h4>
+        </div>
+
+        <div class="widget-body">
+            <div class="widget-main">
+                <div class="row">
+                    <div class="col-sm-1">
+                        {{ request.user.foto_html }}
+                    </div>
+                    <div class="col-sm-5">
+                        <ul>
+                            <li>Nombre de usuario: <b>{{ request.user }}</b></li>
+                            <li>Nombre: <b>{{ request.user.first_name }}</b></li>
+                            <li>Apellidos: <b>{{ request.user.last_name }}</b></li>
+                            <li>D.N.I.: <b>{{ request.user.dni }}</b></li>
+                            <li>E-mail: <b>{{ request.user.email }}</b></li>
+                            <li>¿Es usuario de Rayuela?: <b>{% if request.user.es_usuario %}Si{% else %}No{% endif %}</b></li>
+                            <li>Usuario Rayuela: <b>{{ request.user.usuario_rayuela }}</b></li>
+                            <li>Id. Rayuela: <b>{{ request.user.id_usuario }}</b></li>
+                            <li>Alta en el sistema: <b>{{ request.user.date_joined }}</b></li>
+                            <li>Último login: <b>{{ request.user.last_login }}</b></li>
+                            <li>Usuarios con sesiones no caducadas
+                            <ul>
+                            {%  for usuario in usuarios %}
+                                <li>{{ usuario.get_full_name }}</li>
+                            {% endfor %}
+                            </ul>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="col-sm-6">
+                        <ul>
+                            {% if status.es_administrativo %}
+                                <li>
+                                    <b>Es administrativ@ en el centro</b>
+                                </li>
+                            {% endif %}
+                            {% if status.es_responsable %}
+                                <li>
+                                    <b>Es responsable de centro</b>
+                                </li>
+                            {% endif %}
+                            {% if status.es_jefe %}
+                                <li><b>Jefaturas de departamento</b>
+                                    <ul>
+                                        {% for jefatura in status.get_jefaturas %}
+                                            <li>
+                                                {{ jefatura.departamento }}
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                </li>
+                            {% endif %}
+
+                            {% if status.es_tutor %}
+                                <li><b>Tutorías</b>
+                                    <ul>
+                                        {% for tutoria in status.get_tutorias %}
+                                            <li>
+                                                {{ tutoria.grupo }}
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                </li>
+                            {% endif %}
+
+                            {% if status.get_departamentos %}
+                                <li><b>Departamentos</b>
+                                    <ul>
+                                        {% for departamento in status.get_departamentos %}
+                                            <li>
+                                                {{ departamento.curso_departamento.departamento }}
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                </li>
+                            {% endif %}
+
+                            {% if status.get_grupos %}
+                                <li><b>Grupos</b>
+                                    <ul>
+                                        {% for grupo in status.get_grupos %}
+                                            <li>
+                                                {{ grupo.curso_grupo.grupo }}
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                </li>
+                            {% endif %}
+
+
+
+                        </ul>
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

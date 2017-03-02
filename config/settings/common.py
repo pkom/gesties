@@ -46,11 +46,12 @@ LOCAL_APPS = (
     # custom users app
     'gesties.users.apps.UsersConfig',
     # Your stuff: custom apps go here
-    'gesties.cursos.apps.CursosConfig',
-    'gesties.configies.apps.ConfigiesConfig',
     'gesties.alumnos.apps.AlumnosConfig',
-    'gesties.grupos.apps.GruposConfig',
+    'gesties.configies.apps.ConfigiesConfig',
+    'gesties.core.apps.CoreConfig',
+    'gesties.cursos.apps.CursosConfig',
     'gesties.departamentos.apps.DepartamentosConfig',
+    'gesties.grupos.apps.GruposConfig',
     'gesties.rayuela.apps.RayuelaConfig',
 )
 

@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, unicode_literals
 
+from django.core.urlresolvers import reverse
 from django.contrib import admin
 
-from .models import Alumno, Tutor
+from gesties.core.admin import CssAdmin, CursoEnlaceAdmin, AlumnoEnlaceAdmin
+
+from .models import Alumno, CursoAlumno, Tutor
 
 
 class TutoresInline(admin.TabularInline):
@@ -11,26 +14,25 @@ class TutoresInline(admin.TabularInline):
     extra = 2
 
 
-class AlumnoAdmin(admin.ModelAdmin):
-    list_display = 	('nie', 'apellidos', 'nombre', 'fecha_nacimiento', 'foto_html',)
+@admin.register(Alumno)
+class AlumnoAdmin(CssAdmin):
+    list_display = 	('nie', 'apellidos', 'nombre', 'fecha_nacimiento', 'edad', 'foto_html',)
     search_fields = ('apellidos', 'nombre',)
+    readonly_fields = ('edad', )
     inlines = [
         TutoresInline,
     ]
-    class Media:
-        css = {
-            'all': ('css/admin/mi_admin.css',)
-        }
 
 
-class TutorAdmin(admin.ModelAdmin):
+@admin.register(CursoAlumno)
+class CursoAlumnoAdmin(CursoEnlaceAdmin, AlumnoEnlaceAdmin):
+    list_display = ('id', 'curso_link', 'alumno_link', 'edad', 'foto_html',)
+    search_fields = ('alumno__apellidos','alumno__nombre',)
+    readonly_fields = ('edad', )
+    list_filter = ('curso__curso',)
+
+
+@admin.register(Tutor)
+class TutorAdmin(CssAdmin):
     list_display = 	('dni', 'apellidos', 'nombre', 'foto_html',)
     search_fields = ('apellidos', 'nombre',)
-    class Media:
-        css = {
-            'all': ('css/admin/mi_admin.css',)
-        }
-
-
-admin.site.register(Alumno, AlumnoAdmin)
-admin.site.register(Tutor, TutorAdmin)

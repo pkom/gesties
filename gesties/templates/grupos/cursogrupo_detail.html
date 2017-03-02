@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+
+{% block breadcrumbs %}
+    <li>
+        <i class="ace-icon fa fa-suitcase"></i>
+        <a href="{% url 'grupos:list-grupos' %}">Lista de Grupos</a>
+    </li>
+    <li class="active">Detalle del Grupo</li>
+{% endblock %}
+
+{% block page_header_1 %}Grupos{% endblock %}
+{% block page_header_2 %}{{ object.grupo }}{% endblock %}
+
+
+{% block contenido %}
+
+    <div class="row">
+        <div class="widget-box">
+            <div class="widget-header widget-header-flat">
+                <h4 class="widget-title">Grupo <b>{{ object.grupo }}</b> Tutor/a: <b>{% if object.tutor %}{{ object.tutor.profesor }}{% else %}Sin Tutoría Asignada{% endif %}</b></h4>
+            </div>
+
+            <div class="widget-body">
+                <div class="widget-main">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <ul>
+                                <li>Alumnos
+                                    <ul>
+                                        {% for alumno in  object.alumnos.all %}
+                                            <li>
+                                                <a href="{% url 'alumnos:detail-alumno' alumno.curso_alumno.alumno.nie %}">
+                                                    <b>{{ alumno.curso_alumno.alumno }}</b></a>
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="col-sm-6">
+                            <ul>
+                                <li>Profesor@s
+                                    <ul>
+                                        {% for profesor in  object.profesores.all %}
+                                            <li>
+                                                <a href="{% url 'users:detail-profesor' profesor.curso_profesor.profesor.username %}">
+                                                    <b>{{ profesor.curso_profesor.profesor }}</b></a>
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                </li>
+                            </ul>
+
+                        </div>
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+{% endblock %}
+

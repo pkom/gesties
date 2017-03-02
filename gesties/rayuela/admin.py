@@ -8,11 +8,12 @@ import json
 from django.core.files import File
 from django.contrib import admin
 
-from gesties.utils.zip import descomprime
-from gesties.users.models import User
-from gesties.alumnos.models import Alumno, Tutor
+from gesties.core.zip import descomprime
+from gesties.users.models import User, CursoProfesor
+from gesties.alumnos.models import Alumno, CursoAlumno, Tutor
 from gesties.departamentos.models import Departamento, CursoDepartamento, CursoDepartamentoProfesor
 from gesties.grupos.models import Grupo, CursoGrupo, CursoGrupoAlumno, CursoGrupoProfesor
+
 from .models import Rayuela
 
 
@@ -76,9 +77,9 @@ def import_data(modeladmin, request, queryset):
                     self.resultado += u'<li>Se ha creado el profesor %s</li>' % (user)
                 #veamos si existe el profesor en el curso
                 curso = self.queryset[0].curso
-                #cursoprofesor, created = CursoProfesor.objects.get_or_create(profesor=profe, curso=curso)
-                #if created:
-                #    self.resultado += u'<li>Se ha asignado %s al curso %s</li>' % (profe, curso)
+                cursoprofesor, created = CursoProfesor.objects.get_or_create(profesor=user, curso=curso)
+                if created:
+                    self.resultado += u'<li>Se ha asignado %s al curso %s</li>' % (user, curso)
                 if self.departamento:
                     departamento, created = Departamento.objects.get_or_create(departamento=self.departamento)
                     if created:
@@ -88,10 +89,10 @@ def import_data(modeladmin, request, queryset):
                     if created:
                         self.resultado += u'<li>Se ha creado el departamento %s en el curso %s</li>' % (departamento, curso)
                     cursodepartamentoprofesor, created = CursoDepartamentoProfesor.objects.get_or_create(curso_departamento=cursodepartamento,
-                                                                                               profesor=user)
+                                                                                               curso_profesor=cursoprofesor)
                     if created:
                         self.resultado += u'<li>Se ha asignado el profesor %s al departamento %s en el curso %s</li>' %\
-                                        (user, cursodepartamento, curso)
+                                        (cursoprofesor, cursodepartamento, curso)
                 if self.grupos:
                     for grupoit in self.grupos:
                         grupo, created = Grupo.objects.get_or_create(grupo=grupoit)
@@ -101,7 +102,7 @@ def import_data(modeladmin, request, queryset):
                         if created:
                             self.resultado += u'<li>Se ha creado el grupo %s en el curso %s</li>' % (grupo, curso)
                         cursogrupoprofesor, created = CursoGrupoProfesor.objects.get_or_create(curso_grupo=cursogrupo,
-                                                                                    profesor=user)
+                                                                                    curso_profesor=cursoprofesor)
                         if created:
                             self.resultado += u'<li>Se ha asignado el profesor %s al grupo %s en el curso %s</li>' %\
                                             (cursogrupoprofesor, cursogrupo, curso)
@@ -202,8 +203,11 @@ def import_data(modeladmin, request, queryset):
                 self.resultado += u'<ul>Procesando alumno %s' % (alumno)
                 if created:
                     self.resultado += u'<li>Se ha creado el alumno %s</li>' % (alumno)
-                alumno.save()
                 curso = self.queryset[0].curso
+                alumno.save()
+                cursoalumno, created = CursoAlumno.objects.get_or_create(curso=curso, alumno=alumno)
+                if created:
+                    self.resultado += u'<li>Se ha añadido el alumno %s al curso %s</li>' % (alumno, curso)
                 if self.grupo:
                     grupo, created = Grupo.objects.get_or_create(grupo=self.grupo)
                     if created:
@@ -212,10 +216,10 @@ def import_data(modeladmin, request, queryset):
                     if created:
                         self.resultado += u'<li>Se ha creado el grupo %s en el curso %s</li>' % (grupo, curso)
                     cursogrupoalumno, created = CursoGrupoAlumno.objects.get_or_create(curso_grupo=cursogrupo,
-                                                                                alumno=alumno)
+                                                                                curso_alumno=cursoalumno)
                     if created:
                         self.resultado += u'<li>Se ha asignado el alumno %s al grupo %s en el curso %s</li>' %\
-                                        (alumno, cursogrupo, curso)
+                                        (cursoalumno, cursogrupo, curso)
                 self.resultado += u'</ul>'
             elif name == "nie":
                 self.inField = 0

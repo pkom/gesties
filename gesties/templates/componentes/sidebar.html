@@ -1,0 +1,186 @@
+<div id="sidebar" class="sidebar                  responsive                    ace-save-state">
+    <script type="text/javascript">
+        try{ace.settings.loadState('sidebar')}catch(e){}
+    </script>
+
+    <ul class="nav nav-list">
+        <li class="">
+            <a href="{% url 'home' %}">
+                <i class="menu-icon fa fa-home"></i>
+                <span class="menu-text"> Inicio </span>
+            </a>
+
+            <b class="arrow"></b>
+        </li>
+
+        <li class={% if mdatos %}"active open"{% else %}""{% endif %}>
+            <a href="#" class="dropdown-toggle">
+                <i class="menu-icon fa fa-book"></i>
+                <span class="menu-text">
+                    Datos Centro
+                </span>
+
+                <b class="arrow fa fa-angle-down"></b>
+            </a>
+
+            <b class="arrow"></b>
+
+            <ul class="submenu">
+                <li class={% if malumnos %}"active"{% else %}""{% endif %}>
+                    <a href="{% url 'alumnos:list-alumnos' %}">
+                        <i class="menu-icon fa fa-caret-right"></i>
+                        Alumn@s
+                    </a>
+                    <b class="arrow"></b>
+                </li>
+
+                <li class={% if malumnos %}"active"{% else %}""{% endif %}>
+                    <a id="js-load-alumnos" data-url="{% url 'alumnos:carga_alumnos' %}" href="#">
+                        <i class="menu-icon fa fa-caret-right"></i>
+                        Alumn@s vía AJAX
+                    </a>
+                    <b class="arrow"></b>
+                </li>
+
+
+                <li class={% if mprofesores %}"active"{% else %}""{% endif %}>
+                    <a href="{% url 'users:list-profesores' %}">
+                        <i class="menu-icon fa fa-caret-right"></i>
+                        Profesor@s
+                    </a>
+
+                    <b class="arrow"></b>
+                </li>
+
+                <li class={% if mgrupos %}"active"{% else %}""{% endif %}>
+                    <a href="{% url 'grupos:list-grupos' %}">
+                        <i class="menu-icon fa fa-caret-right"></i>
+                        Grupos
+                    </a>
+
+                    <b class="arrow"></b>
+                </li>
+
+                <li class={% if mdepartamentos %}"active"{% else %}""{% endif %}>
+                    <a href="{% url 'departamentos:list-departamentos' %}">
+                        <i class="menu-icon fa fa-caret-right"></i>
+                        Departamentos
+                    </a>
+
+                    <b class="arrow"></b>
+                </li>
+
+                <li class={% if mtutores %}"active"{% else %}""{% endif %}>
+                    <a href="{% url 'alumnos:list-tutores' %}">
+                        <i class="menu-icon fa fa-caret-right"></i>
+                        Tutores
+                    </a>
+
+                    <b class="arrow"></b>
+                </li>
+
+
+            </ul>
+        </li>
+
+
+        <li class="">
+            <a href="#" class="dropdown-toggle">
+                <i class="menu-icon fa fa-suitcase"></i>
+                <span class="menu-text">
+                    Partes Profesor/a
+                </span>
+
+                <b class="arrow fa fa-angle-down"></b>
+            </a>
+
+            <b class="arrow"></b>
+
+            <ul class="submenu">
+                <li class="">
+                    <a href="#">
+                        <i class="menu-icon fa fa-caret-right"></i>
+                        Disciplinarios
+                    </a>
+
+                    <b class="arrow"></b>
+                </li>
+
+                <li class="">
+                    <a href="#">
+                        <i class="menu-icon fa fa-caret-right"></i>
+                        Retrasos
+                    </a>
+
+                    <b class="arrow"></b>
+                </li>
+
+                <li class="">
+                    <a href="#">
+                        <i class="menu-icon fa fa-caret-right"></i>
+                        Absentismo
+                    </a>
+
+                    <b class="arrow"></b>
+                </li>
+
+            </ul>
+        </li>
+
+        <li class="">
+            <a href="#" class="dropdown-toggle">
+                <i class="menu-icon fa fa-suitcase"></i>
+                <span class="menu-text">
+                    Partes Tutoría
+                </span>
+
+                <b class="arrow fa fa-angle-down"></b>
+            </a>
+
+            <b class="arrow"></b>
+
+            <ul class="submenu">
+                <li class="">
+                    <a href="#">
+                        <i class="menu-icon fa fa-caret-right"></i>
+                        Disciplinarios
+                    </a>
+
+                    <b class="arrow"></b>
+                </li>
+
+                <li class="">
+                    <a href="#">
+                        <i class="menu-icon fa fa-caret-right"></i>
+                        Retrasos
+                    </a>
+
+                    <b class="arrow"></b>
+                </li>
+
+                <li class="">
+                    <a href="#">
+                        <i class="menu-icon fa fa-caret-right"></i>
+                        Absentismo
+                    </a>
+
+                    <b class="arrow"></b>
+                </li>
+
+            </ul>
+        </li>
+
+
+
+
+
+
+    </ul><!-- /.nav-list -->
+
+    <!-- #section:basics/sidebar.layout.minimize -->
+    <div class="sidebar-toggle sidebar-collapse" id="sidebar-collapse">
+        <i id="sidebar-toggle-icon" class="ace-icon fa fa-angle-double-left ace-save-state" data-icon1="ace-icon fa fa-angle-double-left" data-icon2="ace-icon fa fa-angle-double-right"></i>
+    </div>
+
+    <!-- /section:basics/sidebar.layout.minimize -->
+</div>

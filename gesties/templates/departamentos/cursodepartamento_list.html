@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+
+{% block breadcrumbs %}
+    <li class="active">Lista de Departamentos</li>
+{% endblock %}
+
+
+{% block page_header_1 %}Departamentos{% endblock %}
+{% block page_header_2 %}Lista de departamentos{% endblock %}
+
+{% block contenido %}
+
+    {% if is_paginated %}
+        <div class="pagination">
+            <span class="page-links">
+                {% if page_obj.has_previous %}
+                    <a href="{% url 'departamentos:list-departamentos' %}{% if request.GET.q %}?q={{ request.GET.q }}&{% else %}?{% endif %}page={{ page_obj.previous_page_number }}">Anterior</a>
+                {% endif %}
+                <span class="page-current">
+                    Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+                </span>
+                {% if page_obj.has_next %}
+                    <a href="{% url 'departamentos:list-departamentos' %}{% if request.GET.q %}?q={{ request.GET.q }}&{% else %}?{% endif %}page={{ page_obj.next_page_number }}">Siguiente</a>
+                {% endif %}
+            </span>
+        </div>
+    {% endif %}
+
+
+
+    <table id="simple-table" class="table  table-bordered table-hover">
+        <thead>
+            <tr>
+                <th>Departamento</th>
+                <th>Descripción</th>
+            </tr>
+        </thead>
+		<tbody>
+            {% for departamento in object_list %}
+                <tr>
+                    <td>
+                        <a href="{% url 'departamentos:detail-departamento' departamento.id %}"><b>{{ departamento.departamento }}</b></a>
+                    </td>
+    				<td>
+                        {{ departamento.descripcion }}
+					</td>
+				</tr>
+            {% endfor %}
+		</tbody>
+	</table>
+{% endblock %}
+

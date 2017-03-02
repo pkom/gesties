@@ -1,0 +1,15 @@
+{% if is_paginated %}
+    <div class="pagination">
+        <span class="page-links">
+            {% if qs.has_previous %}
+                <a id="previoalumno" href="#" data-url="{% url 'alumnos:carga_alumnos_parcial' %}{% if request.GET.q %}?q={{ request.GET.q }}&{% else %}?{% endif %}page={{ qs.previous_page_number }}">Anterior</a>
+            {% endif %}
+            <span class="page-current">
+                Página {{ qs.number }} de {{ qs.paginator.num_pages }}
+            </span>
+            {% if qs.has_next %}
+                <a id="siguealumno" href="#" data-url="{% url 'alumnos:carga_alumnos_parcial' %}{% if request.GET.q %}?q={{ request.GET.q }}&{% else %}?{% endif %}page={{ qs.next_page_number }}">Siguiente</a>
+            {% endif %}
+        </span>
+    </div>
+{% endif %}

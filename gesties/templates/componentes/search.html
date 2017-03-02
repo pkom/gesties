@@ -1,0 +1,10 @@
+<!-- #section:basics/content.searchbox -->
+<div class="nav-search" id="nav-search">
+    <form class="form-search" method='GET' action="{% if url %}{{ url }}{% else %}#{% endif %}">
+        <span class="input-icon">
+            <input type="text" placeholder="Búsqueda ..." class="nav-search-input" autocomplete="off"
+                   value="{{ cadena }}" name="q"/>
+            <i class="ace-icon fa fa-search nav-search-icon"></i>
+        </span>
+    </form>
+</div><!-- /.nav-search -->

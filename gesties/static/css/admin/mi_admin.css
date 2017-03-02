@@ -4,7 +4,7 @@
 }
 
 /* alumnos*/
-.field-nie, .field-apellidos, .field-nombre, .field-fecha_nacimiento, .field-first_name, .action-checkbox {
+.field-nie, .field-apellidos, .field-nombre, .field-fecha_nacimiento, .field-first_name, .field-edad, .action-checkbox {
   vertical-align: middle;
 }
 
@@ -13,8 +13,10 @@
   vertical-align: middle;
 }
 
-/* admin CursoGrupoAlumno y CursoGrupoProfesor */
-.field-curso_grupo, .field-alumno, .field-profesor {
+/* admin CursoAlumno, CursoProfesor, CursoGrupoAlumno y CursoGrupoProfesor */
+.field-curso_link, .field-alumno_link, .field-id, .field-alumno, .field-grupo_link, .field-curso_grupo_link,
+.field-curso, .field-curso_alumno_link, .field-curso_grupo, .field-curso_alumno, .field-profesor, .field-profesor_link,
+.field-curso_profesor_link, .field-curso_departamento_link {
   vertical-align: middle;
 }
 

@@ -1,40 +1,114 @@
-{% extends "acebase.html" %}
+{% extends "base.html" %}
 
 {% block page_header_1 %}Inicio{% endblock %}
 {% block page_header_2 %}Información del sistema{% endblock %}
 
 
 {% block contenido %}
+
     <div class="row">
-        <div class="col-xs-12">
-            <div class="widget-box">
-                <div class="widget-header widget-header-flat">
-                    <h4 class="widget-title smaller">Información</h4>
-                </div>
-                <div class="widget-body">
-                    <div class="widget-main">
-                        <dl id="dt-list-1" class="">
-                            <dt>Perfíl del usuari@</dt>
-                                {% if request.session.esResponsable %}
-                                    <dd>Tienes asignado el perfíl de responsable de centro</dd>
-                                {% endif %}
-                                {% if request.session.esJefe %}
-                                    <dd>Tienes asignado el perfíl de jefe del departamento de <strong>{{ request.session.jefatura.nombre_dpto }}</strong></dd>
-                                {% endif %}
-                                {% if request.session.esJefe %}
-                                    <dd>Tienes asignado el perfíl de tutor/a de grupo <strong>{{ request.session.tutoria.nombre_grupo }}</strong></dd>
-                                {% endif %}
-                            <dt>Último inicio de sesión</dt>
-                            <dd>{{ request.user.last_login }}</dd>
-                            <dt>Usuarios con sesiones no caducadas</dt>
+        <div class="widget-box">
+            <div class="widget-header widget-header-flat">
+                <h4 class="widget-title">{{ request.user }} ({{ request.user.dni }})</h4>
+            </div>
+
+            <div class="widget-body">
+                <div class="widget-main">
+                    <div class="row">
+                        <div class="col-sm-1">
+                            {{ request.user.foto_html }}
+                        </div>
+                        <div class="col-sm-5">
+                            <ul>
+                                <li>Nombre de usuario: <b>{{ request.user }}</b></li>
+                                <li>Nombre: <b>{{ request.user.first_name }}</b></li>
+                                <li>Apellidos: <b>{{ request.user.last_name }}</b></li>
+                                <li>D.N.I.: <b>{{ request.user.dni }}</b></li>
+                                <li>E-mail: <b>{{ request.user.email }}</b></li>
+                                <li>¿Es usuario de Rayuela?: <b>{% if request.user.es_usuario %}Si{% else %}No{% endif %}</b></li>
+                                <li>Usuario Rayuela: <b>{{ request.user.usuario_rayuela }}</b></li>
+                                <li>Id. Rayuela: <b>{{ request.user.id_usuario }}</b></li>
+                                <li>Alta en el sistema: <b>{{ request.user.date_joined }}</b></li>
+                                <li>Último login: <b>{{ request.user.last_login }}</b></li>
+                                <li>Usuarios con sesiones no caducadas
+                                <ul>
                                 {%  for usuario in usuarios %}
-                                    <dd>{{ usuario.get_full_name }}</dd>
+                                    <li>{{ usuario.get_full_name }}</li>
                                 {% endfor %}
-                        </dl>
+                                </ul>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="col-sm-6">
+                            <ul>
+                                {% if status.es_administrativo %}
+                                    <li>
+                                        <b>Es administrativ@ en el centro</b>
+                                    </li>
+                                {% endif %}
+                                {% if status.es_responsable %}
+                                    <li>
+                                        <b>Es responsable de centro</b>
+                                    </li>
+                                {% endif %}
+                                {% if status.es_jefe %}
+                                    <li><b>Jefaturas de departamento</b>
+                                        <ul>
+                                            {% for jefatura in status.get_jefaturas %}
+                                                <li>
+                                                    {{ jefatura.departamento }}
+                                                </li>
+                                            {% endfor %}
+                                        </ul>
+                                    </li>
+                                {% endif %}
+
+                                {% if status.es_tutor %}
+                                    <li><b>Tutorías</b>
+                                        <ul>
+                                            {% for tutoria in status.get_tutorias %}
+                                                <li>
+                                                    {{ tutoria.grupo }}
+                                                </li>
+                                            {% endfor %}
+                                        </ul>
+                                    </li>
+                                {% endif %}
+
+                                {% if status.get_departamentos %}
+                                    <li><b>Departamentos</b>
+                                        <ul>
+                                            {% for departamento in status.get_departamentos %}
+                                                <li>
+                                                    {{ departamento.curso_departamento.departamento }}
+                                                </li>
+                                            {% endfor %}
+                                        </ul>
+                                    </li>
+                                {% endif %}
+
+                                {% if status.get_grupos %}
+                                    <li><b>Grupos</b>
+                                        <ul>
+                                            {% for grupo in status.get_grupos %}
+                                                <li>
+                                                    {{ grupo.curso_grupo.grupo }}
+                                                </li>
+                                            {% endfor %}
+                                        </ul>
+                                    </li>
+                                {% endif %}
+
+
+
+                            </ul>
+                        </div>
+
+
                     </div>
                 </div>
             </div>
         </div>
     </div>
 {% endblock %}
-

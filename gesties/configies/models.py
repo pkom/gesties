@@ -7,7 +7,7 @@ from django.db import models
 from django.utils.html import format_html
 from model_utils.models import TimeStampedModel
 
-from gesties.utils.images import fit
+from gesties.core.images import fit
 from gesties.cursos.models import Curso
 
 @python_2_unicode_compatible

@@ -1,0 +1,566 @@
+{% load staticfiles i18n %}
+
+<title>Alumnos - Gesties</title>
+
+
+<div class="page-header">
+	<h1>
+		Datos Personales
+		<small>
+			<i class="ace-icon fa fa-angle-double-right"></i>
+			Relación de Alumn@s
+		</small>
+	</h1>
+</div>
+
+
+<div class="col-xs-12">
+<!-- #section:basics/content.searchbox -->
+    <div class="nav-search" id="nav-search">
+        <form class="form-search js-search-alumnos" method='GET' action='#' data-url="{% url 'core:carga_alumnos_json' %}">
+            <span class="input-icon">
+                <input type="text" placeholder="Búsqueda ..." class="nav-search-input js-alumnos-buscar" autocomplete="off"
+                       value="" name="q"/>
+                <i class="ace-icon fa fa-search nav-search-icon"></i>
+            </span>
+        </form>
+    </div><!-- /.nav-search -->
+</div>
+
+
+
+
+
+<div class="row">
+    <div class="col-xs-12">
+        <div class="table-header">
+            Alumn@s Matriculados
+        </div>
+        <div>
+            <table id="alumnos-table-p" class="table table-striped table-bordered table-hover dataTable no-footer" role="grid" aria-describedby="alumnos-table-p_info">
+                <thead>
+                    <tr role="row">
+                        <th class="sorting_disabled" tabindex="0" aria-controls="alumnos-table" rowspan="1" colspan="1" aria-label="Domain: activate to sort column ascending">Foto</th>
+                        <th class="sorting" tabindex="0" aria-controls="alumnos-table" rowspan="1" colspan="1" aria-label="Price: activate to sort column ascending">Alumn@</th>
+                        <th class="hidden-480 sorting" tabindex="0" aria-controls="alumnos-table" rowspan="1" colspan="1" aria-label="Clicks: activate to sort column ascending">Fecha de Nacimiento</th>
+                        <th class="hidden-480 sorting_disabled" tabindex="0" aria-controls="alumnos-table" rowspan="1" colspan="1" aria-label="Clicks: activate to sort column ascending">Edad</th>
+                        <th class="sorting_disabled" tabindex="0" aria-controls="alumnos-table" rowspan="1" colspan="1" aria-label="Update: activate to sort column ascending">
+                            <i class="ace-icon fa fa-clock-o bigger-110 hidden-480"></i>
+                            Teléfonos
+                        </th>
+                        <th class="sorting_disabled" rowspan="1" colspan="1" aria-label=""></th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="row">
+    <div class="col-xs-12">
+        <div class="table-header">
+            Alumn@s Matriculados
+        </div>
+        <div>
+            <div id="alumnos-table_wrapper" class="dataTables_wrapper form-inline no-footer">
+                <div class="row">
+                    <div class="col-xs-6">
+                        <div class="dataTables_length" id="alumnos-table_length">
+                            <label>Mostrar
+                                <select name="alumnos-table_length" aria-controls="alumnos-table" class="form-control input-sm">
+                                    <option value="5">5</option>
+                                    <option value="10">10</option>
+                                    <option value="20">20</option>
+                                    <option value="100">100</option>
+                                </select> registros
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-xs-6">
+                        <div id="alumnos-table_filter" class="dataTables_filter">
+                            <label>Buscar:
+                                <input class="form-control input-sm js-alumnos-buscar" placeholder="" aria-controls="alumnos-table" type="search">
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <table id="alumnos-table" class="table table-striped table-bordered table-hover dataTable no-footer" role="grid" aria-describedby="alumnos-table_info">
+                    <thead>
+                        <tr role="row">
+                            <th class="sorting_disabled" tabindex="0" aria-controls="alumnos-table" rowspan="1" colspan="1" aria-label="Domain: activate to sort column ascending">Foto</th>
+                            <th class="sorting" tabindex="0" aria-controls="alumnos-table" rowspan="1" colspan="1" aria-label="Price: activate to sort column ascending">Alumn@</th>
+                            <th class="hidden-480 sorting" tabindex="0" aria-controls="alumnos-table" rowspan="1" colspan="1" aria-label="Clicks: activate to sort column ascending">Fecha de Nacimiento</th>
+                            <th class="hidden-480 sorting_disabled" tabindex="0" aria-controls="alumnos-table" rowspan="1" colspan="1" aria-label="Clicks: activate to sort column ascending">Edad</th>
+                            <th class="sorting_disabled" tabindex="0" aria-controls="alumnos-table" rowspan="1" colspan="1" aria-label="Update: activate to sort column ascending">
+                                <i class="ace-icon fa fa-clock-o bigger-110 hidden-480"></i>
+                                Teléfonos
+                            </th>
+                            <th class="sorting_disabled" rowspan="1" colspan="1" aria-label=""></th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for alumno in qs.object_list %}
+
+                            <tr role="row" class="{% cycle 'odd' 'even' %}">
+                                <td>
+                                    {{ alumno.alumno.foto_html }}
+                                </td>
+                                <td>
+                                    <a href="{% url 'alumnos:detail-alumno' alumno.alumno.nie %}">{{ alumno.alumno }}</a>
+                                </td>
+                                <td class="hidden-480">
+                                    {{ alumno.alumno.fecha_nacimiento }}
+                                </td>
+                                <td class="hidden-480">
+                                    {{ alumno.alumno.fecha_nacimiento|timesince }}
+                                </td>
+
+                                <td>
+                                    <strong>
+                                        {{ alumno.alumno.telefono }}
+                                    </strong>
+                                </td>
+                                <td>
+                                    <div class="hidden-sm hidden-xs action-buttons">
+                                        <a class="blue" href="#">
+                                            <i class="ace-icon fa fa-search-plus bigger-130"></i>
+                                        </a>
+
+                                        <a class="green" href="#">
+                                            <i class="ace-icon fa fa-pencil bigger-130"></i>
+                                        </a>
+
+                                        <a class="red" href="#">
+                                            <i class="ace-icon fa fa-trash-o bigger-130"></i>
+                                        </a>
+                                    </div>
+
+                                    <div class="hidden-md hidden-lg">
+                                        <div class="inline pos-rel">
+                                            <button class="btn btn-minier btn-yellow dropdown-toggle" data-toggle="dropdown" data-position="auto">
+                                                <i class="ace-icon fa fa-caret-down icon-only bigger-120"></i>
+                                            </button>
+
+                                            <ul class="dropdown-menu dropdown-only-icon dropdown-yellow dropdown-menu-right dropdown-caret dropdown-close">
+                                                <li>
+                                                    <a href="#" class="tooltip-info" data-rel="tooltip" title="" data-original-title="View">
+                                                        <span class="blue">
+                                                            <i class="ace-icon fa fa-search-plus bigger-120"></i>
+                                                        </span>
+                                                    </a>
+                                                </li>
+
+                                                <li>
+                                                    <a href="#" class="tooltip-success" data-rel="tooltip" title="" data-original-title="Edit">
+                                                        <span class="green">
+                                                            <i class="ace-icon fa fa-pencil-square-o bigger-120"></i>
+                                                        </span>
+                                                    </a>
+                                                </li>
+
+                                                <li>
+                                                    <a href="#" class="tooltip-error" data-rel="tooltip" title="" data-original-title="Delete">
+                                                        <span class="red">
+                                                            <i class="ace-icon fa fa-trash-o bigger-120"></i>
+                                                        </span>
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <div class="row">
+                    <div class="col-xs-6">
+                        <div class="dataTables_info" id="alumnos-table_info" role="status" aria-live="polite">
+                            Mostrando 1 a 10 de 23 entradas
+                        </div>
+                    </div>
+                    <div class="col-xs-6">
+                        <div class="dataTables_paginate paging_simple_numbers" id="alumnos-table_paginate">
+                            <ul class="pagination">
+                                <li class="paginate_button previous disabled" aria-controls="alumnos-table" tabindex="0" id="alumnos-table_previous">
+                                    <a href="#">Anterior</a>
+                                </li>
+                                <li class="paginate_button active" aria-controls="alumnos-table" tabindex="0">
+                                    <a href="#">1</a>
+                                </li>
+                                <li class="paginate_button " aria-controls="alumnos-table" tabindex="0">
+                                    <a href="#">2</a></li>
+                                <li class="paginate_button " aria-controls="alumnos-table" tabindex="0">
+                                    <a href="#">3</a>
+                                </li>
+                                <li class="paginate_button next" aria-controls="alumnos-table" tabindex="0" id="alumnos-table_next">
+                                    <a href="#">Siguiente</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+{% if is_paginated %}
+    <div class="pagination">
+        <span class="page-links">
+            {% if qs.has_previous %}
+                <a class="js-alumnos-anterior" data-url="{% url 'core:carga_alumnos_json' %}{% if request.GET.q %}?q={{ request.GET.q }}&{% else %}?{% endif %}page={{ qs.previous_page_number }}" href="#">Anterior</a>
+            {% endif %}
+            <span class="page-current">
+                Página {{ qs.number }} de {{ qs.paginator.num_pages }}
+            </span>
+            {% if qs.has_next %}
+                <a class="js-alumnos-siguiente" data-url="{% url 'core:carga_alumnos_json' %}{% if request.GET.q %}?q={{ request.GET.q }}&{% else %}?{% endif %}page={{ qs.next_page_number }}" href="#">Siguiente</a>
+            {% endif %}
+        </span>
+    </div>
+{% endif %}
+
+
+<table id="alumnos-table" class="table  table-bordered table-hover">
+    <thead>
+        <tr>
+            <th>Foto</th>
+            <th>Alumn@</th>
+            <th>Edad</th>
+            <th>Teléfonos</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+
+        {% include 'partials/alumnos/partial_alumno_list.html' %}
+
+    </tbody>
+</table>
+
+
+<script type="text/javascript">
+    var scripts = [null,
+        "{% static 'ace/components/datatables/media/js/jquery.dataTables.js'%}",
+        "{% static 'ace/components/_mod/datatables/jquery.dataTables.bootstrap.js' %}",
+        "{% static 'ace/components/datatables.net-buttons/js/dataTables.buttons.js' %}",
+        "{% static 'ace/components/datatables.net-buttons/js/buttons.flash.js' %}",
+        "{% static 'ace/components/datatables.net-buttons/js/buttons.html5.js' %}",
+        "{% static 'ace/components/datatables.net-buttons/js/buttons.print.js' %}",
+        "{% static 'ace/components/datatables.net-buttons/js/buttons.colVis.js' %}",
+        "{% static 'ace/components/datatables.net-select/js/dataTables.select.js' %}",
+        null]
+    $('.page-content-area').ace_ajax('loadScripts', scripts, function() {
+        var carga_alumnos = function (event){
+            event.preventDefault();
+            var a = $(this);
+            buscar = $('.js-alumnos-buscar').val();
+            if (buscar != "") {
+                url = a.attr("data-url")+"?q="+buscar;
+            } else {
+                url = a.attr("data-url");
+            };
+            $.ajax({
+                url: url,
+                type: 'get',
+                dataType: 'json',
+                success: function (data) {
+                    $(".page-content-area").html(data.html);
+                    if (buscar != "") {
+                        $('.js-alumnos-buscar').val(buscar);
+                    }
+                }
+            });
+        };
+        $(".js-alumnos-anterior").click(carga_alumnos);
+        $(".js-alumnos-siguiente").click(carga_alumnos);
+        $(".js-search-alumnos").submit(carga_alumnos);
+
+        jQuery(function($) {
+		    //initiate dataTables plugin
+		    var myTable =
+		    $('#alumnos-table-p')
+		        //.wrap("<div class='dataTables_borderWrap' />")   //if you are applying horizontal scrolling (sScrollX)
+		    .DataTable( {
+			    bAutoWidth: false,
+			    "aoColumns": [
+			        { "bSortable": false },
+                    { "bSortable": true },
+                    { "bSortable": true },
+                    { "bSortable": false },
+                    { "bSortable": false },
+                    null,
+			    ],
+			    "aaSorting": [],
+                "bProcessing": true,
+	            "bServerSide": true,
+	            "sAjaxSource": "{% url 'core:carga_alumnos_datatables' %}",
+                "language": {
+                    "decimal":        "",
+                    "emptyTable":     "No hay datos disponibles",
+                    "info":           "Mostrando de _START_ a _END_ de _TOTAL_ registros",
+                    "infoEmpty":      "Mostrando de 0 a 0 de 0 registros",
+                    "infoFiltered":   "(filtrados de _MAX_ registros)",
+                    "infoPostFix":    "",
+                    "thousands":      ",",
+                    "lengthMenu":     "Mostrando _MENU_ registros",
+                    "loadingRecords": "Cargando...",
+                    "processing":     "Procesando...",
+                    "search":         "Buscar:",
+                    "zeroRecords":    "No se encuentran coincidencias",
+                    "paginate": {
+                        "first":      "Primero",
+                        "last":       "Último",
+                        "next":       "Siguiente",
+                        "previous":   "Anterior"
+                    },
+                    "aria": {
+                        "sortAscending":  ": activa para ordenar columna ascendente",
+                        "sortDescending": ": activa para ordenar columna descendente"
+                    }
+                },
+                lengthMenu: [5, 10, 20, -1],
+			//,
+			//"sScrollY": "200px",
+            // "bPaginate": true,
+
+			//"sScrollX": "100%",
+			//"sScrollXInner": "120%",
+			//"bScrollCollapse": true,
+			//Note: if you are applying horizontal scrolling (sScrollX) on a ".table-bordered"
+			//you may want to wrap the table inside a "div.dataTables_borderWrap" element
+
+			//"iDisplayLength": 50
+
+
+			select: {
+				style: 'multi'
+			}
+	    } );
+
+
+
+		$.fn.dataTable.Buttons.swfPath = "../../components/datatables.net-buttons-swf/index.swf"; //in Ace demo ../../components will be replaced by correct assets path
+		$.fn.dataTable.Buttons.defaults.dom.container.className = 'dt-buttons btn-overlap btn-group btn-overlap';
+
+		new $.fn.dataTable.Buttons( myTable, {
+			buttons: [
+			  {
+				"extend": "colvis",
+				"text": "<i class='fa fa-search bigger-110 blue'></i> <span class='hidden'>Show/hide columns</span>",
+				"className": "btn btn-white btn-primary btn-bold",
+				columns: ':not(:first):not(:last)'
+			  },
+			  {
+				"extend": "copy",
+				"text": "<i class='fa fa-copy bigger-110 pink'></i> <span class='hidden'>Copy to clipboard</span>",
+				"className": "btn btn-white btn-primary btn-bold"
+			  },
+			  {
+				"extend": "csv",
+				"text": "<i class='fa fa-database bigger-110 orange'></i> <span class='hidden'>Export to CSV</span>",
+				"className": "btn btn-white btn-primary btn-bold"
+			  },
+			  {
+				"extend": "excel",
+				"text": "<i class='fa fa-file-excel-o bigger-110 green'></i> <span class='hidden'>Export to Excel</span>",
+				"className": "btn btn-white btn-primary btn-bold"
+			  },
+			  {
+				"extend": "pdf",
+				"text": "<i class='fa fa-file-pdf-o bigger-110 red'></i> <span class='hidden'>Export to PDF</span>",
+				"className": "btn btn-white btn-primary btn-bold"
+			  },
+			  {
+				"extend": "print",
+				"text": "<i class='fa fa-print bigger-110 grey'></i> <span class='hidden'>Print</span>",
+				"className": "btn btn-white btn-primary btn-bold",
+				autoPrint: false,
+				message: 'This print was produced using the Print button for DataTables'
+			  }
+			]
+		} );
+		myTable.buttons().container().appendTo( $('.tableTools-container') );
+
+		//style the message box
+		var defaultCopyAction = myTable.button(1).action();
+		myTable.button(1).action(function (e, dt, button, config) {
+			defaultCopyAction(e, dt, button, config);
+			$('.dt-button-info').addClass('gritter-item-wrapper gritter-info gritter-center white');
+		});
+
+
+		var defaultColvisAction = myTable.button(0).action();
+		myTable.button(0).action(function (e, dt, button, config) {
+
+			defaultColvisAction(e, dt, button, config);
+
+
+			if($('.dt-button-collection > .dropdown-menu').length == 0) {
+				$('.dt-button-collection')
+				.wrapInner('<ul class="dropdown-menu dropdown-light dropdown-caret dropdown-caret" />')
+				.find('a').attr('href', '#').wrap("<li />")
+			}
+			$('.dt-button-collection').appendTo('.tableTools-container .dt-buttons')
+		});
+
+		////
+
+		setTimeout(function() {
+			$($('.tableTools-container')).find('a.dt-button').each(function() {
+				var div = $(this).find(' > div').first();
+				if(div.length == 1) div.tooltip({container: 'body', title: div.parent().text()});
+				else $(this).tooltip({container: 'body', title: $(this).text()});
+			});
+		}, 500);
+
+
+
+
+
+		myTable.on( 'select', function ( e, dt, type, index ) {
+			if ( type === 'row' ) {
+				$( myTable.row( index ).node() ).find('input:checkbox').prop('checked', true);
+			}
+		} );
+		myTable.on( 'deselect', function ( e, dt, type, index ) {
+			if ( type === 'row' ) {
+				$( myTable.row( index ).node() ).find('input:checkbox').prop('checked', false);
+			}
+		} );
+
+
+
+
+		/////////////////////////////////
+		//table checkboxes
+		$('th input[type=checkbox], td input[type=checkbox]').prop('checked', false);
+
+		//select/deselect all rows according to table header checkbox
+		$('#alumnos-table-p > thead > tr > th input[type=checkbox], #dynamic-table_wrapper input[type=checkbox]').eq(0).on('click', function(){
+			var th_checked = this.checked;//checkbox inside "TH" table header
+
+			$('#alumnos-table-p').find('tbody > tr').each(function(){
+				var row = this;
+				if(th_checked) myTable.row(row).select();
+				else  myTable.row(row).deselect();
+			});
+		});
+
+		//select/deselect a row when the checkbox is checked/unchecked
+		$('#alumnos-table-p').on('click', 'td input[type=checkbox]' , function(){
+			var row = $(this).closest('tr').get(0);
+			if(this.checked) myTable.row(row).deselect();
+			else myTable.row(row).select();
+		});
+
+
+
+		$(document).on('click', '#alumnos-table-p .dropdown-toggle', function(e) {
+			e.stopImmediatePropagation();
+			e.stopPropagation();
+			e.preventDefault();
+		});
+
+
+
+		//And for the first simple table, which doesn't have TableTools or dataTables
+		//select/deselect all rows according to table header checkbox
+		var active_class = 'active';
+		$('#alumnos-table-p > thead > tr > th input[type=checkbox]').eq(0).on('click', function(){
+			var th_checked = this.checked;//checkbox inside "TH" table header
+
+			$(this).closest('table').find('tbody > tr').each(function(){
+				var row = this;
+				if(th_checked) $(row).addClass(active_class).find('input[type=checkbox]').eq(0).prop('checked', true);
+				else $(row).removeClass(active_class).find('input[type=checkbox]').eq(0).prop('checked', false);
+			});
+		});
+
+		//select/deselect a row when the checkbox is checked/unchecked
+		$('#alumnos-table-p').on('click', 'td input[type=checkbox]' , function(){
+			var $row = $(this).closest('tr');
+			if($row.is('.detail-row ')) return;
+			if(this.checked) $row.addClass(active_class);
+			else $row.removeClass(active_class);
+		});
+
+
+
+		/********************************/
+		//add tooltip for small view action buttons in dropdown menu
+		$('[data-rel="tooltip"]').tooltip({placement: tooltip_placement});
+
+		//tooltip placement on right or left
+		function tooltip_placement(context, source) {
+			var $source = $(source);
+			var $parent = $source.closest('table')
+			var off1 = $parent.offset();
+			var w1 = $parent.width();
+
+			var off2 = $source.offset();
+			//var w2 = $source.width();
+
+			if( parseInt(off2.left) < parseInt(off1.left) + parseInt(w1 / 2) ) return 'right';
+			return 'left';
+		}
+
+
+
+
+		/***************/
+		$('.show-details-btn').on('click', function(e) {
+			e.preventDefault();
+			$(this).closest('tr').next().toggleClass('open');
+			$(this).find(ace.vars['.icon']).toggleClass('fa-angle-double-down').toggleClass('fa-angle-double-up');
+		});
+		/***************/
+
+
+
+
+
+		/**
+		//add horizontal scrollbars to a simple table
+		$('#simple-table').css({'width':'2000px', 'max-width': 'none'}).wrap('<div style="width: 1000px;" />').parent().ace_scroll(
+		  {
+			horizontal: true,
+			styleClass: 'scroll-top scroll-dark scroll-visible',//show the scrollbars on top(default is bottom)
+			size: 2000,
+			mouseWheelLock: true
+		  }
+		).css('padding-top', '12px');
+		*/
+
+
+	});
+
+
+
+
+
+
+
+ });
+ </script>

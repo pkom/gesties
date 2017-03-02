@@ -5,8 +5,8 @@ from django import forms
 from django.contrib.auth.forms import AuthenticationForm
 
 from gesties.cursos.models import Curso
-from gesties.departamentos.models import CursoDepartamentoProfesor
-from gesties.configies.models import Configies
+
+from .models import CursoProfesor
 
 
 class AutenticacionForm(AuthenticationForm):
@@ -46,12 +46,12 @@ class AutenticacionForm(AuthenticationForm):
                 self.error_messages['inactive'],
                 code='inactive',
             )
-        # comprobemos que este usuario está asignado al curso actual y que no pertenezca al grupo responsables
-        if not user.groups.filter(name='responsables').exists():
+        # comprobemos que este usuario está asignado al curso actual y que no pertenezca al grupo responsables, administrativos
+        if not (user.groups.filter(name='responsables').exists() or user.groups.filter(name='administrativos').exists()):
             # veamos si tiene asignado un departamento
-            cursodepartamentoprofesor = CursoDepartamentoProfesor.objects.filter(profesor=user,
-                                                                 curso_departamento__curso=self.cleaned_data["curso_academico"])
-            if not cursodepartamentoprofesor:
-                raise forms.ValidationError("Este usuario/a no pertenece a ningún departamento en el curso seleccionado",
+            cursoprofesor = CursoProfesor.objects.filter(profesor=user,
+                                                                 curso__curso=self.cleaned_data["curso_academico"])
+            if not cursoprofesor:
+                raise forms.ValidationError("Est@ usuari@ no está dado de alta en el curso seleccionado",
                                 code='no_existe_en_curso')
 

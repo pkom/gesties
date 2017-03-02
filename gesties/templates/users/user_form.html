@@ -1,10 +1,10 @@
-{% extends "acebase.html" %}
+{% extends "base.html" %}
 {% load crispy_forms_tags %}
 
 {% block breadcrumbs %}
     <li>
         <i class="ace-icon fa fa-user"></i>
-        <a href="{% url 'users:list' %}">Lista de Usuari@s</a>
+        <a href="{% url 'users:list-profesores' %}">Lista de Usuari@s</a>
     </li>
     <li class="active">Actualizar usuari@: {{  object.get_full_name }}</li>
 {% endblock %}
@@ -14,14 +14,48 @@
 
 
 {% block contenido %}
-  <h1>{{ user.username }}</h1>
-  <form class="form-horizontal" method="post" action="{% url 'users:update' %}">
-    {% csrf_token %}
-    {{ form|crispy }}
-    <div class="control-group">
-      <div class="controls">
-        <button type="submit" class="btn">Update</button>
-      </div>
-    </div>
-  </form>
+
+    {{ object.foto_html }}
+
+
+    <form class="form-horizontal" role="form" enctype="multipart/form-data" method="post" action="{% url 'users:update-profesor' %}">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        <div class="form-group">
+            {{ form.name.errors }}
+            <label class="col-sm-3 control-label no-padding-right" for="id_name"> {{ form.name.label }} </label>
+
+            <div class="col-sm-9">
+                <input id="id_name" name="{{ form.name.name }}" value="{{form.name.value}}"
+                       maxlength="255"
+                       class="col-xs-10 col-sm-5" type="text">
+            </div>
+        </div>
+
+        <div class="form-group">
+            {{ form.foto.errors }}
+            <label class="col-sm-3 control-label no-padding-right"> {{ form.foto.label }} </label>
+
+            <div class="col-sm-9">
+                {{ form.foto }}
+            </div>
+
+        </div>
+
+
+
+        <div class="clearfix form-actions">
+            <div class="col-md-offset-4 col-md-9">
+                <button class="btn btn-info" type="submit">
+                    <i class="ace-icon fa fa-check bigger-110"></i>
+                    Actualizar datos
+                </button>
+            </div>
+        </div>
+    </form>
+
+    <div class="hr hr-24"></div>
+
+
+
 {% endblock %}

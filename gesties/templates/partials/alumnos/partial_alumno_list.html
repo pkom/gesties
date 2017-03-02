@@ -1,0 +1,23 @@
+{% for alumno in qs.object_list %}
+    <tr>
+        <td>
+            {{ alumno.alumno.foto_html }}
+        </td>
+        <td>
+            <a href="{% url 'alumnos:detail-alumno' alumno.alumno.nie %}">{{ alumno.alumno }}</a>
+        </td>
+        <td>
+            {{ alumno.edad }}
+        </td>
+        <td>
+            <strong>{{ alumno.alumno.telefono }}</strong>
+        </td>
+        <td>
+          <button type="button"
+                  class="btn btn-warning btn-sm js-update-alumno"
+                  data-url="{% url 'alumnos:alumno_update' alumno.alumno.nie %}">
+            <span class="glyphicon glyphicon-pencil"></span> Edit
+          </button>
+        </td>
+    </tr>
+{% endfor %}

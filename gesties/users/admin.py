@@ -5,7 +5,10 @@ from django import forms
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as AuthUserAdmin
 from django.contrib.auth.forms import UserChangeForm, UserCreationForm
-from .models import User
+
+from gesties.core.admin import CursoEnlaceAdmin, ProfesorEnlaceAdmin
+
+from .models import User, CursoProfesor
 
 
 class MyUserChangeForm(UserChangeForm):
@@ -37,7 +40,7 @@ class MyUserAdmin(AuthUserAdmin):
     form = MyUserChangeForm
     add_form = MyUserCreationForm
     fieldsets = (
-            ('User Profile', {'fields': ('name','dni','usuario_rayuela','es_usuario','id_usuario','foto')}),
+            ('User Profile', {'fields': ('name','dni','telefono','usuario_rayuela','es_usuario','id_usuario','foto')}),
     ) + AuthUserAdmin.fieldsets
     list_display = ('username', 'last_name', 'first_name', 'is_superuser', 'foto_html')
     search_fields = ['last_name', 'first_name',]
@@ -46,3 +49,10 @@ class MyUserAdmin(AuthUserAdmin):
         css = {
             'all': ('css/admin/mi_admin.css',)
         }
+
+
+@admin.register(CursoProfesor)
+class CursoProfesorAdmin(CursoEnlaceAdmin, ProfesorEnlaceAdmin):
+    list_display = ('id', 'curso_link', 'profesor_link', 'foto_html',)
+    search_fields = ('profesor__last_name','profesor__first_name',)
+    list_filter = ('curso__curso',)

@@ -5,31 +5,41 @@ from django.conf import settings
 from django.conf.urls import include, url
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.views.generic import TemplateView
 from django.views import defaults as default_views
 
-from gesties.utils.listados import listin_telefonico, etiquetas_alumnos
-from gesties.utils.views import index, about
+from gesties.core.views import index, index_no_ajax, about
+
+admin.site.site_header = u"Administración Gesties"
 
 urlpatterns = [
     url(r'^$', index, name='home'),
+
+    url(r'^index$', index_no_ajax, name='home-no-ajax'),
+
     url(r'^about/$', about, name='about'),
 
     # Django Admin, use {% url 'admin:index' %}
     url(settings.ADMIN_URL, admin.site.urls),
 
-    # User management
+    # User management, profesores
     url(r'^users/', include('gesties.users.urls', namespace='users')),
     #url(r'^accounts/', include('allauth.urls')),
 
     # Your stuff: custom urls includes go here
-    url(r'^listados/listin/$', listin_telefonico, name='listin_defecto'),
-    url(r'^listados/listin/(?P<curso>[\w-]+)/$', listin_telefonico, name='listin_curso'),
-    url(r'^listados/listin/(?P<curso>[\w-]+)/(?P<grupo>[\w-]+)/$', listin_telefonico, name='listin_grupo'),
-    url(r'^listados/etiquetas/$', etiquetas_alumnos, name='etiquetas_defecto'),
-    url(r'^listados/etiquetas/(?P<curso>[\w-]+)/$', etiquetas_alumnos, name='etiquetas_curso'),
-    url(r'^listados/etiquetas/(?P<curso>[\w-]+)/(?P<grupo>[\w-]+)/$', etiquetas_alumnos, name='etiquetas_grupo'),
-              ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+    # Alumnos
+    url(r'^alumnos/', include('gesties.alumnos.urls', namespace='alumnos')),
+
+    # Departamentos
+    url(r'^departamentos/', include('gesties.departamentos.urls', namespace='departamentos')),
+
+    # Grupos
+    url(r'^grupos/', include('gesties.grupos.urls', namespace='grupos')),
+
+    # core - inicio
+    url(r'^inicio/', include('gesties.core.urls', namespace='inicio')),
+
+    ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:
     # This allows the error pages to be debugged during development, just visit

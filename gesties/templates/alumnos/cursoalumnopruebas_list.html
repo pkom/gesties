@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% load staticfiles i18n %}
+
+{% block breadcrumbs %}
+    <li class="active">Lista de Alumn@s</li>
+{% endblock %}
+
+{% block page_header_1 %}Alumn@s{% endblock %}
+{% block page_header_2 %}Lista de alumn@s{% endblock %}
+
+{% block search %}
+    {% url 'grupos:list-alumnos' as url %}
+    {% include "componentes/search.html" with url=url cadena=request.GET.q %}
+{% endblock search %}
+
+{% block contenido %}
+
+      <!-- BUTTON TO TRIGGER THE ACTION -->
+      <p>
+        <button type="button" class="btn btn-primary js-create-alumno"
+                data-url="{% url 'grupos:alumno_create' %}">
+          <span class="glyphicon glyphicon-plus"></span>
+          Nuevo alumno
+        </button>
+      </p>
+
+      <!-- THE MODAL WE WILL BE USING -->
+      <div class="modal fade" id="modal-alumno">
+        <div class="modal-dialog">
+          <div class="modal-content">
+          </div>
+        </div>
+      </div>
+
+
+
+    <table id="alumnos-table" class="table  table-bordered table-hover">
+        <thead>
+            <tr>
+                <th>Foto</th>
+                <th>Alumn@</th>
+                <th>Edad</th>
+                <th>Teléfonos</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+		<tbody>
+
+            {% include "partials/alumnos/partial_alumno_list.html" %}
+
+		</tbody>
+	</table>
+
+{% endblock %}
+
+{% block page_js_external %}
+    <script src="{% static 'js/alumnos/alumnos.js' %}"></script>
+{% endblock page_js_external %}

@@ -169,7 +169,7 @@ LOGGING = {
     'disable_existing_loggers': False,
     'filters': {
         'require_debug_false': {
-            '()': 'django.utils.log.RequireDebugFalse'
+            '()': 'django.core.log.RequireDebugFalse'
         }
     },
     'formatters': {
@@ -182,7 +182,7 @@ LOGGING = {
         'mail_admins': {
             'level': 'ERROR',
             'filters': ['require_debug_false'],
-            'class': 'django.utils.log.AdminEmailHandler'
+            'class': 'django.core.log.AdminEmailHandler'
         },
         'console': {
             'level': 'DEBUG',

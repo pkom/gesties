@@ -36,3 +36,24 @@
 [hidden][style="display: block;"] {
   display: block !important;
 }
+
+
+#simple-table td, #alumnos-table td, #profesores-table td {
+  vertical-align: middle;
+}
+
+td.details-control {
+    background: url('../images/details_open.png') no-repeat center center;
+    cursor: pointer;
+}
+tr.shown td.details-control {
+    background: url('../images/details_close.png') no-repeat center center;
+}
+
+/* Modal Width, if we want to use we have to add modal-wide to the class modal*/
+.modal.modal-wide .modal-dialog {
+  width: 80%;
+}
+.modal-wide .modal-body {
+  overflow-y: auto;
+}

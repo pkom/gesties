@@ -1,0 +1,88 @@
+<div class="modal-header">
+        <h4 style="display:inline" class="modal-title">Datos del alumn@</h4>
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+
+<div class="modal-body">
+    <div class="row">
+        <div class="widget-box">
+            <div class="widget-header widget-header-flat">
+                <h4 class="widget-title">{{ alumno.get_alumno.get_nombre_completo }}</h4>
+            </div>
+
+            <div class="widget-body">
+                <div class="widget-main">
+                    <div class="row">
+                        <div class="col-sm-1">
+                            {{ alumno.get_alumno.foto_html }}
+                        </div>
+                        <div class="col-sm-5">
+                            <ul>
+                                <li>N.I.E.: <b>{{ alumno.get_alumno.nie }}</b></li>
+                                <li>Nombre: <b>{{ alumno.get_alumno.nombre }}</b></li>
+                                <li>Apellidos: <b>{{ alumno.get_alumno.apellidos }}</b></li>
+                                <li>D.N.I.: <b>{{ alumno.get_alumno.dni }}</b></li>
+                                <li>Fec.Nac.: <b>{{ alumno.get_alumno.fecha_nacimiento }}</b></li>
+                                <li>Edad: <b>{{ alumno.get_alumno.edad }}</b></li>
+                                <li>E-mail: <b>{{ alumno.get_alumno.email }}</b></li>
+                                <li>Usuario Rayuela: <b>{{ alumno.get_alumno.usuario_rayuela }}</b></li>
+                                <li>Alta en el sistema: <b>{{ alumno.get_alumno.created }}</b></li>
+                                <li>Grupos y tutores:
+                                    <ul>
+                                        {% for grupo in alumno.get_grupos %}
+                                            <li><b>{{ grupo.curso_grupo.grupo }}</b> -
+                                                {% if grupo.curso_grupo.tutor %}
+                                                    <b>{{ grupo.curso_grupo.tutor.profesor }}
+                                                {% else %}Sin Asignar tutoría{% endif %}</b>
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="col-sm-6">
+                            <ul>
+                                <li>Dirección: <b>{{ alumno.get_alumno.direccion }}</b></li>
+                                <li>Localidad: <b>{{ alumno.get_alumno.localidad }}</b></li>
+                                <li>C.P.: <b>{{ alumno.get_alumno.codigo_postal }}</b></li>
+                                <li>Provincia: <b>{{ alumno.get_alumno.provincia }}</b></li>
+                                <li>Tfno.: <b>{{ alumno.get_alumno.telefono }}</b></li>
+                                <li>Expediente: <b>{{ alumno.get_alumno.expediente }}</b></li>
+                                <li>Tutores legales:
+                                    <ul>
+                                        {% for tutor in alumno.get_alumno.tutores.all %}
+                                            <li><b>{{ tutor }}</b></li>
+                                            <ul>
+                                                {% if tutor.telefono1 %}
+                                                <li>
+                                                    <b>{{ tutor.telefono1 }}</b>
+                                                </li>
+                                                {% endif %}
+                                                {% if tutor.telefono2 %}
+                                                <li>
+                                                    <b>{{ tutor.telefono2 }}</b>
+                                                </li>
+                                                {% endif %}
+                                            </ul>
+                                        {% endfor %}
+                                    </ul>
+                                </li>
+
+
+                            </ul>
+                        </div>
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal-footer">
+    <button type="button" class="btn btn-default" data-dismiss="modal">Volver</button>
+</div>
