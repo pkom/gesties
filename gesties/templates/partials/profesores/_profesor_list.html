@@ -149,13 +149,14 @@
 
                 //show student info
                 $(".js-view-teacher").click(function (e) {
-                    var nie = tablaProfesores.row( this.closest('tr') ).id();
-                    var url = $(this).attr('data-url')+nie;
+                    var dni = tablaProfesores.row( this.closest('tr') ).id();
+                    var url = $(this).attr('data-url')+dni;
                     $.ajax({
                         url: url,
                         type: 'get',
                         dataType: 'json',
                         beforeSend: function () {
+                            $("#modal-profesor .modal-content").html('<div></div>');
                             $("#modal-profesor").modal("show");
                         },
                         success: function (data) {
@@ -168,52 +169,6 @@
 
 
 	        });
-
-            tablaProfesores.Buttons = {
-                buttons: [
-                  {
-                    "extend": "colvis",
-                    "text": "<i class='fa fa-search bigger-110 blue'></i> <span class='hidden'>Show/hide columns</span>",
-                    "className": "btn btn-white btn-primary btn-bold",
-                    columns: ':not(:first):not(:last)'
-                  },
-                  {
-                    "extend": "copy",
-                    "text": "<i class='fa fa-copy bigger-110 pink'></i> <span class='hidden'>Copy to clipboard</span>",
-                    "className": "btn btn-white btn-primary btn-bold"
-                  },
-                  {
-                    "extend": "csv",
-                    "text": "<i class='fa fa-database bigger-110 orange'></i> <span class='hidden'>Export to CSV</span>",
-                    "className": "btn btn-white btn-primary btn-bold"
-                  },
-                  {
-                    "extend": "excel",
-                    "text": "<i class='fa fa-file-excel-o bigger-110 green'></i> <span class='hidden'>Export to Excel</span>",
-                    "className": "btn btn-white btn-primary btn-bold"
-                  },
-                  {
-                    "extend": "pdf",
-                    "text": "<i class='fa fa-file-pdf-o bigger-110 red'></i> <span class='hidden'>Export to PDF</span>",
-                    "className": "btn btn-white btn-primary btn-bold"
-                  },
-                  {
-                    "extend": "print",
-                    "text": "<i class='fa fa-print bigger-110 grey'></i> <span class='hidden'>Print</span>",
-                    "className": "btn btn-white btn-primary btn-bold",
-                    autoPrint: false,
-                    message: 'This print was produced using the Print button for DataTables'
-                  }
-                ]
-            };
-		    tablaProfesores.buttons().container().appendTo( $('.tableTools-container') );
-
-
-
-
-
-            //tablaProfesores.button().container()
-            //    .appendTo( $('.col-sm-6:eq(0)', tablaProfesores.table().container() ) );
 
             // reload data every 30 seconds
             //setInterval( function () {

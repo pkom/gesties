@@ -1,0 +1,117 @@
+<div class="modal-header">
+        <h4 style="display:inline" class="modal-title">Datos del profesor/a</h4>
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+
+<div class="modal-body">
+    <div class="row">
+        <div class="widget-box">
+            <div class="widget-header widget-header-flat">
+                <h4 class="widget-title">{{ profesor.get_profesor.profesor.get_nombre_completo }}</h4>
+            </div>
+
+            <div class="widget-body">
+                <div class="widget-main">
+                    <div class="row">
+                        <div class="col-sm-1">
+                            {{ profesor.get_profesor.foto_html }}
+                        </div>
+
+                        <div class="col-sm-5">
+                            <ul>
+                                <li>Nombre de usuario: <b>{{ profesor.get_profesor.profesor.username }}</b></li>
+                                <li>Nombre: <b>{{ profesor.get_profesor.profesor.first_name }}</b></li>
+                                <li>Apellidos: <b>{{ profesor.get_profesor.profesor.last_name }}</b></li>
+                                <li>D.N.I.: <b>{{ profesor.get_profesor.profesor.dni }}</b></li>
+                                <li>E-mail: <b>{{ profesor.get_profesor.profesor.email }}</b></li>
+                                <li>¿Es usuario de Rayuela?: <b>{% if profesor.get_profesor.profesor.es_usuario %}Si{% else %}No{% endif %}</b></li>
+                                <li>Usuario Rayuela: <b>{{ profesor.get_profesor.profesor.usuario_rayuela }}</b></li>
+                                <li>Id. Rayuela: <b>{{ profesor.get_profesor.profesor.id_usuario }}</b></li>
+                                <li>Alta en el sistema: <b>{{ profesor.get_profesor.profesor.date_joined }}</b></li>
+                                <li>Último login: <b>{% if profesor.get_profesor.profesor.last_login %}{{profesor.get_profesor.profesor.last_login }}
+                                {% else %}Sin accesos{% endif %}</b></li>
+                            </ul>
+                        </div>
+
+                        <div class="col-sm-6">
+                            <ul>
+                                {% if profesor.es_responsable %}
+                                    <li>
+                                        <b>Es responsable de centro</b>
+                                    </li>
+                                {% endif %}
+                                {% if profesor.es_jefe %}
+                                    <li>Jefaturas de departamento
+                                        <ul>
+                                            {% for jefatura in profesor.get_jefaturas %}
+                                                <li>
+                                                    <b>{{ jefatura.departamento }}</b>
+                                                </li>
+                                            {% endfor %}
+                                        </ul>
+                                    </li>
+                                {% endif %}
+
+                                {% if profesor.es_tutor %}
+                                    <li>Tutorías que imparte
+                                        <ul>
+                                            {% for tutoria in profesor.get_tutorias %}
+                                                <li>
+                                                    <b>{{ tutoria.grupo }}</b>
+                                                </li>
+                                            {% endfor %}
+                                        </ul>
+                                    </li>
+                                {% endif %}
+
+                                {% if profesor.get_departamentos %}
+                                    <li>Departamentos a los que pertenece
+                                        <ul>
+                                            {% for departamento in profesor.get_departamentos %}
+                                                <li>
+                                                    <b>{{ departamento.curso_departamento.departamento }}</b> -
+                                                    <b>
+                                                        {% if departamento.curso_departamento.jefe %}
+                                                            {{ departamento.curso_departamento.jefe.profesor }}
+                                                        {% else %}
+                                                            Sin Asignar Jefatura
+                                                        {% endif %}
+                                                    </b>
+                                                </li>
+                                            {% endfor %}
+                                        </ul>
+                                    </li>
+                                {% endif %}
+
+                                {% if profesor.get_grupos %}
+                                    <li>Grupos en los que imparte clases
+                                        <ul>
+                                            {% for grupo in profesor.get_grupos %}
+                                                <li>
+                                                    <b>{{ grupo.curso_grupo.grupo }}</b> -
+                                                    <b>
+                                                        {% if grupo.curso_grupo.tutor %}
+                                                            {{ grupo.curso_grupo.tutor.profesor }}
+                                                        {% else %}
+                                                            Sin Asignar Tutoría
+                                                        {% endif %}
+                                                    </b>
+                                                </li>
+                                            {% endfor %}
+                                        </ul>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal-footer">
+    <button type="button" class="btn btn-default" data-dismiss="modal">Volver</button>
+</div>

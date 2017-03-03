@@ -12,10 +12,11 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.views.decorators.csrf import csrf_protect
 from django.utils.http import is_safe_url
 from django.shortcuts import resolve_url
-from django.http import JsonResponse, HttpResponseRedirect, HttpResponseNotAllowed
+from django.http import JsonResponse, HttpResponseRedirect, HttpResponseNotAllowed, HttpResponseBadRequest
 from django.views.decorators.cache import never_cache
 from django.core.urlresolvers import reverse
 from django.template.response import TemplateResponse
+from django.template.loader import render_to_string
 from django.views.generic import DetailView, ListView, RedirectView, UpdateView
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -189,17 +190,18 @@ def load_profesores_datatables(request):
 def ver_profesor(request, dni=None):
 
     data = dict()
-    if nie:
+    if dni:
         if request.method == "GET":
-            if CursoAlumno.objects.filter(alumno__nie=nie).exists():
+            profe = CursoProfesor.objects.filter(profesor__dni=dni)
+            if profe.exists():
                 #preparar contexto
-                context = {'alumno': student_status(request, nie=nie)}
+                context = {'profesor': user_status(request, username=profe[0].profesor.username)}
                 data['estado'] = 'OK'
-                data['html'] = render_to_string('partials/alumnos/_alumno_detail.html', context)
+                data['html'] = render_to_string('partials/profesores/_profesor_detail.html', context)
                 return JsonResponse(data, status=200)
             else:
                 data['estado'] = "ERROR"
-                data['mensaje'] = "No existe al alumno con NIE {0}".format(nie)
+                data['mensaje'] = "No existe el profesor con DNI {0}".format(dni)
                 return JsonResponse(data, status=404)
         else:
             data['estado'] = "ERROR"

@@ -116,7 +116,7 @@ def ver_alumno(request, nie=None):
                 return JsonResponse(data, status=200)
             else:
                 data['estado'] = "ERROR"
-                data['mensaje'] = "No existe al alumno con NIE {0}".format(nie)
+                data['mensaje'] = "No existe alumno con NIE {0}".format(nie)
                 return JsonResponse(data, status=404)
         else:
             data['estado'] = "ERROR"

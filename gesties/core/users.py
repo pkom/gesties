@@ -87,6 +87,9 @@ class user_status(object):
     def get_departamentos(self):
         return self.departamentos
 
+    def get_profesor(self):
+        return self.curso_profesor
+
 
 
 # obtener datos de un alumno en un curso

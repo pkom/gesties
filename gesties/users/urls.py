@@ -18,7 +18,7 @@ urlpatterns = [
     url(r'^carga_profesores_datatables/$', views.load_profesores_datatables, name='carga_profesores_datatables'),
 
     # ajax load teacher info
-    url(r'^carga_profesor_info/(?P<dni>\d+)/$', views.ver_profesor, name='ver_profesor'),
+    url(r'^carga_profesor_info/(?P<dni>[\w.@+-]+)/$', views.ver_profesor, name='ver_profesor'),
     url(r'^carga_profesor_info/$', views.ver_profesor, name='ver_profesor'),
 
 

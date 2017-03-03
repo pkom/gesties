@@ -142,6 +142,7 @@
                         type: 'get',
                         dataType: 'json',
                         beforeSend: function () {
+                            $("#modal-alumno .modal-content").html('<div></div>');
                             $("#modal-alumno").modal("show");
                         },
                         success: function (data) {
