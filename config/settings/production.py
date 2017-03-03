@@ -117,13 +117,12 @@ CACHES = {
 # the site admins on every HTTP 500 error when DEBUG=False.
 # See http://docs.djangoproject.com/en/dev/topics/logging for
 # more details on how to customize your logging configuration.
-"""
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'filters': {
         'require_debug_false': {
-            '()': 'django.core.log.RequireDebugFalse'
+            '()': 'django.utils.log.RequireDebugFalse'
         }
     },
     'formatters': {
@@ -135,8 +134,8 @@ LOGGING = {
     'handlers': {
         'mail_admins': {
             'level': 'ERROR',
-            'filters': ['require_debug_false'],
-            'class': 'django.core.log.AdminEmailHandler'
+            'filters': ['require_debug_false', ],
+            'class': 'django.utils.log.AdminEmailHandler'
         },
         'console': {
             'level': 'DEBUG',
@@ -146,18 +145,18 @@ LOGGING = {
     },
     'loggers': {
         'django.request': {
-            'handlers': ['mail_admins'],
+            'handlers': ['mail_admins', ],
             'level': 'ERROR',
             'propagate': True
         },
         'django.security.DisallowedHost': {
             'level': 'ERROR',
-            'handlers': ['console', 'mail_admins'],
+            'handlers': ['console', 'mail_admins', ],
             'propagate': True
         }
     }
 }
-"""
+
 # Custom Admin URL, use {% url 'admin:index' %}
 ADMIN_URL = env('DJANGO_ADMIN_URL')
 
