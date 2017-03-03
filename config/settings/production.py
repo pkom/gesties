@@ -47,7 +47,7 @@ X_FRAME_OPTIONS = 'DENY'
 # ------------------------------------------------------------------------------
 # Hosts/domain names that are valid for this site
 # See https://docs.djangoproject.com/en/1.6/ref/settings/#allowed-hosts
-ALLOWED_HOSTS = env.list('DJANGO_ALLOWED_HOSTS', default=['maestrojuancalero', 'ibm.maestrojuancalero', 'iesmjuancalero.ddns.net'])
+ALLOWED_HOSTS = env.list('DJANGO_ALLOWED_HOSTS', default=['localhost', 'maestrojuancalero', 'ibm.maestrojuancalero', 'iesmjuancalero.ddns.net'])
 # END SITE CONFIGURATION
 
 INSTALLED_APPS += ('gunicorn', )
@@ -74,14 +74,6 @@ DEFAULT_FROM_EMAIL = env('DJANGO_DEFAULT_FROM_EMAIL',
                          default='Gestion Alumnado en Centros de Secundaria <noreply@maestrojuancalero>')
 EMAIL_SUBJECT_PREFIX = env('DJANGO_EMAIL_SUBJECT_PREFIX', default='[Gestion Alumnado en Centros de Secundaria] ')
 SERVER_EMAIL = env('DJANGO_SERVER_EMAIL', default=DEFAULT_FROM_EMAIL)
-
-# Anymail with Mailgun
-INSTALLED_APPS += ("anymail", )
-ANYMAIL = {
-    "MAILGUN_API_KEY": env('DJANGO_MAILGUN_API_KEY'),
-    "MAILGUN_SENDER_DOMAIN": env('MAILGUN_SENDER_DOMAIN')
-}
-EMAIL_BACKEND = "anymail.backends.mailgun.MailgunBackend"
 
 # TEMPLATE CONFIGURATION
 # ------------------------------------------------------------------------------
@@ -125,6 +117,7 @@ CACHES = {
 # the site admins on every HTTP 500 error when DEBUG=False.
 # See http://docs.djangoproject.com/en/dev/topics/logging for
 # more details on how to customize your logging configuration.
+"""
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -164,7 +157,7 @@ LOGGING = {
         }
     }
 }
-
+"""
 # Custom Admin URL, use {% url 'admin:index' %}
 ADMIN_URL = env('DJANGO_ADMIN_URL')
 
