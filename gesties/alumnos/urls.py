@@ -18,6 +18,17 @@ urlpatterns = [
     url(r'^carga_alumno_info/(?P<nie>\d+)/$', viewsajax.ver_alumno, name='ver_alumno'),
     url(r'^carga_alumno_info/$', viewsajax.ver_alumno, name='ver_alumno'),
 
+    # ajax carga página de tutores legales
+    url(r'^tutores/$', views.load_tutores, name='tutores'),
+
+    # ajax carga tutores al datatables del template
+    url(r'^carga_tutores_datatables/$', views.load_tutores_datatables, name='carga_tutores_datatables'),
+
+    # ajax load tutor info
+    url(r'^carga_tutor_info/(?P<id>\w+)/$', views.ver_tutor, name='ver_tutor'),
+    url(r'^carga_tutor_info/$', views.ver_tutor, name='ver_tutor'),
+
+
     # vistas no ajax de alumnos, dependen de la base base.html
     url(
         regex=r'^$',

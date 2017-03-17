@@ -14,8 +14,9 @@ from gesties.core.users import student_status
 from gesties.core.decorators import ajax_required
 
 
-from gesties.alumnos.models import Alumno, CursoAlumno
+from gesties.alumnos.models import Alumno, CursoAlumno, Tutor
 from gesties.alumnos.forms import AlumnoForm
+from gesties.grupos.models import CursoGrupoAlumno
 
 @ajax_required
 @login_required
@@ -56,10 +57,17 @@ def load_alumnos_datatables(request):
 
         recordsTotal = qs.count()
         recordsFiltered = recordsTotal
-        if search is not None:
+        if search != "":
             ape = Q(alumno__apellidos__icontains=search)
             nom = Q(alumno__nombre__icontains=search)
-            qs = qs.filter(ape | nom)
+            fnac = Q(alumno__fecha_nacimiento__icontains=search)
+
+            #filtrado por grupos
+            grups = CursoGrupoAlumno.objects.filter(curso_grupo__curso=request.session['curso_academico']['pk'],
+                curso_grupo__grupo__grupo__icontains=search)
+            grup = Q(grupos__in=grups)
+
+            qs = qs.filter(ape | nom | fnac | grup)
             recordsFiltered = qs.count()
         paginator = Paginator(qs, length)
         try:
@@ -124,6 +132,122 @@ def ver_alumno(request, nie=None):
             return JsonResponse(data, status=405)
     else:
         return HttpResponseBadRequest(u'Lo siento, esto es una vista AJAX')
+
+
+@ajax_required
+@login_required
+def load_tutores(request):
+    if request.method == 'GET':
+        return TemplateResponse(request, 'partials/alumnos/_tutor_list.html', {})
+    else:
+        return HttpResponseNotAllowed(['GET'])
+
+
+@ajax_required
+@login_required
+def load_tutores_datatables(request):
+    data = dict()
+    if request.method == 'GET':
+        length = request.GET.get("length", 5)
+        start = request.GET.get("start", 0)
+        search = request.GET.get("search[value]", None)
+        if isinstance(search, list):
+            search = search[0]
+        ordercol = request.GET.get("order[0][column]", None)
+        if isinstance(ordercol, list):
+            ordercol = ordercol[0]
+        orderdir = request.GET.get("order[0][dir]", None)
+        if isinstance(orderdir, list):
+            orderdir = orderdir[0]
+        qs = Tutor.objects.all()
+        if ordercol == '1':
+            if orderdir == 'asc':
+                qs = qs.order_by('apellidos', 'nombre')
+            else:
+                qs = qs.order_by('-apellidos', '-nombre')
+
+        recordsTotal = qs.count()
+        recordsFiltered = recordsTotal
+        if search != "":
+            ape = Q(apellidos__icontains=search)
+            nom = Q(nombre__icontains=search)
+            tfno1 = Q(telefono1__icontains=search)
+            tfno2 = Q(telefono2__icontains=search)
+            qs = qs.filter( ape | nom | tfno1 | tfno2 )
+            recordsFiltered = qs.count()
+        paginator = Paginator(qs, length)
+        try:
+            page = int(start) / int(length) + 1
+        except:
+            page = 1
+        try:
+            qs = paginator.page(page)
+        except PageNotAnInteger:
+            # If page is not an integer, deliver first page.
+            qs = paginator.page(1)
+        except EmptyPage:
+            # If page is out of range (e.g. 9999), deliver last page of results.
+            qs = paginator.page(paginator.num_pages)
+        data['draw'] = int(request.GET.get('draw'))
+        data['recordsTotal'] = recordsTotal
+        data['recordsFiltered'] = recordsFiltered
+        data['data'] = []
+        for tutor in qs:
+            tut = dict()
+            tut["DT_RowId"] = str(tutor.id)
+            tut["DT_RowData"] = {
+                "pkey": tutor.id
+            },
+            tut['foto'] = tutor.foto_html()
+            tut['nombre'] = tutor.get_nombre_completo
+            tut['telefono'] = tutor.telefono1+' '+tutor.telefono2
+            data['data'].append(tut)
+    else:
+        data['error'] = u'El método no está autorizado'
+    return JsonResponse(data)
+
+@ajax_required
+@login_required()
+def ver_tutor(request, id=None):
+
+    data = dict()
+    if id:
+        if request.method == "GET":
+            qs = Tutor.objects.filter(id=id)
+            if qs.exists():
+                tutor = qs.first()
+                #preparar contexto
+                context = {'tutor': tutor }
+                data['estado'] = 'OK'
+                data['html'] = render_to_string('partials/alumnos/_tutor_detail.html', context)
+                return JsonResponse(data, status=200)
+            else:
+                data['estado'] = "ERROR"
+                data['mensaje'] = "No existe tutor con ID {0}".format(id)
+                return JsonResponse(data, status=404)
+        else:
+            data['estado'] = "ERROR"
+            data['mensaje'] = u"El método {0} HTTP no está permitido".format(request.method)
+            return JsonResponse(data, status=405)
+    else:
+        return HttpResponseBadRequest(u'Lo siento, esto es una vista AJAX')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 def save_alumno_form(request, form, template_name):

@@ -1,10 +1,10 @@
 {% load staticfiles i18n %}
 
-<title>Profesor@s - Gesties</title>
+<title>Tutores Legales - Gesties</title>
 
 
 <!-- THE MODAL TO SHOW STUDENT INFO -->
-<div class="modal modal-wide fade" id="modal-profesor">
+<div class="modal modal-wide fade" id="modal-tutor">
     <div class="modal-dialog">
           <div class="modal-content">
 
@@ -18,7 +18,7 @@
 		Datos Personales
 		<small>
 			<i class="ace-icon fa fa-angle-double-right"></i>
-			Relación de Profesor@s
+			Relación de Tutores Legales
 		</small>
 	</h1>
 </div>
@@ -26,23 +26,16 @@
 
 <div class="row">
     <div class="col-xs-12">
-
-        <div class="clearfix">
-            <div class="pull-right tableTools-container"></div>
-        </div>
-
         <div class="table-header">
-            Profesor@s
+            Tutores Legales
         </div>
-
         <div>
-            <table id="profesores-table" class="table table-striped table-bordered table-hover dataTable no-footer" role="grid" aria-describedby="profesores-table_info">
+            <table id="tutores-table" class="table table-striped table-bordered table-hover dataTable no-footer" role="grid" aria-describedby="tutores-table_info">
                 <thead>
                     <tr role="row">
-                        <th class="sorting_disabled" tabindex="0" aria-controls="profesores-table" rowspan="1" colspan="1" aria-label="Foto">Foto</th>
-                        <th class="sorting" tabindex="0" aria-controls="profesores-table" rowspan="1" colspan="1" aria-label="Profesor/a: activa para ordenar ascendentemente">Profesor/a</th>
-                        <th class="hidden-480 sorting" tabindex="0" aria-controls="profesores-table" rowspan="1" colspan="1" aria-label="Departamento: activa para ordenar ascendentemente">Departamento</th>
-                        <th class="sorting_disabled" tabindex="0" aria-controls="profesores-table" rowspan="1" colspan="1" aria-label="Teléfonos">Teléfonos</th>
+                        <th class="sorting_disabled" tabindex="0" aria-controls="tutores-table" rowspan="1" colspan="1" aria-label="Foto">Foto</th>
+                        <th class="sorting" tabindex="0" aria-controls="tutores-table" rowspan="1" colspan="1" aria-label="Tutor/a: activa para ordenar ascendentemente">Tutor/a</th>
+                        <th class="sorting_disabled" tabindex="0" aria-controls="tutores-table" rowspan="1" colspan="1" aria-label="Teléfonos">Teléfonos</th>
                         <th></th>
                     </tr>
                 </thead>
@@ -52,19 +45,25 @@
 </div>
 
 
+<style>
+    .foto-detail {
+        display: none;
+    }
+    .li:hover .foto-detail {
+        display: block;
+    }
+</style>
+
+
 <script type="text/javascript">
     var scripts = [null,
         "{% static 'ace/components/datatables/media/js/jquery.dataTables.js'%}",
         "{% static 'ace/components/_mod/datatables/jquery.dataTables.bootstrap.js' %}",
-        "{% static 'ace/components/datatables.net-buttons/js/dataTables.buttons.js'%}",
-        "{% static 'ace/components/datatables.net-buttons/js/buttons.flash.js' %}",
-        "{% static 'ace/components/datatables.net-buttons/js/buttons.html5.js' %}",
-        "{% static 'ace/components/datatables.net-buttons/js/buttons.print.js' %}",
         "{% static 'ace/components/datatables.net-select/js/dataTables.select.js'%}",
         null]
     $('.page-content-area').ace_ajax('loadScripts', scripts, function() {
         jQuery(function($) {
-		    var tablaProfesores =  $('#profesores-table').DataTable( {
+		    var tablaTutores =  $('#tutores-table').DataTable( {
 			    autoWidth: false,
                 columns: [
                     { data: "foto", name: "foto" },
@@ -72,7 +71,6 @@
                         render: function ( data, type, full, meta ) {
                                     return '<strong>'+data+'</strong>';}
                     },
-                    { data: "departamento", name: "departamento", class: "hidden-480" },
                     { data: "telefono", name: "telefono",
                         render: function ( data, type, full, meta ) {
                                     return '<strong>'+data+'</strong>';}
@@ -80,7 +78,7 @@
                     { data: null, defaultContent:
                         '<td> \
                             <div class="hidden-sm hidden-xs action-buttons"> \
-                                <a class="blue tooltip-info js-view-teacher" data-url="{% url 'users:ver_profesor' %}" \
+                                <a class="blue tooltip-info js-view-tutor" data-url="{% url 'alumnos:ver_tutor' %}" \
                                 data-rel="tooltip" title="Ver" href="#"> \
                                     <span class="blue">\
                                         <i class="ace-icon fa fa-search-plus bigger-130"></i> \
@@ -94,7 +92,7 @@
 									</button>\
 									<ul class="dropdown-menu dropdown-only-icon dropdown-yellow dropdown-menu-right dropdown-caret dropdown-close">\
 										<li>\
-											<a class="js-view-teacher" data-url="{% url 'users:ver_profesor' %}"\
+											<a class="js-view-tutor" data-url="{% url 'alumnos:ver_tutor' %}"\
                                                 href="#" class="tooltip-info" data-rel="tooltip" title="Ver">\
 												<span class="blue">\
 													<i class="ace-icon fa fa-search-plus bigger-120"></i>\
@@ -108,13 +106,13 @@
                     }
                 ],
                 columnDefs: [
-                    { orderable: false, targets: [0,2,3,4]},
-                    { searchable: false, targets: [0,3,4]}
+                    { orderable: false, targets: [0,2,3]},
+                    { searchable: false, targets: [0,3]}
                 ],
 			    order: [[1,'asc']],
                 processing: true,
 	            serverSide: true,
-	            ajax: "{% url 'users:carga_profesores_datatables' %}",
+	            ajax: "{% url 'alumnos:carga_tutores_datatables' %}",
                 language: {
                     url: "{% static 'js/datatables.spanish.json' %}"
 	            },
@@ -124,18 +122,10 @@
                     info: false
                 },
                 pagingType: "numbers"
-                //buttons: [
-                //    {
-                //        text: 'Recargar',
-                //        action: function ( e, dt, node, config ) {
-                //            dt.ajax.reload(null, false);
-                //        }
-                //    }
-                //]
-            });
+	        });
 
             // add tootip after datatables has been drawn because it's needed with serverSide processing
-            tablaProfesores.on( 'draw', function () {
+            tablaTutores.on( 'draw', function () {
        		    /********************************/
                 //add tooltip for small view action buttons in dropdown menu
                 $('[data-rel="tooltip"]').tooltip({placement: tooltip_placement, trigger: "hover"});
@@ -148,19 +138,19 @@
 
 
                 //show student info
-                $(".js-view-teacher").click(function (e) {
-                    var dni = tablaProfesores.row( this.closest('tr') ).id();
-                    var url = $(this).attr('data-url')+dni;
+                $(".js-view-tutor").click(function (e) {
+                    var id = tablaTutores.row( this.closest('tr') ).id();
+                    var url = $(this).attr('data-url')+id;
                     $.ajax({
                         url: url,
                         type: 'get',
                         dataType: 'json',
                         beforeSend: function () {
-                            $("#modal-profesor .modal-content").html('<div></div>');
-                            $("#modal-profesor").modal("show");
+                            $("#modal-tutor .modal-content").html('<div></div>');
+                            $("#modal-tutor").modal("show");
                         },
                         success: function (data) {
-                            $("#modal-profesor .modal-content").html(data.html);
+                            $("#modal-tutor .modal-content").html(data.html);
                         }
                     });
                 });
@@ -169,11 +159,6 @@
 
 
 	        });
-
-            // reload data every 30 seconds
-            //setInterval( function () {
-            //    tablaProfesores.ajax.reload( null, false ); // user paging is not reset on reload
-            //}, 30000 );
 
             // when .modal-wide opened, set content-body height based on browser height; 200 is appx height of modal padding, modal title and button bar
             //$(".modal-wide").on("show.bs.modal", function() {

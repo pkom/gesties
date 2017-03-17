@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, unicode_literals
 
+from PIL import Image
+
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm
 
 from gesties.cursos.models import Curso
 
-from .models import CursoProfesor
+from .models import CursoProfesor, User
 
 
 class AutenticacionForm(AuthenticationForm):
@@ -55,3 +57,64 @@ class AutenticacionForm(AuthenticationForm):
                 raise forms.ValidationError("Est@ usuari@ no está dado de alta en el curso seleccionado",
                                 code='no_existe_en_curso')
 
+
+class UserForm(forms.ModelForm):
+
+    x = forms.FloatField(widget=forms.HiddenInput())
+    y = forms.FloatField(widget=forms.HiddenInput())
+    width = forms.FloatField(widget=forms.HiddenInput())
+    height = forms.FloatField(widget=forms.HiddenInput())
+
+    class Meta:
+        model = User
+        fields = ('name', 'foto', 'x', 'y', 'width', 'height', )
+        widgets = {
+            'foto': forms.FileInput(attrs={
+                'accept': 'image/*'  # this is not an actual validation! don't rely on that!
+            })
+        }
+
+    def save(self):
+        user = super(UserForm, self).save()
+
+        x = self.cleaned_data.get('x')
+        y = self.cleaned_data.get('y')
+        w = self.cleaned_data.get('width')
+        h = self.cleaned_data.get('height')
+
+        image = Image.open(user.foto)
+        cropped_image = image.crop((x, y, w+x, h+y))
+        resized_image = cropped_image.resize((48, 48), Image.ANTIALIAS)
+        resized_image.save(user.foto.path)
+
+        return user
+
+
+class UserFotoForm(forms.ModelForm):
+
+    x = forms.FloatField(widget=forms.HiddenInput())
+    y = forms.FloatField(widget=forms.HiddenInput())
+    width = forms.FloatField(widget=forms.HiddenInput())
+    height = forms.FloatField(widget=forms.HiddenInput())
+
+    class Meta:
+
+        model = User
+        fields = ('foto', 'x', 'y', 'width', 'height', )
+
+
+    def save(self):
+
+        user = super(UserFotoForm, self).save()
+
+        x = self.cleaned_data.get('x')
+        y = self.cleaned_data.get('y')
+        w = self.cleaned_data.get('width')
+        h = self.cleaned_data.get('height')
+
+        image = Image.open(user.foto)
+        cropped_image = image.crop((x, y, w+x, h+y))
+        resized_image = cropped_image.resize((200, 200), Image.ANTIALIAS)
+        resized_image.save(user.foto.path)
+
+        return user

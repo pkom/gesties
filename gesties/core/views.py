@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseBadRequest
 from django.shortcuts import Http404
 from django.template.loader import render_to_string
 from django.contrib.auth.decorators import login_required
@@ -40,15 +40,13 @@ def index_no_ajax(request):
 @login_required
 def load_index(request):
     if request.is_ajax():
-        data = dict()
+        context = dict()
         if request.method == 'GET':
-            context = {'usuarios': get_current_users()}
+            context['usuarios'] = get_current_users()
             context['status'] = user_status(request, username=request.user.username)
-            data['html'] = render_to_string('partials/_index.html', context, request=request)
         else:
-            data['error'] = u'El método no está autorizado'
+            HttpResponseBadRequest(u'El método no está permitido')
         return TemplateResponse(request, 'partials/_index.html', context)
-        return JsonResponse(data)
     else:
         raise Http404(u'Lo siento, pero esto es una vista AJAX.')
 

@@ -19,8 +19,13 @@
                 <!-- #section:basics/navbar.layout.brand -->
                 <a href="{% url 'home' %}" class="navbar-brand">
                     <small>
-
-                        <i class="fa fa-institution"></i>
+                        {% if request.session.configies.fields.logo_centro %}
+                            <div style="height:26px;width:26px;background-repeat:no-repeat;background-position: 50%;display:inline-block;vertical-align: top;
+                            border-radius:50%;background-size:100% auto;background-image:url('{{ request.session.configies.fields.logo_centro_url }}')">
+                            </div>
+                        {% else %}
+                            <i class="fa fa-institution"></i>
+                        {% endif %}
                         Gesties - {{ request.session.configies.fields.nombre_centro }} - {{ request.session.curso_academico.fields.curso }}
                     </small>
                 </a>
@@ -56,7 +61,8 @@
                         <ul class="user-menu dropdown-menu-right dropdown-menu dropdown-yellow dropdown-caret dropdown-close">
 
                             <li>
-                                <a href="{% url 'users:detail-profesor' request.user.username %}">
+{#                                <a href="{% url 'users:perfil' request.user.username %}">#}
+                                <a data-url="{% url 'users:modifica_perfil' %}" href="#/users/perfil">
                                     <i class="ace-icon fa fa-user"></i>
                                     Mi Perfíl
                                 </a>

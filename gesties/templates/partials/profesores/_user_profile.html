@@ -1,0 +1,637 @@
+{% load staticfiles %}
+
+<title>Mi Perfíl - Gesties</title>
+
+<link rel="stylesheet" href="{% static 'ace/components/_mod/jquery-ui.custom/jquery-ui.custom.css' %}" />
+<link rel="stylesheet" href="{% static 'ace/components/jquery.gritter/css/jquery.gritter.css' %}" />
+<link rel="stylesheet" href="{% static 'ace/components/_mod/x-editable/bootstrap-editable.css' %}" />
+
+<link rel="stylesheet" href="{% static 'css/cropper/cropper.min.css' %}"/>
+
+
+<!-- ajax layout which only needs content area -->
+<div class="page-header">
+	<h1>
+		Perfíl de Usuario/a
+		<small>
+			<i class="ace-icon fa fa-angle-double-right"></i>
+			Modificar la foto y/o el nombre completo
+		</small>
+	</h1>
+</div><!-- /.page-header -->
+
+
+
+
+<!-- MODAL TO CROP THE IMAGE -->
+  <div class="modal fade" id="modalCrop">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+          <h4 class="modal-title">Recortar la fotografía</h4>
+        </div>
+        <div class="modal-body">
+          <img src="" id="image" style="max-width: 100%;">
+        </div>
+        <div class="modal-footer">
+          <div class="btn-group pull-left" role="group">
+            <button type="button" class="btn btn-default js-zoom-in">
+              <span class="glyphicon glyphicon-zoom-in"></span>
+            </button>
+            <button type="button" class="btn btn-default js-zoom-out">
+              <span class="glyphicon glyphicon-zoom-out"></span>
+            </button>
+          </div>
+          <button type="button" class="btn btn-default" data-dismiss="modal">Descartar</button>
+          <button type="button" class="btn btn-primary js-crop-and-upload">Recortar y Enviar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+
+
+
+
+
+<div class="row">
+	<div class="col-xs-12">
+		<!-- PAGE CONTENT BEGINS -->
+		<div>
+			<div id="user-profile-1" class="user-profile row">
+				<div class="col-xs-12 col-sm-4 center">
+					<div>
+						<!-- #section:pages/profile.picture -->
+						<span class="profile-picture">
+							<img id="avatar" class="editable img-responsive" alt="Avatar de {{ request.user.get_nombre_completo }}"
+                                 {% if request.user.foto %}
+                                    src="{{ request.user.foto.url }}"
+                                 {% else %}
+                                    src="{% static 'avatars/nobody.png' %}"
+                                 {% endif %} data-pk="{{ request.user.pk }}"/>
+						</span>
+
+						<!-- /section:pages/profile.picture -->
+						<div class="space-4"></div>
+
+						<div class="width-80 label label-info label-xlg arrowed-in arrowed-in-right">
+							<div class="inline position-relative">
+								<a href="#" class="user-title-label dropdown-toggle" data-toggle="dropdown">
+									<span class="white">{{ request.user.get_nombre_completo }}</span>
+								</a>
+
+							</div>
+						</div>
+					</div>
+
+					<div class="space-6"></div>
+
+                    <form method="post" enctype="multipart/form-data" id="formUpload" class="form-horizontal">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label class="col-xs-6 control-label" for="foto-clear_id">Borrar foto</label>
+                            <div class="col-xs-2">
+                                <input type="checkbox" class="checkbox form-control" name="foto-clear" id="foto-clear_id" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-xs-2 control-label" for=id_foto">Foto:</label>
+                            <div class="col-xs-10">
+                                <input type="file" class="form-control" name="foto" id="id_foto" />
+                            </div>
+                        </div>
+                       {#  {{ form.foto }} #}
+                        {{ form.x }}
+                        {{ form.y }}
+                        {{ form.width }}
+                        {{ form.height }}
+                    </form>
+
+				</div>
+
+				<div class="col-xs-12 col-sm-8">
+					<div class="center">
+						<span class="btn btn-app btn-sm btn-light no-hover">
+							<span class="line-height-1 bigger-170 blue"> {{ partes }} </span>
+
+							<br />
+							<span class="line-height-1 smaller-90"> Partes </span>
+						</span>
+
+						<span class="btn btn-app btn-sm btn-yellow no-hover">
+							<span class="line-height-1 bigger-170"> {{ retrasos }} </span>
+
+							<br />
+							<span class="line-height-1 smaller-90"> Retrasos </span>
+						</span>
+
+						<span class="btn btn-app btn-sm btn-pink no-hover">
+							<span class="line-height-1 bigger-170"> {{ absentismos }} </span>
+
+							<br />
+							<span class="line-height-1 smaller-90"> Absentism. </span>
+						</span>
+
+					</div>
+
+					<div class="space-12"></div>
+
+					<!-- #section:pages/profile.info -->
+					<div class="profile-user-info profile-user-info-striped">
+						<div class="profile-info-row">
+							<div class="profile-info-name"> Nombre Comp. </div>
+
+							<div class="profile-info-value">
+								<span class="editable" id="name">{{ request.user.name }}</span>
+							</div>
+						</div>
+
+					</div>
+
+					<!-- /section:pages/profile.info -->
+					<div class="space-20"></div>
+
+					<div class="widget-box transparent">
+						<div class="widget-header widget-header-small">
+							<h4 class="widget-title blue smaller">
+								<i class="ace-icon fa fa-rss orange"></i>
+								Actividad Reciente
+							</h4>
+
+						</div>
+
+						<div class="widget-body">
+							<div class="widget-main padding-8">
+								<!-- #section:pages/profile.feed -->
+								<div id="profile-feed-1" class="profile-feed">
+									<div class="profile-activity clearfix">
+										<div>
+											<img class="pull-left" alt="Alex Doe's avatar" src="{% static 'ace/assets/avatars/avatar5.png' %}" />
+											<a class="user" href="#"> Alex Doe </a>
+											changed his profile photo.
+											<a href="#">Take a look</a>
+
+											<div class="time">
+												<i class="ace-icon fa fa-clock-o bigger-110"></i>
+												an hour ago
+											</div>
+										</div>
+
+										<div class="tools action-buttons">
+											<a href="#" class="blue">
+												<i class="ace-icon fa fa-pencil bigger-125"></i>
+											</a>
+
+											<a href="#" class="red">
+												<i class="ace-icon fa fa-times bigger-125"></i>
+											</a>
+										</div>
+									</div>
+
+									<div class="profile-activity clearfix">
+										<div>
+											<img class="pull-left" alt="Susan Smith's avatar" src="{% static 'ace/assets/avatars/avatar1.png' %}" />
+											<a class="user" href="#"> Susan Smith </a>
+
+											is now friends with Alex Doe.
+											<div class="time">
+												<i class="ace-icon fa fa-clock-o bigger-110"></i>
+												2 hours ago
+											</div>
+										</div>
+
+										<div class="tools action-buttons">
+											<a href="#" class="blue">
+												<i class="ace-icon fa fa-pencil bigger-125"></i>
+											</a>
+
+											<a href="#" class="red">
+												<i class="ace-icon fa fa-times bigger-125"></i>
+											</a>
+										</div>
+									</div>
+
+									<div class="profile-activity clearfix">
+										<div>
+											<i class="pull-left thumbicon fa fa-check btn-success no-hover"></i>
+											<a class="user" href="#"> Alex Doe </a>
+											joined
+											<a href="#">Country Music</a>
+
+											group.
+											<div class="time">
+												<i class="ace-icon fa fa-clock-o bigger-110"></i>
+												5 hours ago
+											</div>
+										</div>
+
+										<div class="tools action-buttons">
+											<a href="#" class="blue">
+												<i class="ace-icon fa fa-pencil bigger-125"></i>
+											</a>
+
+											<a href="#" class="red">
+												<i class="ace-icon fa fa-times bigger-125"></i>
+											</a>
+										</div>
+									</div>
+
+									<div class="profile-activity clearfix">
+										<div>
+											<i class="pull-left thumbicon fa fa-picture-o btn-info no-hover"></i>
+											<a class="user" href="#"> Alex Doe </a>
+											uploaded a new photo.
+											<a href="#">Take a look</a>
+
+											<div class="time">
+												<i class="ace-icon fa fa-clock-o bigger-110"></i>
+												5 hours ago
+											</div>
+										</div>
+
+										<div class="tools action-buttons">
+											<a href="#" class="blue">
+												<i class="ace-icon fa fa-pencil bigger-125"></i>
+											</a>
+
+											<a href="#" class="red">
+												<i class="ace-icon fa fa-times bigger-125"></i>
+											</a>
+										</div>
+									</div>
+
+									<div class="profile-activity clearfix">
+										<div>
+											<img class="pull-left" alt="David Palms's avatar" src="{% static 'ace/assets/avatars/avatar4.png' %}" />
+											<a class="user" href="#"> David Palms </a>
+
+											left a comment on Alex's wall.
+											<div class="time">
+												<i class="ace-icon fa fa-clock-o bigger-110"></i>
+												8 hours ago
+											</div>
+										</div>
+
+										<div class="tools action-buttons">
+											<a href="#" class="blue">
+												<i class="ace-icon fa fa-pencil bigger-125"></i>
+											</a>
+
+											<a href="#" class="red">
+												<i class="ace-icon fa fa-times bigger-125"></i>
+											</a>
+										</div>
+									</div>
+
+									<div class="profile-activity clearfix">
+										<div>
+											<i class="pull-left thumbicon fa fa-pencil-square-o btn-pink no-hover"></i>
+											<a class="user" href="#"> Alex Doe </a>
+											published a new blog post.
+											<a href="#">Read now</a>
+
+											<div class="time">
+												<i class="ace-icon fa fa-clock-o bigger-110"></i>
+												11 hours ago
+											</div>
+										</div>
+
+										<div class="tools action-buttons">
+											<a href="#" class="blue">
+												<i class="ace-icon fa fa-pencil bigger-125"></i>
+											</a>
+
+											<a href="#" class="red">
+												<i class="ace-icon fa fa-times bigger-125"></i>
+											</a>
+										</div>
+									</div>
+
+									<div class="profile-activity clearfix">
+										<div>
+											<img class="pull-left" alt="Alex Doe's avatar" src="{% static 'ace/assets/avatars/avatar5.png' %}" />
+											<a class="user" href="#"> Alex Doe </a>
+
+											upgraded his skills.
+											<div class="time">
+												<i class="ace-icon fa fa-clock-o bigger-110"></i>
+												12 hours ago
+											</div>
+										</div>
+
+										<div class="tools action-buttons">
+											<a href="#" class="blue">
+												<i class="ace-icon fa fa-pencil bigger-125"></i>
+											</a>
+
+											<a href="#" class="red">
+												<i class="ace-icon fa fa-times bigger-125"></i>
+											</a>
+										</div>
+									</div>
+
+									<div class="profile-activity clearfix">
+										<div>
+											<i class="pull-left thumbicon fa fa-key btn-info no-hover"></i>
+											<a class="user" href="#"> Alex Doe </a>
+
+											logged in.
+											<div class="time">
+												<i class="ace-icon fa fa-clock-o bigger-110"></i>
+												12 hours ago
+											</div>
+										</div>
+
+										<div class="tools action-buttons">
+											<a href="#" class="blue">
+												<i class="ace-icon fa fa-pencil bigger-125"></i>
+											</a>
+
+											<a href="#" class="red">
+												<i class="ace-icon fa fa-times bigger-125"></i>
+											</a>
+										</div>
+									</div>
+
+									<div class="profile-activity clearfix">
+										<div>
+											<i class="pull-left thumbicon fa fa-power-off btn-inverse no-hover"></i>
+											<a class="user" href="#"> Alex Doe </a>
+
+											logged out.
+											<div class="time">
+												<i class="ace-icon fa fa-clock-o bigger-110"></i>
+												16 hours ago
+											</div>
+										</div>
+
+										<div class="tools action-buttons">
+											<a href="#" class="blue">
+												<i class="ace-icon fa fa-pencil bigger-125"></i>
+											</a>
+
+											<a href="#" class="red">
+												<i class="ace-icon fa fa-times bigger-125"></i>
+											</a>
+										</div>
+									</div>
+
+									<div class="profile-activity clearfix">
+										<div>
+											<i class="pull-left thumbicon fa fa-key btn-info no-hover"></i>
+											<a class="user" href="#"> Alex Doe </a>
+
+											logged in.
+											<div class="time">
+												<i class="ace-icon fa fa-clock-o bigger-110"></i>
+												16 hours ago
+											</div>
+										</div>
+
+										<div class="tools action-buttons">
+											<a href="#" class="blue">
+												<i class="ace-icon fa fa-pencil bigger-125"></i>
+											</a>
+
+											<a href="#" class="red">
+												<i class="ace-icon fa fa-times bigger-125"></i>
+											</a>
+										</div>
+									</div>
+
+
+                                    {% for recent in recents %}
+                                        <div class="profile-activity clearfix">
+                                            <div>
+                                                <i class="pull-left thumbicon fa fa-key btn-info no-hover"></i>
+                                                <a class="user" href="#"> Alex Doe </a>
+
+                                                logged in.
+                                                <div class="time">
+                                                    <i class="ace-icon fa fa-clock-o bigger-110"></i>
+                                                    16 hours ago
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% empty %}
+
+                                    {% endfor %}
+
+
+								</div>
+
+								<!-- /section:pages/profile.feed -->
+							</div>
+						</div>
+					</div>
+
+					<div class="hr hr2 hr-double"></div>
+
+					<div class="space-6"></div>
+
+				</div>
+			</div>
+		</div>
+
+
+
+		<!-- PAGE CONTENT ENDS -->
+	</div><!-- /.col -->
+</div><!-- /.row -->
+
+<!-- page specific plugin scripts -->
+
+<!--[if lte IE 8]>
+  <script src="../../components/ExplorerCanvas/excanvas.js"></script>
+<![endif]-->
+<script type="text/javascript">
+	var scripts = [null,
+        "{% static 'ace/components/_mod/jquery-ui.custom/jquery-ui.custom.js' %}",
+        "{% static 'ace/components/jqueryui-touch-punch/jquery.ui.touch-punch.js' %}",
+        "{% static 'ace/components/jquery.gritter/js/jquery.gritter.js' %}",
+        "{% static 'ace/components/_mod/x-editable/bootstrap-editable.js' %}",
+        "{% static 'ace/components/_mod/x-editable/ace-editable.js' %}",
+        "{% static 'js/cropper/cropper.min.js' %}",
+        null];
+	$('.page-content-area').ace_ajax('loadScripts', scripts, function() {
+	  //inline scripts related to this page
+	    jQuery(function($) {
+
+	        // remove active menu
+	        $('.nav-list li.active').removeClass('active');
+
+            //editables on first profile page
+            $.fn.editable.defaults.mode = 'inline';
+            $.fn.editableform.loading = "<div class='editableform-loading'><i class='ace-icon fa fa-spinner fa-spin fa-2x light-blue'></i></div>";
+            $.fn.editableform.buttons = '<button type="submit" class="btn btn-info editable-submit"><i class="ace-icon fa fa-check"></i></button>'+
+                                        '<button type="button" class="btn editable-cancel"><i class="ace-icon fa fa-times"></i></button>';
+
+            //editables
+
+            //text editable
+            $('#name')
+            .editable({
+                type: 'text',
+                name: 'name',
+                pk: {{ request.user.pk }},
+                url: "{% url 'users:modifica_name' %}",
+                success: function(response, newValue) {
+                    if(response.status == "err") return response.message;
+                }
+            });
+
+            var blank_image = $('#avatar').attr('src') === "{% static 'avatars/nobody.png' %}";//somehow you determine if image is initially blank or not, or you just want to display file input at first
+            if(blank_image) {
+                $('#foto-clear_id').attr("disabled", true);
+                $('#foto-clear_id').prop("checked", false);
+            }
+
+            // clear user photo
+            $("#foto-clear_id").on('click', function(){
+                result = window.confirm("¿Estás seguro/a de eliminar tu fotografía?");
+                if(result) {
+                    formData_object = new FormData();
+                    formData_object.append('foto-clear', 'on');
+                    formData_object.append('pk', {{ request.user.pk }});
+                    $.ajax({
+                        url: "{% url 'users:modifica_foto' %}",
+                        dataType: 'json',//server response type
+                        type: 'POST',
+                        data: formData_object,
+                        success: function (result) {
+                            // aqui debemos actualizar la foto y resetear el formulario
+                            var res = result;//the `result` is formatted by your server side response and is arbitrary
+                            if(res.status == 'OK') {
+                                // update photo page
+                                $(avatar).get(0).src = res.url;
+                                // update navbar photo
+                                $('.nav-user-photo').get(0).src = res.url;
+                                $('.page-content-area').ace_ajax('reload');
+                            }
+                            else alert(res.message);
+                        },
+                        cache: false,
+                        contentType: false,
+                        processData: false
+                    });
+                }
+                else {
+                    $('#foto-clear_id').prop("checked", false);
+                    $('#foto-clear_id').attr("disabled", false);
+                }
+            });
+
+            //another option is using modals
+            $('#id_foto').change(function(){
+                //var modal = $('#modalCrop');
+                if (this.files && this.files[0]) {
+                    var reader = new FileReader();
+                    reader.onload = function (e) {
+                        $("#image").attr("src", e.target.result);
+                        $("#modalCrop").modal("show");
+                    };
+                    reader.readAsDataURL(this.files[0]);
+                }
+
+                /* SCRIPTS TO HANDLE THE CROPPER BOX */
+                var $image = $("#image");
+                var cropBoxData;
+                var canvasData;
+                $("#modalCrop").on("shown.bs.modal", function () {
+                    $image.cropper({
+                        viewMode: 1,
+                        aspectRatio: 1 / 1,
+                        minCropBoxWidth: 48,
+                        minCropBoxHeight: 48,
+                        ready: function () {
+                            $image.cropper("setCanvasData", canvasData);
+                            $image.cropper("setCropBoxData", cropBoxData);
+                        }
+                    });
+
+                }).on("hidden.bs.modal", function () {
+                    cropBoxData = $image.cropper("getCropBoxData");
+                    canvasData = $image.cropper("getCanvasData");
+                    $image.cropper("destroy");
+                    $('.page-content-area').ace_ajax('reload');
+                });
+
+                $(".js-zoom-in").click(function () {
+                    $image.cropper("zoom", 0.1);
+                });
+
+                $(".js-zoom-out").click(function () {
+                    $image.cropper("zoom", -0.1);
+                });
+
+                /* SCRIPT TO COLLECT THE DATA AND POST TO THE SERVER */
+                $(".js-crop-and-upload").click(function () {
+                    var cropData = $image.cropper("getData");
+                    $("#id_x").val(cropData["x"]);
+                    $("#id_y").val(cropData["y"]);
+                    $("#id_height").val(cropData["height"]);
+                    $("#id_width").val(cropData["width"]);
+                    // debo recoger los datos para enviarlos al servidor, los datos son: pk, foto, limpiar, x, y, w, h
+                    var formData_object = new FormData();//create empty FormData object
+                    //serialize our form (which excludes file inputs)
+                    $form = $('#formUpload');
+                    $.each($form.serializeArray(), function(i, item) {
+                        //add them one by one to our FormData
+                        formData_object.append(item.name, item.value);
+                    });
+                    //and then add file
+                    $form.find('input[type=file]').each(function(){
+                        var field_name = $(this).attr('name');
+                        var files = this.files;
+                        if(files && files.length > 0) {
+                            formData_object.append(field_name, files[0]);
+                        }
+                    });
+                    //append primary key to our formData
+                    formData_object.append('pk', {{ request.user.pk }});
+                    $.ajax({
+                        url: "{% url 'users:modifica_perfil' %}",
+                        type: 'POST',
+                        data: formData_object,
+                        cache: false,
+                        contentType: false,
+                        processData: false})
+                    .done(function(result) {
+                        // aqui ya hemos actualizado la foto y reseteamos el formulario
+                        var res = result;//the `result` is formatted by your server side response and is arbitrary
+                        if(res.status == 'OK') {
+                            $("#modalCrop").modal("hide");
+                            // update photo page
+                            //$(avatar).get(0).src = res.url;
+                            // update navbar photo
+                            $('.nav-user-photo').get(0).src = res.url;
+                        }
+                        else alert(res.message);
+                    });
+                });
+            });
+
+
+            //////////////////////////////
+            $('#profile-feed-1').ace_scroll({
+                height: '250px',
+                mouseWheelLock: true,
+                alwaysVisible : true
+            });
+
+
+            /////////////////////////////////////
+            $(document).one('ajaxloadstart.page', function(e) {
+                //in ajax mode, remove remaining elements before leaving page
+                try {
+                    $('.editable').editable('destroy');
+                } catch(e) {}
+            });
+        });
+	});
+</script>

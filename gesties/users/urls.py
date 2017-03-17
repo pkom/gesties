@@ -21,7 +21,14 @@ urlpatterns = [
     url(r'^carga_profesor_info/(?P<dni>[\w.@+-]+)/$', views.ver_profesor, name='ver_profesor'),
     url(r'^carga_profesor_info/$', views.ver_profesor, name='ver_profesor'),
 
+    # update profile
+    url(r'^perfil/$', views.modifica_perfil, name='modifica_perfil'),
 
+    # update user photo
+    url(r'^update_photo/$', views.modifica_foto, name='modifica_foto'),
+
+    # update username
+    url(r'^update_name/$', views.modifica_name, name='modifica_name'),
 
     url(
         regex=r'profesores/$',

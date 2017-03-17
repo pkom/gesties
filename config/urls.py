@@ -27,7 +27,7 @@ urlpatterns = [
 
     # Your stuff: custom urls includes go here
 
-    # Alumnos
+    # Alumnos y tutores legales
     url(r'^alumnos/', include('gesties.alumnos.urls', namespace='alumnos')),
 
     # Departamentos

@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, unicode_literals
+import uuid
+
+from PIL import Image
 
 from django.conf import settings
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -9,9 +12,10 @@ from django.contrib.auth import (
 )
 from django.contrib.auth.decorators import login_required
 from django.contrib.sites.shortcuts import get_current_site
-from django.views.decorators.csrf import csrf_protect
+from django.contrib.staticfiles.templatetags.staticfiles import static
+from django.views.decorators.csrf import csrf_protect, csrf_exempt
 from django.utils.http import is_safe_url
-from django.shortcuts import resolve_url
+from django.shortcuts import resolve_url, redirect
 from django.http import JsonResponse, HttpResponseRedirect, HttpResponseNotAllowed, HttpResponseBadRequest
 from django.views.decorators.cache import never_cache
 from django.core.urlresolvers import reverse
@@ -28,8 +32,9 @@ from gesties.configies.models import Configies
 from gesties.grupos.models import CursoGrupo
 from gesties.departamentos.models import CursoDepartamento
 
-from gesties.users.forms import AutenticacionForm
+from gesties.users.forms import AutenticacionForm, UserForm, UserFotoForm
 from gesties.users.models import CursoProfesor
+from gesties.departamentos.models import CursoDepartamentoProfesor
 
 
 User = get_user_model()
@@ -91,7 +96,7 @@ def Userlogin(request, template_name='users/user_login.html',
                     request.session['jefatura']['nombre_dpto'] = cursodepartamento[0].departamento.departamento
             request.session['configies'] = serializer(Configies.objects.first()).serializer()
             if Configies.objects.first().logo_centro:
-                request.session['configies']['logo_centro_url'] = Configies.objects.first().logo_centro.url
+                request.session['configies']['fields']['logo_centro_url'] = Configies.objects.first().logo_centro.url
             request.session['curso_academico'] = serializer(form.cleaned_data["curso_academico"]).serializer()
             return HttpResponseRedirect(_get_login_redirect_url(request, redirect_to))
     else:
@@ -145,10 +150,16 @@ def load_profesores_datatables(request):
 
         recordsTotal = qs.count()
         recordsFiltered = recordsTotal
-        if search is not None:
+        if search != "":
             ape = Q(profesor__last_name__icontains=search)
             nom = Q(profesor__first_name__icontains=search)
-            qs = qs.filter(ape | nom)
+
+            #filtrado por departamentos
+            deps = CursoDepartamentoProfesor.objects.filter(curso_departamento__curso=request.session['curso_academico']['pk'],
+                curso_departamento__departamento__departamento__icontains=search)
+            dep = Q(departamentos__in=deps)
+
+            qs = qs.filter( ape | nom | dep )
             recordsFiltered = qs.count()
         paginator = Paginator(qs, length)
         try:
@@ -209,6 +220,151 @@ def ver_profesor(request, dni=None):
             return JsonResponse(data, status=405)
     else:
         return HttpResponseBadRequest(u'Lo siento, esto es una vista AJAX')
+
+@ajax_required
+@login_required
+def modifica_perfil(request):
+
+    user = request.user
+    if request.method == 'POST':
+        form = UserFotoForm(request.POST, request.FILES, instance=user)
+        result = {}
+        if form.is_valid():
+            form.save()
+            result['status'] = 'OK'
+            result['message'] = u'La fotografía se ha actualizado correctamente'
+            result['url'] = user.foto.url
+            return JsonResponse(result)
+        else:
+            result['status'] = 'ERR'
+            result['message'] = u'No ha sido posible establecer la fotografía'
+            return JsonResponse(result)
+    else:
+        form = UserFotoForm(instance=request.user)
+
+    # figure out number of reports and last activities
+    context = dict()
+    context['partes'] = 23
+    context['retrasos'] = 2
+    context['absentismos'] = 3
+    context['recents'] = [
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+    ]
+    context['form'] = form
+    return TemplateResponse(request, 'partials/profesores/_user_profile.html', context)
+
+
+@csrf_exempt
+@ajax_required
+@login_required
+def modifica_foto(request):
+
+    user = request.user
+    result = {}
+    if request.method == 'POST':
+        if 'foto-clear' in request.POST:
+            limpiar = True if request.POST['foto-clear'] == 'on' else False
+        else:
+            limpiar = False
+        if 'pk' in request.POST:
+            pk = request.POST['pk']
+        else:
+            pk = request.user.pk
+        if 'x' in request.POST:
+            x = request.POST['x']
+        if 'y' in request.POST:
+            y = request.POST['y']
+        if 'width' in request.POST:
+            w = request.POST['width']
+        if 'height' in request.POST:
+            h = request.POST['height']
+        if 'avatar' in request.FILES:
+            foto = request.FILES['avatar']
+        if 'foto' in request.FILES:
+            foto = request.FILES['foto']
+
+        if limpiar:
+            user.foto.delete()
+            user.save()
+            result['status'] = 'OK'
+            result['message'] = u'La fotografía se ha eliminado'
+            result['url'] = static('avatars/nobody.png')
+            return JsonResponse(result)
+
+        else:
+            try:
+                x = float(x)
+                y = float(y)
+                w = float(w)
+                h = float(h)
+            except NameError:
+                cropping = False
+            else:
+                cropping = True
+
+
+            if foto:
+                if user.foto:
+                    user.foto.delete()
+
+                #user.foto.save(foto.name, foto)
+
+                import os
+                filename, file_extension = os.path.splitext(foto.name)
+                user.foto.save(str(uuid.uuid4())+file_extension, foto)
+
+                image = Image.open(foto)
+
+                if cropping:
+                    cropped_image = image.crop((x, y, w + x, h + y))
+                else:
+                    cropped_image = image
+                resized_image = cropped_image.resize((200, 200), Image.ANTIALIAS)
+                resized_image.save(user.foto.path)
+
+                result['status'] = 'OK'
+                result['message'] = u'La fotografía se ha actualizado correctamente'
+                result['url'] = user.foto.url
+                return JsonResponse(result)
+
+            else:
+                result['status'] = 'ERR'
+                result['message'] = u'No se ha seleccionado ninguna fotografía'
+                return JsonResponse(result)
+    else:
+        result['status'] = 'ERR'
+        result['message'] = u'El método no está permitido'
+        return HttpResponseNotAllowed(result)
+
+
+@csrf_exempt
+@ajax_required
+@login_required
+def modifica_name(request):
+
+    user = request.user
+    result = {}
+    if request.method == 'POST':
+        if 'name' in request.POST:
+            name = request.POST['value']
+            if name != "":
+                user.name = name
+                user.save()
+                result['status'] = 'OK'
+                result['message'] = 'Se ha actualizado el nombre'
+            else:
+                result['status'] = 'err'
+                result['message'] = 'El nombre no puede estar vacio'
+            return JsonResponse(result)
+        else:
+            result['status'] = 'err'
+            return HttpResponseBadRequest('No se ha podido actualizar ')
 
 
 class CursoProfesorListView(LoginRequiredMixin, ListView):
@@ -271,8 +427,7 @@ class UserUpdateView(LoginRequiredMixin, UpdateView):
 
     # send the user back to their own page after a successful update
     def get_success_url(self):
-        return reverse('users:detail-profesor',
-                       kwargs={'username': self.request.user.username})
+        return reverse('inicio:index')
 
     def get_object(self):
         # Only get the User record for the user making the request
