@@ -250,7 +250,9 @@ def imprime_cb_ejemplares(request, titulo=None, autor=None, ancho=None, alto=Non
         if 'pdf' in request.GET:
             datos = {}
             datos['titulo'] = request.GET.get('titulo')
+            titulo = datos['titulo'].encode('utf-8')
             datos['autor'] = request.GET.get('nautor')
+            autor = datos['autor'].encode('utf-8')
             datos['ancho'] = int(request.GET.get('ancho'))
             datos['alto'] = int(request.GET.get('alto'))
             datos['inicio'] = int(request.GET.get('inicio'))
@@ -340,8 +342,8 @@ def imprime_cb_ejemplares(request, titulo=None, autor=None, ancho=None, alto=Non
                 label.add(s)
                 '''
 
-                label.add(shapes.String(15, 60, datos['titulo'], fontSize=8))
-                label.add(shapes.String(15, 50, datos['autor'], fontSize=8))
+                label.add(shapes.String(15, 60, titulo, fontSize=8))
+                label.add(shapes.String(15, 50, autor, fontSize=8))
                 #barcode_image_raw = barcode.createBarcodeImageInMemory('Code128', value=obj, width=150 * mm, height=30 * mm)
                 #cb = Image.open(BytesIO(barcode_image_raw))
                 #cb.save("cb.png")

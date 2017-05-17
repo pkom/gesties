@@ -127,6 +127,9 @@ class Libro(TimeStampedModel):
 
             self.codigo_barras = codigo_barras
         # comprobaremos y crearemos los ejemplares que no existan
+        if not self.pk:
+            super(Libro, self).save(*args, **kwargs)
+
         num_ejemplares = self.numero_ejemplares
         qs_libro_ejemplares = self.ejemplar_set.all()
         num_ejemplares_creados = qs_libro_ejemplares.count()
