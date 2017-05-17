@@ -29,6 +29,10 @@ urlpatterns = [
     url(r'^carga_tutor_info/$', views.ver_tutor, name='ver_tutor'),
 
 
+    # ajax alumnos de un grupo
+    url(r'^ajax_carga_alumnos_grupo/(?P<curso_grupo>\d+)/$', viewsajax.ajax_carga_alumnos_grupo, name='ajax_carga_alumnos_grupo'),
+    url(r'^ajax_carga_alumnos_grupo/$', viewsajax.ajax_carga_alumnos_grupo, name='ajax_carga_alumnos_grupo'),
+
     # vistas no ajax de alumnos, dependen de la base base.html
     url(
         regex=r'^$',

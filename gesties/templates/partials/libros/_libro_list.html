@@ -1,0 +1,330 @@
+{% load staticfiles i18n %}
+
+<link rel="stylesheet" href="{% static 'ace/components/chosen/chosen.css' %}" />
+<link rel="stylesheet" href="{% static 'ace/components/bootstrap-datepicker/dist/css/bootstrap-datepicker3.css' %}" />
+
+<style>
+    .row-disp {
+        background-color: yellowgreen;
+    }
+    .row-baja {
+        background-color: orangered;
+    }
+    .row-dete {
+        background-color: indianred;
+    }
+    .row-pres {
+        background-color: yellow;
+    }
+
+</style>
+
+<title>Becas Libros - Libros de Texto</title>
+
+
+<!-- THE MODAL TO SHOW BOOK INFO -->
+<div class="modal modal-wide fade" id="modal-book">
+    <div class="modal-dialog">
+          <div class="modal-content">
+
+          </div>
+    </div>
+</div>
+
+
+<div class="page-header">
+	<h1>
+		Becas de Libros
+		<small>
+			<i class="ace-icon fa fa-angle-double-right"></i>
+			Relación de Libros
+		</small>
+	</h1>
+</div>
+
+
+<p>
+<button type="button" class="btn btn-primary js-create-book " data-url="{% url 'libros:create_libro' %}">
+  <span class="glyphicon glyphicon-plus"></span>
+  Nuevo libro
+</button>
+</p>
+
+
+<div class="row">
+    <div class="col-xs-12">
+        <div class="table-header">
+            Relación de Libros de Texto
+        </div>
+        <div>
+            <table id="libros-table" class="table table-striped table-bordered table-hover dataTable no-footer" role="grid" aria-describedby="libros-table_info">
+                <thead>
+                    <tr role="row">
+                        <th class="sorting" tabindex="0" aria-controls="libros-table" rowspan="1" colspan="1" aria-label="Titulo">Título</th>
+                        <th class="sorting" tabindex="0" aria-controls="libros-table" rowspan="1" colspan="1" aria-label="Autor/a: activa para ordenar ascendentemente">Autor/a</th>
+                        <th class="visible-lg sorting" tabindex="0" aria-controls="libros-table" rowspan="1" colspan="1" aria-label="Editorial: activa para ordenar ascendentemente">Editorial</th>
+                        <th class="visible-lg sorting_disabled" tabindex="0" aria-controls="libros-table" rowspan="1" colspan="1" aria-label="Año de Edición">Año</th>
+                        <th class="visible-lg sorting" tabindex="0" aria-controls="libros-table" rowspan="1" colspan="1" aria-label="Área de Conocimiento">Área</th>
+                        <th class="visible-lg sorting_disabled" tabindex="0" aria-controls="libros-table" rowspan="1" colspan="1" aria-label="ISBN">ISBN</th>
+                        <th class="visible-lg sorting_disabled" tabindex="0" aria-controls="libros-table" rowspan="1" colspan="1" aria-label="Código de Barras">Cód. Barras</th>
+                        <th class="visible-lg visible-md sorting" tabindex="0" aria-controls="libros-table" rowspan="1" colspan="1" aria-label="Nivel Educativo: activa para ordenar ascendentemente">Nivel</th>
+                        <th class="sorting" tabindex="0" aria-controls="libros-table" rowspan="1" colspan="1" aria-label="Número de Ejemplares: activa para ordenar ascendentemente">T.Eje.</th>
+
+                        <th class="sorting_disabled" tabindex="0" aria-controls="libros-table" rowspan="1" colspan="1" aria-label="Ejemplares disponibles: activa para ordenar ascendentemente">Disp.</th>
+                        <th class="sorting_disabled" tabindex="0" aria-controls="libros-table" rowspan="1" colspan="1" aria-label="Ejemplares prestados: activa para ordenar ascendentemente">Prest.</th>
+                        <th class="sorting_disabled" tabindex="0" aria-controls="libros-table" rowspan="1" colspan="1" aria-label="Ejemplares deteriodados: activa para ordenar ascendentemente">Deter.</th>
+                        <th class="sorting_disabled" tabindex="0" aria-controls="libros-table" rowspan="1" colspan="1" aria-label="Ejemplares de baja: activa para ordenar ascendentemente">Bajas</th>
+
+                        <th class="visible-lg sorting_disabled" tabindex="0" aria-controls="libros-table" rowspan="1" colspan="1" aria-label="Precio">Precio</th>
+                        <th class="visible-lg sorting_disabled" tabindex="0" aria-controls="libros-table" rowspan="1" colspan="1" aria-label="Fecha de Inicio">Fec. Inicio</th>
+                        <th class="visible-lg sorting_disabled" tabindex="0" aria-controls="libros-table" rowspan="1" colspan="1" aria-label="Fecha de Fin">Fec. Fin</th>
+                        <th></th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    var scripts = [null,
+        "{% static 'ace/components/datatables/media/js/jquery.dataTables.js'%}",
+        "{% static 'ace/components/_mod/datatables/jquery.dataTables.bootstrap.js' %}",
+        "{% static 'ace/components/datatables.net-select/js/dataTables.select.js'%}",
+        "{% static 'ace/components/chosen/chosen.jquery.js'%}",
+        "{% static 'ace/components/bootstrap-datepicker/dist/js/bootstrap-datepicker.js' %}",
+        "{% static 'ace/components/bootstrap-datepicker/dist/locales/bootstrap-datepicker.es.min.js' %}",
+        null];
+    $('.page-content-area').ace_ajax('loadScripts', scripts, function() {
+        jQuery(function($) {
+
+            if ( $.fn.dataTable.isDataTable( '#libros-table' ) ) {
+                return true;
+            }
+
+		    var tablaLibros =  $('#libros-table').DataTable( {
+			    autoWidth: false,
+                columns: [
+                    { data: "titulo", name: "titulo",
+                        render: function ( data, type, full, meta ) {
+			                return '<strong>'+data+'</strong>';
+			            }
+                    },
+                    { data: "autor", name: "autor",
+                        render: function ( data, type, full, meta ) {
+			                return '<small>'+data+'</small>';
+			            }
+                    },
+                    { data: "editorial", name: "editorial", class: "visible-lg" },
+                    { data: "anio_edicion", name: "anio_edicion", class: "visible-lg" },
+                    { data: "area_conocimiento", name: "area_conocimiento", class: "visible-lg" },
+                    { data: "isbn", name: "isbn", class: "visible-lg" },
+                    { data: "codigo_barras", name: "codigo_barras", class: "visible-lg" },
+                    { data: "nivel", name: "nivel", class: "visible-lg visible-md" },
+                    { data: "numero_ejemplares", name: "numero_ejemplares", class: 'align-right',
+                        render: function ( data, type, full, meta ) {
+			                return '<strong>'+data+'</strong>';
+			            }
+                    },
+                    { data: "disponibles", name: "disponibles", class: 'align-right',
+                        render: function ( data, type, full, meta ) {
+			                return '<strong>'+data+'</strong>';
+			            }
+                    },
+                    { data: "prestados", name: "prestados", class: 'align-right' },
+                    { data: "deteriorados", name: "deteriorados", class: 'align-right' },
+                    { data: "bajas", name: "bajas", class: 'align-right' },
+                    { data: "precio", name: "precio", class: 'visible-lg' },
+                    { data: "fecha_inicio", name: "fecha_inicio", class: "visible-lg" },
+                    { data: "fecha_fin", name: "fecha_fin", class: "visible-lg" },
+                    { data: null,
+                        render: function ( data, type, row ) {
+			                var data_url_edita = "{% url 'libros:update_libro' pk=12345 %}".replace(/12345/, row.DT_RowData[0].pkey);
+			                var data_url_ejemplares = "{% url 'libros:ejemplares_libro' pk=12345 %}".replace(/12345/, row.DT_RowData[0].pkey);
+			                var data_url_imprime_ejemplares = "{% url 'libros:imprime_ejemplares_cb' pk=12345 %}".replace(/12345/, row.DT_RowData[0].pkey);
+
+			                return '<td>'+
+                                    '<div class="hidden-sm hidden-xs action-buttons">'+
+                                        '<a class="blue tooltip-info js-update-book" data-url="'+data_url_edita+'"'+
+                                            'data-rel="tooltip" title="Editar" href="#{% url 'libros:libros' %}">'+
+                                            '<span class="blue">'+
+                                                '<i class="ace-icon fa fa-pencil"></i>'+
+                                            '</span>'+
+                                        '</a>'+
+                                        '<a class="blue tooltip-info js-update-ejemplares" data-url="'+data_url_ejemplares+'"'+
+                                            'data-rel="tooltip" title="Ejemplares" href="#{% url 'libros:libros' %}">'+
+                                            '<span class="blue">'+
+                                                '<i class="ace-icon fa fa-book"></i>'+
+                                            '</span>'+
+                                        '</a>'+
+                                        '<a class="blue tooltip-info js-imprime-cb-ejemplares" data-url="'+data_url_imprime_ejemplares+'"'+
+                                            'data-rel="tooltip" title="Imprime CB" href="#{% url 'libros:libros' %}">'+
+                                            '<span class="blue">'+
+                                                '<i class="ace-icon fa fa-print"></i>'+
+                                            '</span>'+
+                                        '</a>'+
+
+                                    '</div>'+
+							        '<div class="hidden-md hidden-lg">'+
+								        '<div class="inline pos-rel">'+
+									        '<button class="btn btn-minier btn-yellow dropdown-toggle" data-toggle="dropdown" data-position="auto">'+
+										        '<i class="ace-icon fa fa-caret-down icon-only bigger-120"></i>'+
+									        '</button>'+
+									        '<ul class="dropdown-menu dropdown-only-icon dropdown-yellow dropdown-menu-right dropdown-caret dropdown-close">'+
+                                                '<li>'+
+    		                                        '<a class="blue tooltip-info js-update-book" data-url="'+data_url_edita+'"'+
+                                                        'data-rel="tooltip" title="Editar" href="#{% url 'libros:libros' %}">'+
+                                                        '<span class="blue">'+
+                                                            '<i class="ace-icon fa fa-pencil bigger-130"></i>'+
+                                                        '</span>'+
+                                                    '</a>'+
+                                                    '<a class="blue tooltip-info js-update-ejemplares" data-url="'+data_url_ejemplares+'"'+
+                                                        'data-rel="tooltip" title="Ejemplares" href="#{% url 'libros:libros' %}">'+
+                                                        '<span class="blue">'+
+                                                            '<i class="ace-icon fa fa-book bigger-130"></i>'+
+                                                        '</span>'+
+                                                    '</a>'+
+                                                    '<a class="blue tooltip-info js-imprime-cb-ejemplares" data-url="'+data_url_imprime_ejemplares+'"'+
+                                                        'data-rel="tooltip" title="Imprime CB" href="#{% url 'libros:libros' %}">'+
+                                                        '<span class="blue">'+
+                                                            '<i class="ace-icon fa fa-print bigger-130"></i>'+
+                                                        '</span>'+
+                                                    '</a>'+
+                                                '</li>'+
+									        '</ul>'+
+								        '</div>'+
+							        '</div>'+
+                                '</td>';
+                        }
+                    }
+                ],
+                columnDefs: [
+                    { orderable: false, targets: [3,5,6,9,10,11,12,13,14,15,16]},
+                    { searchable: false, targets: [3,8,9,10,11,12,13,14,15,16]}
+                ],
+			    order: [[0,'asc']],
+                processing: true,
+	            serverSide: true,
+	            ajax: "{% url 'libros:carga_libros_datatables' %}",
+                language: {
+                    url: "{% static 'js/datatables.spanish.json' %}"
+	            },
+                lengthMenu: [5, 10, 20],
+			    select: {
+				    style: 'api',
+                    info: false
+                },
+                pagingType: "numbers"
+	        });
+
+            // add tootip after datatables has been drawn because it's needed with serverSide processing
+            tablaLibros.on( 'draw', function () {
+       		    /********************************/
+                //add tooltip for small view action buttons in dropdown menu
+                $('[data-rel="tooltip"]').tooltip({placement: tooltip_placement, trigger: "hover"});
+
+                // when .modal-wide opened, set content-body height based on browser height; 200 is appx height of modal padding, modal title and button bar
+                //$(".modal-wide").on("show.bs.modal", function() {
+                //  var height = $(window).height() - 50;
+                //  $(this).find(".modal-body").css("max-height", height);
+                //});
+	        });
+
+            // when .modal-wide opened, set content-body height based on browser height; 200 is appx height of modal padding, modal title and button bar
+            //$(".modal-wide").on("show.bs.modal", function() {
+            //  var height = $(window).height() - 200;
+            //  $(this).find(".modal-body").css("max-height", height);
+            //});
+
+            //tooltip placement on right or left
+            function tooltip_placement(context, source) {
+                var $source = $(source);
+                var $parent = $source.closest('table');
+                var off1 = $parent.offset();
+                var w1 = $parent.width();
+
+                var off2 = $source.offset();
+                //var w2 = $source.width();
+
+                if( parseInt(off2.left) < parseInt(off1.left) + parseInt(w1 / 2) ) return 'right';
+                return 'left';
+            }
+
+
+            //and clean up some plugin remainings before leaving to another page
+            $('.page-content-area').one('ajaxloadstart', function(e, params) {
+            		tablaLibros.destroy();
+            });
+
+            var loadForm = function () {
+                var btn = $(this);
+                $.ajax({
+                    url: btn.attr("data-url"),
+                    type: 'get',
+                    dataType: 'json',
+                    beforeSend: function () {
+                        $("#modal-book").modal("show");
+                    },
+                    success: function (data) {
+                        $("#modal-book .modal-content").html(data.html_form);
+                        //$('#id_autor').chosen();
+                        $('#id_fecha_inicio').datepicker({
+                            'language': 'es'
+                        });
+                        $('#id_fecha_fin').datepicker({
+                            'language': 'es'
+                        });
+                    }
+                });
+            };
+
+            var saveForm = function () {
+                var form = $(this);
+                $.ajax({
+                    url: form.attr("action"),
+                    data: form.serialize(),
+                    type: form.attr("method"),
+                    dataType: 'json',
+                    success: function (data) {
+                        if (data.form_is_valid) {
+                            $("#modal-book").modal("hide");
+                            tablaLibros.ajax.reload().search(tablaLibros.search());
+                        }
+                        else {
+                            $("#modal-book .modal-content").html(data.html_form);
+                        }
+                    }
+                });
+                return false;
+            };
+
+            /* Binding */
+
+            // Create book
+            $(".js-create-book").click(loadForm);
+            $("#modal-book").on("submit", ".js-create-libro-form", saveForm);
+
+            // Update book
+            $("#libros-table").on("click", ".js-update-book", loadForm);
+            $("#modal-book").on("submit", ".js-update-libro-form", saveForm);
+
+            // Ejemplares
+            $("#libros-table").on("click", ".js-update-ejemplares", loadForm);
+            $("#modal-book").on("submit", ".js-update-ejemplares-form", saveForm);
+
+            // Ejemplares impresión CB
+            $("#libros-table").on("click", ".js-imprime-cb-ejemplares", loadForm);
+            $("#modal-book").on("submit", ".js-imprime-ejemplares-form", function imprimeEjemplares() {
+                var $form = $(this)
+                $url = $form.attr('action');
+                $urlparams = $form.serialize();
+                $form.attr('action', $url+'?'+$urlparams);
+                }
+            );
+
+
+        });
+
+    });
+ </script>

@@ -63,6 +63,12 @@
         null]
     $('.page-content-area').ace_ajax('loadScripts', scripts, function() {
         jQuery(function($) {
+
+            if ( $.fn.dataTable.isDataTable( '#grupos-table' ) ) {
+                return true;
+            }
+
+
 		    var tablagrupos =  $('#grupos-table').DataTable( {
 			    autoWidth: false,
                 columns: [
@@ -138,6 +144,7 @@
 
                 //show group info
                 $(".js-view-group").click(function (e) {
+                    e.preventDefault();
                     var grupo = tablagrupos.row( this.closest('tr') ).id();
                     var url = $(this).attr('data-url')+grupo;
                     $.ajax({
@@ -178,6 +185,13 @@
                 if( parseInt(off2.left) < parseInt(off1.left) + parseInt(w1 / 2) ) return 'right';
                 return 'left';
             }
+
+            //and clean up some plugin remainings before leaving to another page
+            $('.page-content-area').one('ajaxloadstart', function(e, params) {
+            		tablagrupos.destroy();
+            });
+
+
 
         });
 

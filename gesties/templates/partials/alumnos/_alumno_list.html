@@ -56,6 +56,11 @@
         null]
     $('.page-content-area').ace_ajax('loadScripts', scripts, function() {
         jQuery(function($) {
+
+            if ( $.fn.dataTable.isDataTable( '#alumnos-table' ) ) {
+                return true;
+            }
+
 		    var tablaAlumnos =  $('#alumnos-table').DataTable( {
 			    autoWidth: false,
                 columns: [
@@ -135,6 +140,7 @@
 
                 //show student info
                 $(".js-view-student").click(function (e) {
+                    e.preventDefault();
                     var nie = tablaAlumnos.row( this.closest('tr') ).id();
                     var url = $(this).attr('data-url')+nie;
                     $.ajax({
@@ -175,6 +181,15 @@
                 if( parseInt(off2.left) < parseInt(off1.left) + parseInt(w1 / 2) ) return 'right';
                 return 'left';
             }
+
+
+            //and clean up some plugin remainings before leaving to another page
+            $('.page-content-area').one('ajaxloadstart', function(e, params) {
+            		tablaAlumnos.destroy();
+            });
+
+
+
 
         });
 

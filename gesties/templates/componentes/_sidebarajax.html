@@ -1,3 +1,5 @@
+{% load staticfiles %}
+
         <div id="sidebar" class="sidebar responsive ace-save-state">
             <script type="text/javascript">
                 try{ace.settings.loadState('sidebar')}catch(e){}
@@ -5,7 +7,7 @@
 
             <ul class="nav nav-list">
                 <li class="">
-                    <a data-url="/inicio/index" href="#/inicio/index">
+                    <a href="{% url 'home' %}" >
                         <i class="menu-icon fa fa-home"></i>
                         <span class="menu-text"> Inicio </span>
                     </a>
@@ -15,7 +17,7 @@
 
                 <li class="">
                     <a href="#" class="dropdown-toggle">
-                        <i class="menu-icon fa fa-building"></i>
+                        <i class="menu-icon fa fa-group"></i>
                         <span class="menu-text">
                             Centro
                         </span>
@@ -75,11 +77,14 @@
                 </li>
 
 
+
+
+{% if request.session.esResponsable or request.session.esAdministrativo %}
                 <li class="">
                     <a href="#" class="dropdown-toggle">
-                        <i class="menu-icon fa fa-ambulance"></i>
+                        <i class="menu-icon fa fa-book"></i>
                         <span class="menu-text">
-                            Partes
+                            Becas Libros
                         </span>
 
                         <b class="arrow fa fa-angle-down"></b>
@@ -88,112 +93,60 @@
                     <b class="arrow"></b>
 
                     <ul class="submenu">
-                        <li class="">
-                            <a href="#">
+
+                        <li>
+
+                           <a data-url="/libros/libros" href="#/libros/libros">
                                 <i class="menu-icon fa fa-caret-right"></i>
-                                Disciplinarios
+                                Libros
                             </a>
 
                             <b class="arrow"></b>
 
-
-
-
-
-
-                            <li class="open">
-								<a href="#" class="dropdown-toggle">
-									<i class="menu-icon fa fa-caret-right"></i>
-
-									Three Level Menu
-									<b class="arrow fa fa-angle-down"></b>
-								</a>
-
-								<b class="arrow"></b>
-
-								<ul class="submenu nav-show" style="display: block;">
-									<li class="">
-										<a href="#">
-											<i class="menu-icon fa fa-leaf green"></i>
-											Item #1
-										</a>
-
-										<b class="arrow"></b>
-									</li>
-
-									<li class="open">
-										<a href="#" class="dropdown-toggle">
-											<i class="menu-icon fa fa-pencil orange"></i>
-
-											4th level
-											<b class="arrow fa fa-angle-down"></b>
-										</a>
-
-										<b class="arrow"></b>
-
-										<ul class="submenu nav-show" style="display: block;">
-											<li class="">
-												<a href="#">
-													<i class="menu-icon fa fa-plus purple"></i>
-													Add Product
-												</a>
-
-												<b class="arrow"></b>
-											</li>
-
-											<li class="">
-												<a href="#">
-													<i class="menu-icon fa fa-eye pink"></i>
-													View Products
-												</a>
-
-												<b class="arrow"></b>
-											</li>
-										</ul>
-									</li>
-								</ul>
-							</li>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
                         </li>
 
+
                         <li class="">
-                            <a href="#">
+
+                            <a href="#" class="dropdown-toggle">
                                 <i class="menu-icon fa fa-caret-right"></i>
-                                Retrasos
+                                Préstamos
+
+                                <b class="arrow fa fa-angle-down"></b>
+
                             </a>
 
                             <b class="arrow"></b>
+
+                            <ul class="submenu">
+                                <li class="">
+                                    <a data-url="/libros/prestamos/manual" href="#/libros/prestamos/manual">
+                                        <i class="menu-icon fa fa-hand-paper-o blue"></i>
+                                        Manual
+                                    </a>
+
+                                    <b class="arrow"></b>
+                                </li>
+
+                                <li class="">
+                                    <a data-url="/libros/prestamos/automatica" href="#/libros/prestamos/automatica">
+                                        <i class="menu-icon fa fa-feed blue"></i>
+                                        Lector CB
+                                    </a>
+
+                                    <b class="arrow"></b>
+                                </li>
+
+							</ul>
                         </li>
-
-                        <li class="">
-                            <a href="#">
-                                <i class="menu-icon fa fa-caret-right"></i>
-                                Absentismo
-                            </a>
-
-                            <b class="arrow"></b>
-                        </li>
-
                     </ul>
                 </li>
+{% endif %}
+
+
+
+
+
 
 
             </ul><!-- /.nav-list -->

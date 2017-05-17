@@ -1,0 +1,300 @@
+{% load staticfiles i18n %}
+
+
+<title>Préstamo con Lector CB de Libros de Texto - Gesties</title>
+
+<link rel="stylesheet" href="{% static 'ace/components/chosen/chosen.css' %}" />
+
+<div class="page-header">
+	<h1>
+		Libros de Texto
+		<small>
+			<i class="ace-icon fa fa-angle-double-right"></i>
+			Préstamos y/o Devoluciones con Lector CB de Libros de Texto
+		</small>
+	</h1>
+</div>
+
+<div class="row">
+    <div class="col-xs-12 col-sm-3">
+        <label for="{{ form.curso_grupo.id_for_label }}">Grupo:</label>
+        {{ form.curso_grupo }}
+    </div>
+
+    <div class="col-xs-12 col-sm-7">
+        <label for="{{ form.curso_grupo_alumno.id_for_label }}">Alumno/a:</label>
+        {{ form.curso_grupo_alumno }}
+    </div>
+
+    <div class="col-xs-12 col-sm-2">
+        <label for="{{ form.tipo_movimiento.id_for_label }}">Tipo</label>
+        {{ form.tipo_movimiento }}
+    </div>
+
+</div>
+
+<div class="hr hr-24"></div>
+
+<div class="row">
+
+    <div class="col-md-3">
+    </div>
+
+    <div class="col-xs-12 col-md-6">
+        <label for="{{ form.ejemplares_prestados.id_for_label }}">Ejemplares Prestados de Libros</label>
+        {{ form.ejemplares_prestados }}
+    </div>
+
+    <div class="col-md-3">
+    </div>
+
+
+</div>
+
+
+<div class="hr hr-24"></div>
+
+<div class="row">
+
+    <div class="col-md-3">
+    </div>
+
+    <div class="col-xs-12 col-md-6">
+        <label for="{{ form.codigo_barras.id_for_label }}">Código de Barras</label>
+        {{ form.codigo_barras }}
+    </div>
+
+    <div class="col-md-3">
+    </div>
+
+</div>
+
+
+<div class="hr hr-24"></div>
+
+
+<div class="row">
+    <div class="widget-box">
+        <div class="widget-header widget-header-flat">
+            <h4 class="widget-title">Pasos</h4>
+        </div>
+
+        <div class="widget-body">
+            <div class="widget-main">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <ul>
+                            <li>Seleccionar el grupo del alumno/a</li>
+
+                            <li>
+                                Seleccionar el alumno/a del grupo
+                            </li>
+
+                            <li>
+                                Seleccionar el tipo de movimiento
+                            </li>
+
+                            <li>
+                                En el cuadro inferior aparecerán los ejemplares de libros que tiene prestados el alumno/a
+                            </li>
+
+                            <li>En el cuadro de texto inferior leeremos el Código de Barras del ejemplar
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-sm-6">
+                        <ul>
+                            <li>Si el tipo de movimiento es <strong>PRÉSTAMO</strong>: si ese ejemplar pertenece a un libro del
+                                nivel del alumno/a, no tiene ya prestado otro ejemplar de ese libro y ese ejemplar no está
+                                prestado a otro alumno/a, entonces pasa a estar asignado al alumno/a.
+                            </li>
+
+                            <li>Si el tipo de movimiento es <strong>DEVOLUCIÓN</strong>: si ese ejemplar está prestado al alumno/a
+                                seleccionado, pertenece a un libro del nivel del alumno/a, entonces el ejemplar se desasigna del alumno/a
+                                y pasa a estar disponible.
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+<script type="text/javascript">
+    var scripts = [null,
+        "{% static 'ace/components/chosen/chosen.jquery.js'%}",
+        null];
+    $('.page-content-area').ace_ajax('loadScripts', scripts, function() {
+        jQuery(function($) {
+            $grupos = $('#id_curso_grupo');
+            $alumnos = $('#id_curso_grupo_alumno');
+            $tipo_movimiento = $('#id_tipo_movimiento');
+            $prestados = $('#id_ejemplares_prestados');
+            $codigo_barras = $('#id_codigo_barras');
+
+
+
+            $grupos.on('change', $grupos, changeGroup);
+            $alumnos.on('change', $alumnos, changeStudent);
+            $prestados.on('change', $prestados, changePrestado);
+
+
+            $tipo_movimiento.on('change', $tipo_movimiento, function () {
+               $codigo_barras.val('');
+               $codigo_barras.focus();
+            });
+
+            $codigo_barras.prop('disabled', true);
+
+            $codigo_barras.keydown(readCodigoBarras);
+
+            // load select groups
+            $.ajax({
+                type: 'GET',
+                url: $grupos.attr('data-url'),
+                data: {'curso': $grupos.attr('data-curso') },
+                dataType: 'json',
+                success: function(grupos) {
+                    $grupos.append('<option value=""> </option>');
+                    $.each(grupos, function (i, grupo) {
+                        $grupos.append('<option value="'+grupo.id+'">'+grupo.grupo_desc+'</option>');
+                    });
+                    $grupos.chosen();
+                },
+                error: errorAjax
+
+            });
+
+        });
+
+
+        function emptySelectPrestados() {
+            $prestados.find('option').remove();
+            $prestados.trigger("chosen:updated");
+        }
+
+
+        function changeGroup () {
+            // $this tiene el option del select del grupo seleccionado
+            $this = $(this);
+            // vaciamos alumnos
+            emptySelectPrestados();
+            // cargamos por ajax los alumnos del grupo
+            $.ajax({
+                type: 'GET',
+                url: $alumnos.attr('data-url'),
+                data: {'curso_grupo': $grupos.val() },
+                dataType: 'json',
+                success: function(alumnos) {
+                    $alumnos.find('option').remove();
+                    $alumnos.append('<option value=""> </option>');
+                    $.each(alumnos, function (i, alumno) {
+                        $alumnos.append('<option value="'+alumno.id+'">'+alumno.alumno+'</option>');
+                    });
+                    $alumnos.prop('disabled', false);
+                    $alumnos.chosen();
+                    $alumnos.trigger("chosen:updated");
+
+                },
+                error: errorAjax
+
+            });
+
+
+        }
+
+        function changeStudent () {
+
+            $codigo_barras.focus();
+            cargaLibrosPrestados();
+            $codigo_barras.prop('disabled', false);
+
+        }
+
+        function changePrestado () {
+            $codigo_barras.val($('#id_ejemplares_prestados option:selected').text().split(' ')[0]);
+            $codigo_barras.focus();
+
+        }
+
+
+        function cargaLibrosPrestados() {
+            // cargar libros prestados
+            emptySelectPrestados();
+            $.ajax({
+                type: 'GET',
+                url: $prestados.attr('data-url'),
+                data: { 'curso_grupo_alumno': $alumnos.val() },
+                dataType: 'json',
+                success: function(libros) {
+                    $prestados.find('option').remove();
+                    $.each(libros, function (i, libro) {
+                        $prestados.append('<option value="'+libro.id+'">'+libro.codigo_barras+' ('+libro.libro+')'+'</option>');
+                    });
+
+                    $codigo_barras.focus();
+
+                },
+                error: errorAjax
+            });
+        }
+
+        function readCodigoBarras(event) {
+            if (event.keyCode === 13) {
+                // he pulsado enter, tenemos que construir la petición
+                if ($codigo_barras.val() === null) {
+                    alert('Es necesario el código de barras');
+                    return false;
+                }
+                if ($tipo_movimiento.val() === 'P') {
+                    url = $codigo_barras.attr('data-url-prestamo');
+                    data = {
+                        'id_ejemplar': null,
+                        'curso_grupo_alumno': $alumnos.val(),
+                        'codigo_barras': $codigo_barras.val()
+                    };
+                }
+                else {
+                    url = $codigo_barras.attr('data-url-devolucion');
+                    data = {
+                        'id_ejemplares': null,
+                        'curso_grupo_alumno': $alumnos.val(),
+                        'codigo_barras': $codigo_barras.val()
+                    };
+                }
+                $.ajax({
+                    type: 'POST',
+                    url: url,
+                    data: data,
+                    dataType: 'json',
+                    success: function (data) {
+                        if (data.status === 'ERR') {
+                            alert($codigo_barras.val()+': '+data.message);
+                            $codigo_barras.val('');
+                        }
+                        emptySelectPrestados();
+                        cargaLibrosPrestados();
+                        $codigo_barras.val('');
+                        $codigo_barras.focus();
+                    },
+                    error: errorAjax
+                });
+            }
+        }
+
+
+
+        function errorAjax(jqXHR, exception) {
+                    alert(jqXHR.responseText);
+                    $codigo_barras.focus();
+        }
+
+
+    });
+ </script>

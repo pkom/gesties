@@ -27,6 +27,9 @@ urlpatterns = [
 
     # Your stuff: custom urls includes go here
 
+    # Préstamos de libros de texto
+    url(r'^libros/', include('gesties.libros.urls', namespace='libros')),
+
     # Alumnos y tutores legales
     url(r'^alumnos/', include('gesties.alumnos.urls', namespace='alumnos')),
 
@@ -38,6 +41,11 @@ urlpatterns = [
 
     # core - inicio
     url(r'^inicio/', include('gesties.core.urls', namespace='inicio')),
+
+    # api
+    url(r'^api/', include('gesties.api.urls', namespace='api')),
+    # api auth
+    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 
     ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

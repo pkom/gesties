@@ -63,6 +63,12 @@
         null]
     $('.page-content-area').ace_ajax('loadScripts', scripts, function() {
         jQuery(function($) {
+
+            if ( $.fn.dataTable.isDataTable( '#tutores-table' ) ) {
+                return true;
+            }
+
+
 		    var tablaTutores =  $('#tutores-table').DataTable( {
 			    autoWidth: false,
                 columns: [
@@ -139,6 +145,7 @@
 
                 //show student info
                 $(".js-view-tutor").click(function (e) {
+                    e.preventDefault();
                     var id = tablaTutores.row( this.closest('tr') ).id();
                     var url = $(this).attr('data-url')+id;
                     $.ajax({
@@ -179,6 +186,12 @@
                 if( parseInt(off2.left) < parseInt(off1.left) + parseInt(w1 / 2) ) return 'right';
                 return 'left';
             }
+
+            //and clean up some plugin remainings before leaving to another page
+            $('.page-content-area').one('ajaxloadstart', function(e, params) {
+            		tablaTutores.destroy();
+            });
+
 
         });
 

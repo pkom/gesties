@@ -1,0 +1,75 @@
+{% load widget_tweaks %}
+
+{% if formset.non_form_errors %}
+<div class="has-error">
+    {% for error in formset.non_form_errors %}
+        <p class="help-block">
+            {{ error }}
+        </p>
+    {% endfor %}
+</div>
+{% endif %}
+
+{{ formset.management_form }}
+
+{% for form in formset %}
+
+    {{ form.id }}
+
+
+    {% if form.non_field_errors %}
+    <div class="has-error">
+        {% for error in form.non_field_errors %}
+            <p class="help-block">
+                {{ error }}
+            </p>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+<div class="row
+    {% if form.instance.estado == 'DISP' %} row-disp
+    {% elif form.instance.estado == 'PRES'%} row-pres
+    {% elif form.instance.estado == 'BAJA'%} row-baja
+    {% elif form.instance.estado == 'DETE'%} row-dete
+    {% endif %}
+">
+<div class="col-md-5">
+<div class="form-group{% if form.codigo_barras.errors %} has-error{% endif %}">
+    <label class="col-md-2 control-label no-padding-right" for="{{ form.codigo_barras.id_for_label }}">C.B.</label>
+    <div class="col-md-10">
+        {% render_field form.codigo_barras class="form-control" placeholder=form.codigo_barras.label %}
+    </div>
+    {% for error in form.codigo_barras.errors %}
+      <p class="help-block">{{ error }}</p>
+    {% endfor %}
+</div>
+</div>
+
+<div class="col-md-5">
+<div class="form-group{% if form.estado.errors %} has-error{% endif %}">
+    <label class="col-md-3 control-label no-padding-right" for="{{ form.estado.id_for_label }}">Estado</label>
+    <div class="col-md-9">
+        {% render_field form.estado class="form-control" %}
+    </div>
+    {% for error in form.estado.errors %}
+      <p class="help-block">{{ error }}</p>
+    {% endfor %}
+</div>
+</div>
+
+
+<div class="col-md-2">
+    <div class="checkbox">
+        <label>
+        {{ form.DELETE }} Borrar
+        </label>
+    </div>
+</div>
+
+
+</div>
+
+
+{% endfor %}
+

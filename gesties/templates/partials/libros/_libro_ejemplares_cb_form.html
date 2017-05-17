@@ -1,0 +1,95 @@
+{% load widget_tweaks %}
+
+{% if form.non_field_errors %}
+<div class="has-error">
+    {% for error in form.non_field_errors %}
+        <p class="help-block">
+            {{ error }}
+        </p>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div class="row">
+<div class="col-md-12">
+<div class="form-group{% if form.titulo.errors %} has-error{% endif %}">
+    <label class="col-md-1 control-label no-padding-right" for="{{ form.titulo.id_for_label }}">Título</label>
+    <div class="col-md-11">
+        {% render_field form.titulo class="form-control" placeholder=form.titulo.label %}
+    </div>
+    {% for error in form.titulo.errors %}
+      <p class="help-block">{{ error }}</p>
+    {% endfor %}
+</div>
+</div>
+</div>
+
+<div class="row">
+<div class="col-md-12">
+<div class="form-group{% if form.nautor.errors %} has-error{% endif %}">
+    <label class="col-md-1 control-label no-padding-right" for="{{ form.nautor.id_for_label }}">Autor</label>
+    <div class="col-md-11">
+        {% render_field form.nautor class="form-control" placeholder=form.nautor.label %}
+    </div>
+    {% for error in form.nautor.errors %}
+      <p class="help-block">{{ error }}</p>
+    {% endfor %}
+</div>
+</div>
+</div>
+
+
+<div class="row">
+<div class="col-md-4">
+<div class="form-group{% if form.ancho.errors %} has-error{% endif %}">
+    <label class="col-md-3 control-label no-padding-right" for="{{ form.ancho.id_for_label }}">Ancho</label>
+    <div class="col-md-9">
+        {% render_field form.ancho class="form-control" placeholder=form.ancho.label %}
+    </div>
+    {% for error in form.ancho.errors %}
+      <p class="help-block">{{ error }}</p>
+    {% endfor %}
+</div>
+</div>
+
+<div class="col-md-4">
+    <div class="form-group{% if form.alto.errors %} has-error{% endif %}">
+    <label class="col-md-3 control-label no-padding-right" for="{{ form.alto.id_for_label }}">Largo</label>
+    <div class="col-md-9">
+        {% render_field form.alto class="form-control" placeholder=form.alto.label %}
+    </div>
+    {% for error in form.alto.errors %}
+      <p class="help-block">{{ error }}</p>
+    {% endfor %}
+</div>
+</div>
+
+<div class="col-md-4">
+    <div class="form-group{% if form.inicio.errors %} has-error{% endif %}">
+    <label class="col-md-3 control-label no-padding-right" for="{{ form.inicio.id_for_label }}">Inicio</label>
+    <div class="col-md-9">
+        {% render_field form.inicio class="form-control" placeholder=form.inicio.label %}
+    </div>
+    {% for error in form.inicio.errors %}
+      <p class="help-block">{{ error }}</p>
+    {% endfor %}
+</div>
+</div>
+
+</div>
+
+<div class="row">
+<div class="col-md-12">
+<div class="form-group{% if form.ejemplares.errors %} has-error{% endif %}">
+    <label class="col-md-3 control-label no-padding-right" for="{{ form.ejemplares.id_for_label }}">Selecciona ejemplares</label>
+    <div class="col-md-9">
+        {% render_field form.ejemplares class="form-control" placeholder=form.ejemplares.label %}
+    </div>
+    {% for error in form.ejemplares.errors %}
+      <p class="help-block">{{ error }}</p>
+    {% endfor %}
+</div>
+</div>
+</div>
+
+

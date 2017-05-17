@@ -18,6 +18,7 @@ class Grupo(TimeStampedModel):
     grupo = models.CharField(max_length=50, db_index=True, unique=True)
     descripcion = models.CharField(max_length=50, blank=True)
     slug = models.SlugField(unique=True, max_length=50)
+    nivel = models.ForeignKey('libros.Nivel', on_delete=models.SET_NULL, blank=True, null=True)
 
     def __str__(self):
         return u"{0}".format(self.grupo)

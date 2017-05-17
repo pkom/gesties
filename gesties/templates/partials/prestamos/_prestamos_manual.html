@@ -1,0 +1,354 @@
+{% load staticfiles i18n %}
+
+
+<title>Préstamo Manual de Libros de Texto - Gesties</title>
+
+<link rel="stylesheet" href="{% static 'ace/components/chosen/chosen.css' %}" />
+
+<div class="page-header">
+	<h1>
+		Libros de Texto
+		<small>
+			<i class="ace-icon fa fa-angle-double-right"></i>
+			Préstamos y/o Devoluciones Manuales de Libros de Texto
+		</small>
+	</h1>
+</div>
+
+<div class="row">
+    <div class="col-xs-12 col-sm-3">
+        <label for="{{ form.curso_grupo.id_for_label }}">Grupo:</label>
+        {{ form.curso_grupo }}
+    </div>
+
+    <div class="col-xs-12 col-sm-5">
+        <label for="{{ form.curso_grupo_alumno.id_for_label }}">Alumno/a:</label>
+        {{ form.curso_grupo_alumno }}
+    </div>
+
+    <div class="col-xs-12 col-sm-4">
+        <label for="{{ form.libros_alumno_pendientes.id_for_label }}">Libros Pendientes</label>
+        {{ form.libros_alumno_pendientes }}
+    </div>
+
+</div>
+
+<div class="hr hr-24"></div>
+
+<div class="row">
+    <div class="col-xs-12 col-md-5">
+        <label for="{{ form.ejemplares_libro.id_for_label }}">Ejemplares Disponibles del Libro</label>
+        {{ form.ejemplares_libro }}
+    </div>
+
+    <div class="col-xs-12 col-md-2">
+        <div class="space"></div>
+        <button class="btn btn-sm btn-success js-prestar" data-toggle="tooltip" title="Prestar el ejemplar al alumno/a">
+		    <i class="ace-icon">&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;</i>
+        </button>
+        <div class="space"></div>
+        <button class="btn btn-sm btn-warning js-devolver" data-toggle="tooltip" title="Devolver el ejemplar prestado al alumno/a">
+		    <i class="ace-icon">&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;</i>
+        </button>
+    </div>
+
+    <div class="col-xs-12 col-md-5">
+        <label for="{{ form.ejemplares_prestados.id_for_label }}">Ejemplares Prestados de Libros</label>
+        {{ form.ejemplares_prestados }}
+    </div>
+
+</div>
+
+
+<div class="hr hr-24"></div>
+
+
+<div class="row">
+    <div class="widget-box">
+        <div class="widget-header widget-header-flat">
+            <h4 class="widget-title">Pasos</h4>
+        </div>
+
+        <div class="widget-body">
+            <div class="widget-main">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <ul>
+                            <li>Seleccionar el grupo del alumno/a</li>
+
+                            <li>
+                                Seleccionar el alumno/a del grupo
+                            </li>
+
+                            <li>
+                                Seleccionar uno de los libros pendientes, si es que los hay
+                            </li>
+
+                            <li>
+                                En la columna izquierda aparecerán los ejemplares disponibles del libro escogido
+                            </li>
+
+                            <li>En la columna de la derecha aparecerán los ejemplares de libros prestados al alumno/a
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-sm-6">
+                        <ul>
+                            <li>Para <strong>PRÉSTAMO</strong>: seleccionamos el ejemplar
+                                deseado en la columna de la izquierda, y hacemos click en el botón >>>>>>>>>
+                            </li>
+
+                            <li>Para <strong>DEVOLUCIÓN</strong>: seleccionarmos los ejemplares
+                                de los libros deseados en la columna de la derecha, y hacemos click en el botón <<<<<<<<<<
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+<script type="text/javascript">
+    var scripts = [null,
+        "{% static 'ace/components/chosen/chosen.jquery.js'%}",
+        null];
+    $('.page-content-area').ace_ajax('loadScripts', scripts, function() {
+        jQuery(function($) {
+            $grupos = $('#id_curso_grupo');
+            $alumnos = $('#id_curso_grupo_alumno');
+            $libros = $('#id_libros_alumno_pendientes');
+            $ejemplares = $('#id_ejemplares_libro');
+            $prestados = $('#id_ejemplares_prestados');
+
+            $grupos.on('change', $grupos, changeGroup);
+            $alumnos.on('change', $alumnos, changeStudent);
+            $libros.on('change', $libros, changeBook);
+
+
+            $btnPrestar = $('.js-prestar');
+            $btnDevolver = $('.js-devolver');
+
+            $btnPrestar.on('click', $btnPrestar, prestaEjemplar);
+            $btnDevolver.on('click', $btnDevolver, devuelveEjemplar);
+
+
+
+            // load select groups
+            $.ajax({
+                type: 'GET',
+                url: $grupos.attr('data-url'),
+                data: {'curso': $grupos.attr('data-curso') },
+                dataType: 'json',
+                success: function(grupos) {
+                    $grupos.append('<option value=""> </option>');
+                    $.each(grupos, function (i, grupo) {
+                        $grupos.append('<option value="'+grupo.id+'">'+grupo.grupo_desc+'</option>');
+                    });
+                    $grupos.chosen();
+                    emptySelectsStudenst();
+                },
+                error: errorAjax
+
+            });
+
+        });
+
+
+        function emptySelectsStudenst() {
+            // vaciamos libros, ejemplares y ejemplares prestados y desactivamos
+            $libros.find('option').remove();
+            $libros.prop('disabled', true);
+            $libros.trigger("chosen:updated");
+            emptySelectsBooks();
+        }
+
+        function emptySelectsBooks() {
+            // vaciamos ejemplares y ejemplares prestados y desactivamos
+            $ejemplares.find('option').remove();
+            $ejemplares.prop('disabled', true);
+            $ejemplares.trigger("chosen:updated");
+        }
+
+
+        function changeGroup () {
+            // $this tiene el option del select del grupo seleccionado
+            $this = $(this);
+            // vaciamos alumnos
+            emptySelectsStudenst();
+            // cargamos por ajax los alumnos del grupo
+            $.ajax({
+                type: 'GET',
+                url: $alumnos.attr('data-url'),
+                data: {'curso_grupo': $grupos.val() },
+                dataType: 'json',
+                success: function(alumnos) {
+                    $alumnos.find('option').remove();
+                    $alumnos.append('<option value=""> </option>');
+                    $.each(alumnos, function (i, alumno) {
+                        $alumnos.append('<option value="'+alumno.id+'">'+alumno.alumno+'</option>');
+                    });
+                    $alumnos.prop('disabled', false);
+                    $alumnos.chosen();
+                    $alumnos.trigger("chosen:updated");
+
+                },
+                error: errorAjax
+
+            });
+
+
+        }
+
+        function changeStudent () {
+
+            emptySelectsStudenst();
+            cargaLibrosPendientes();
+            cargaLibrosPrestados();
+
+        }
+
+        function changeBook () {
+
+            emptySelectsBooks();
+            cargaLibroEjemplaresDisponibles();
+
+        }
+
+        function prestaEjemplar() {
+            if ($ejemplares.val() == null) {
+                alert('No se ha seleccionado un ejemplar');
+                return false;
+            }
+            data = {
+                'id_ejemplar': $ejemplares.val(),
+                'curso_grupo_alumno': $alumnos.val(),
+                'codigo_barras': null
+            };
+            $.ajax({
+                type: 'POST',
+                url: $ejemplares.attr('data-url-movimiento'),
+                data: data,
+                dataType: 'json',
+                success: function (data) {
+                    if (data.status === 'ERR') {
+                        alert(data.message);
+                    }
+
+                    emptySelectsBooks();
+                    cargaLibrosPendientes();
+                    cargaLibrosPrestados();
+
+
+                },
+                error: errorAjax
+
+            });
+        }
+
+        function devuelveEjemplar() {
+            if ($prestados.val() == null) {
+                alert('No se han seleccionado ejemplares para devolver');
+                return false;
+            }
+            data = {
+                'id_ejemplares': $prestados.val(),
+                'curso_grupo_alumno': $alumnos.val(),
+                'codigo_barras': null
+            };
+            $.ajax({
+                type: 'POST',
+                url: $prestados.attr('data-url-movimiento'),
+                data: data,
+                dataType: 'json',
+                success: function (data) {
+                    if (data.status === 'ERR') {
+                        alert(data.message);
+                    }
+
+                    emptySelectsBooks();
+                    cargaLibrosPendientes();
+                    cargaLibrosPrestados();
+
+                },
+                error: errorAjax
+            });
+
+        }
+
+        function cargaLibrosPrestados() {
+            // cargar libros prestados
+            $.ajax({
+                type: 'GET',
+                url: $prestados.attr('data-url'),
+                data: { 'curso_grupo_alumno': $alumnos.val() },
+                dataType: 'json',
+                success: function(libros) {
+                    $prestados.find('option').remove();
+                    $.each(libros, function (i, libro) {
+                        $prestados.append('<option value="'+libro.id+'">'+libro.codigo_barras+' ('+libro.libro+')'+'</option>');
+                    });
+                    $prestados.prop('disabled', false);
+                    $prestados.chosen();
+                    $prestados.trigger("chosen:updated");
+                },
+                error: errorAjax
+            });
+        }
+
+        function cargaLibrosPendientes() {
+            // cargamos los libros pendientes del alumno
+            $.ajax({
+                type: 'GET',
+                url: $libros.attr('data-url'),
+                data: { 'curso_grupo_alumno': $alumnos.val() },
+                dataType: 'json',
+                success: function(libros) {
+                    $libros.find('option').remove();
+                    $libros.append('<option value=""> </option>');
+                    $.each(libros, function (i, libro) {
+                        $libros.append('<option value="'+libro.id+'">'+libro.titulo+'</option>');
+                    });
+                    $libros.prop('disabled', false);
+                    $libros.chosen();
+                    $libros.trigger("chosen:updated");
+
+                },
+                error: errorAjax
+            });
+        }
+
+        function cargaLibroEjemplaresDisponibles() {
+            // cargamos los ejemplares disponibles del libro
+            $.ajax({
+                type: 'GET',
+                url: $ejemplares.attr('data-url'),
+                data: { 'libro': $libros.val() },
+                dataType: 'json',
+                success: function(ejemplares) {
+                    $ejemplares.find('option').remove();
+                    $ejemplares.append('<option value=""> </option>');
+                    $.each(ejemplares, function (i, ejemplar) {
+                        $ejemplares.append('<option value="'+ejemplar.id+'">'+ejemplar.codigo_barras+' ('+ejemplar.libro+')'+'</option>');
+                    });
+                    $ejemplares.prop('disabled', false);
+                    $ejemplares.chosen();
+                    $ejemplares.trigger("chosen:updated");
+                },
+                error: errorAjax
+
+            })
+        }
+
+        function errorAjax(jqXHR, exception) {
+                    alert(jqXHR.responseText);
+        }
+
+
+    });
+ </script>

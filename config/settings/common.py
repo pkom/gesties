@@ -36,6 +36,9 @@ DJANGO_APPS = (
 )
 THIRD_PARTY_APPS = (
     'crispy_forms',  # Form layouts
+    'rest_framework', # djangorestframework
+    'django_filters', # django filters
+    'widget_tweaks', # django widget tweaks
 )
 
 # Apps specific for this project go here.
@@ -50,6 +53,7 @@ LOCAL_APPS = (
     'gesties.departamentos.apps.DepartamentosConfig',
     'gesties.grupos.apps.GruposConfig',
     'gesties.rayuela.apps.RayuelaConfig',
+    'gesties.libros.apps.LibrosConfig',
 )
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
@@ -266,6 +270,22 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 # Size for images uploaded
 MAX_WIDTH = 100
 MAX_HEIGHT = 100
+
+########## DJANGORESTFRAMEWORK
+REST_FRAMEWORK = {
+    # Use Django's standard `django.contrib.auth` permissions,
+    # or allow read-only access for unauthenticated users.
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+#        'rest_framework.permissions.DjangoModelPermissions',
+    ],
+    'DEFAULT_FILTER_BACKENDS': (
+        'django_filters.rest_framework.DjangoFilterBackend',
+        'rest_framework.filters.SearchFilter',
+        'rest_framework.filters.OrderingFilter',
+    ),
+
+}
 
 
 ########## DJANGO-AUTH-LDAP CONFIGURATION

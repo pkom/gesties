@@ -14,14 +14,7 @@ from .users import user_status
 
 @login_required
 def index(request):
-    contexto = {'usuarios': get_current_users()}
-    contexto['status'] = user_status(request,username=request.user.username)
-    # messages.debug(request, 'debug')
-    # messages.info(request, 'Mensajes para usuari@s')
-    # messages.success(request, 'success')
-    # messages.warning(request, 'warning')
-    # messages.error(request, 'error')
-    return TemplateResponse(request, 'baseajax.html', contexto)
+    return TemplateResponse(request, 'baseajax.html')
 
 
 @login_required
@@ -39,30 +32,24 @@ def index_no_ajax(request):
 
 @login_required
 def load_index(request):
-    if request.is_ajax():
-        context = dict()
-        if request.method == 'GET':
-            context['usuarios'] = get_current_users()
-            context['status'] = user_status(request, username=request.user.username)
-        else:
-            HttpResponseBadRequest(u'El método no está permitido')
-        return TemplateResponse(request, 'partials/_index.html', context)
+    context = dict()
+    if request.method == 'GET':
+        context['usuarios'] = get_current_users()
+        context['status'] = user_status(request, username=request.user.username)
     else:
-        raise Http404(u'Lo siento, pero esto es una vista AJAX.')
+        HttpResponseBadRequest(u'El método no está permitido')
+    return TemplateResponse(request, 'partials/_index.html', context)
 
 
 @login_required
 def load_sidebar(request):
-    if request.is_ajax():
-        data = dict()
-        if request.method == 'GET':
-            context = {}
-            data['html'] = render_to_string('componentes/sidebar.html', context, request=request)
-        else:
-            data['error'] = u'El método no está autorizado'
-        return JsonResponse(data)
+    data = dict()
+    if request.method == 'GET':
+        context = {}
+        data['html'] = render_to_string('componentes/sidebar.html', context, request=request)
     else:
-        raise Http404(u'Lo siento, pero esto es una vista AJAX.')
+        data['error'] = u'El método no está autorizado'
+    return JsonResponse(data)
 
 
 @login_required

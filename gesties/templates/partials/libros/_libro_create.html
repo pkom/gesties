@@ -1,0 +1,18 @@
+<form method="post" action="{% url 'libros:create_libro' %}" role="form" class="form-horizontal js-create-libro-form">
+  {% csrf_token %}
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+    <h4 class="modal-title">Alta de Nuevo Libro</h4>
+  </div>
+  <div class="modal-body">
+
+    {% include 'partials/libros/_libro_form.html' %}
+
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+    <button type="submit" class="btn btn-primary">Crear Libro</button>
+  </div>
+</form>

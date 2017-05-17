@@ -38,7 +38,8 @@
 }
 
 
-#simple-table td, #alumnos-table td, #profesores-table td, #grupos-table td, #departamentos-table td, #tutores-table td {
+#simple-table td, #alumnos-table td, #profesores-table td, #grupos-table td, #departamentos-table td, #tutores-table td,
+#libros-table td {
   vertical-align: middle;
 }
 

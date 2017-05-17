@@ -1,0 +1,19 @@
+<form method="get" action="{% url 'inicio:imprime_cb_ejemplares' %}" class="form-horizontal js-imprime-ejemplares-form">
+  {% csrf_token %}
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+    <h4 class="modal-title">Imprime CB de ejemplares del Libro {{ form.instance.titulo }} ({{ form.instance.autor.autor }})</h4>
+  </div>
+  <div class="modal-body">
+
+    {% include 'partials/libros/_libro_ejemplares_cb_form.html' %}
+
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+<!--    <button type="submit" class="btn btn-primary">Imprime Ejemplares</button> -->
+    <button type="submit" class="btn btn-primary" name="pdf" formtarget="_blank">Imprimir Ejemplares</button>
+  </div>
+</form>

@@ -233,6 +233,36 @@ def ver_tutor(request, id=None):
         return HttpResponseBadRequest(u'Lo siento, esto es una vista AJAX')
 
 
+@ajax_required
+@login_required()
+def ajax_carga_alumnos_grupo(request, curso_grupo=None):
+    data = dict()
+    if curso_grupo:
+        if request.method == "GET":
+            qs = CursoGrupoAlumno.objects.filter(curso_grupo=curso_grupo)
+            if qs.exists():
+                data['status'] = 'OK'
+                data['data'] = [{'id':alumno.id, 'alumno': alumno.curso_alumno.alumno.get_nombre_completo} for alumno in qs]
+                data['data'].insert(0, {'id': 0, 'alumno': 'Selecciona un alumno/a del grupo'})
+                return JsonResponse(data, status=200)
+            else:
+                data['status'] = "ERR"
+                data['message'] = "No existe tutor con ID {0}".format(id)
+                return JsonResponse(data, status=404)
+        else:
+            data['status'] = "ERR"
+            data['message'] = u"El método {0} HTTP no está permitido".format(request.method)
+            return JsonResponse(data, status=405)
+    else:
+        data['status'] = "ERR"
+        data['message'] = "No se ha pasado el id del grupo"
+        return JsonResponse(data, status=404)
+
+
+
+
+
+
 
 
 
