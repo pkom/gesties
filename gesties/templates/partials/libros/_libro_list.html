@@ -316,10 +316,10 @@
             // Ejemplares impresión CB
             $("#libros-table").on("click", ".js-imprime-cb-ejemplares", loadForm);
             $("#modal-book").on("submit", ".js-imprime-ejemplares-form", function imprimeEjemplares() {
-                var $form = $(this)
-                $url = $form.attr('action');
-                $urlparams = $form.serialize();
-                $form.attr('action', $url+'?'+$urlparams);
+                //var $form = $(this);
+                //$url = $form.attr('action');
+                //$urlparams = $form.serialize();
+                //$form.attr('action', $url+'?'+encodeURIComponent($urlparams));
                 }
             );
 

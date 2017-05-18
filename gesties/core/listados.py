@@ -245,18 +245,18 @@ def etiquetas_alumnos(request, curso=None, grupo=None):
 def imprime_cb_ejemplares(request, titulo=None, autor=None, ancho=None, alto=None, inicio=None, ejemplares=None):
     #, ejemplares, ancho=3, alto=8, inicio=1):
     # se le pasa por get la lista de ejemplares, el ancho, alto y la etiqueta de inicio
-    if request.method == 'GET':
+    if request.method == 'POST':
         # para PDFs
-        if 'pdf' in request.GET:
+        if 'pdf' in request.POST:
             datos = {}
-            datos['titulo'] = request.GET.get('titulo')
-            titulo = datos['titulo'].encode('utf-8')
-            datos['autor'] = request.GET.get('nautor')
-            autor = datos['autor'].encode('utf-8')
-            datos['ancho'] = int(request.GET.get('ancho'))
-            datos['alto'] = int(request.GET.get('alto'))
-            datos['inicio'] = int(request.GET.get('inicio'))
-            ejemplares = request.GET.getlist('ejemplares')
+            datos['titulo'] = request.POST.get('titulo')
+            titulo = datos['titulo']
+            datos['autor'] = request.POST.get('nautor')
+            autor = datos['autor']
+            datos['ancho'] = int(request.POST.get('ancho'))
+            datos['alto'] = int(request.POST.get('alto'))
+            datos['inicio'] = int(request.POST.get('inicio'))
+            ejemplares = request.POST.getlist('ejemplares')
             qs_ejemplares = Ejemplar.objects.filter(pk__in=ejemplares)
             datos['ejemplares'] = []
             for ejemplar in qs_ejemplares:
@@ -286,7 +286,9 @@ def imprime_cb_ejemplares(request, titulo=None, autor=None, ancho=None, alto=Non
 
                 # section 1 : barcode
                 #D = Drawing(width, height)
-                d = createBarcodeDrawing('Code128', value=obj, width=50*mm, barHeight=15 * mm, humanReadable=True)
+                #d = createBarcodeDrawing('Code128', value=obj, width=50*mm, barHeight=15 * mm, humanReadable=True)
+                d = createBarcodeDrawing('Code128', value=obj, width=width * 2/3, barHeight=height * 5/9, humanReadable=True)
+
                 # d = createBarcodeDrawing('I2of5', value=the_num,  barHeight=10*mm, humanReadable=True)
 
                 barcode_width = d.width
@@ -342,8 +344,20 @@ def imprime_cb_ejemplares(request, titulo=None, autor=None, ancho=None, alto=Non
                 label.add(s)
                 '''
 
-                label.add(shapes.String(15, 60, titulo, fontSize=8))
-                label.add(shapes.String(15, 50, autor, fontSize=8))
+                shape_titulo = shapes.String(15, 0, titulo, fontSize=8)
+                shape_titulo.y = height - 10
+                shape_titulo.textAnchor = "start"
+                label.add(shape_titulo)
+
+                shape_autor = shapes.String(15, 0, autor, fontSize=8)
+                shape_autor.y = height - 20
+                shape_autor.textAnchor = "start"
+                label.add(shape_autor)
+
+                #label.add(shapes.String(15, 60, titulo, fontSize=8))
+                #label.add(shapes.String(15, 50, autor, fontSize=8))
+
+
                 #barcode_image_raw = barcode.createBarcodeImageInMemory('Code128', value=obj, width=150 * mm, height=30 * mm)
                 #cb = Image.open(BytesIO(barcode_image_raw))
                 #cb.save("cb.png")
