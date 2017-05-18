@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 from django.conf.urls import include, url
 
 from .listados import listin_telefonico, etiquetas_alumnos, imprime_cb_ejemplares
-from .views import load_index, load_sidebar
+from .views import load_index, load_sidebar, locales
 
 
 urlpatterns = [
@@ -26,5 +26,7 @@ urlpatterns = [
     url(r'^etiquetas/(?P<curso>[\w-]+)/(?P<grupo>[\w-]+)/$', etiquetas_alumnos,
       name='etiquetas_grupo'),
 
+    # chequeo de locales
+    url(r'^locales/$', locales, name='chequeo_locales'),
 
 ]

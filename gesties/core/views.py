@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from django.http import JsonResponse, HttpResponseBadRequest
-from django.shortcuts import Http404
+from django.shortcuts import render
 from django.template.loader import render_to_string
 from django.contrib.auth.decorators import login_required
 from django.template.response import TemplateResponse
-#from django.contrib import messages
 
 from gesties.core.users import get_current_users
 
@@ -61,3 +60,21 @@ def about(request):
     # messages.warning(request, 'warning')
     # messages.error(request, 'error')
     return TemplateResponse(request, 'pages/about.html', contexto)
+
+
+# para comprobar los locales del sistema donde está corriento la aplicación
+import sys
+import locale
+def locales(request):
+    """Display the locales"""
+    locales = "Current locale: %s %s -- Default locale: %s %s" % (
+        locale.getlocale() + locale.getdefaultlocale())
+    default_encoding =  sys.getdefaultencoding()
+    file_system_encoding = sys.getfilesystemencoding()
+
+    context = {
+        'locales': locales,
+        'default_encoding': default_encoding,
+        'file_system_encoding': file_system_encoding,  # affects file uploads
+    }
+    return render(request, 'testing/locales.html', context)
