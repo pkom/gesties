@@ -242,36 +242,33 @@ def etiquetas_alumnos(request, curso=None, grupo=None):
     return response
 
 
-def imprime_cb_ejemplares(request, titulo=None, autor=None, ancho=None, alto=None, inicio=None, ejemplares=None):
+def imprime_cb_ejemplares(request):
     #, ejemplares, ancho=3, alto=8, inicio=1):
     # se le pasa por get la lista de ejemplares, el ancho, alto y la etiqueta de inicio
     if request.method == 'POST':
         # para PDFs
         if 'pdf' in request.POST:
-            datos = {}
-            datos['titulo'] = request.POST.get('titulo')
-            titulo = datos['titulo']
-            datos['autor'] = request.POST.get('nautor')
-            autor = datos['autor']
-            datos['ancho'] = int(request.POST.get('ancho'))
-            datos['alto'] = int(request.POST.get('alto'))
-            datos['inicio'] = int(request.POST.get('inicio'))
-            ejemplares = request.POST.getlist('ejemplares')
-            qs_ejemplares = Ejemplar.objects.filter(pk__in=ejemplares)
-            datos['ejemplares'] = []
+            titulo = request.POST.get('titulo')
+            autor = request.POST.get('nautor')
+            ancho = int(request.POST.get('ancho'))
+            alto = int(request.POST.get('alto'))
+            inicio = int(request.POST.get('inicio'))
+            lejemplares = request.POST.getlist('ejemplares')
+            qs_ejemplares = Ejemplar.objects.filter(pk__in=lejemplares)
+            ejemplares = []
             for ejemplar in qs_ejemplares:
-                datos['ejemplares'].append(ejemplar.codigo_barras)
+                ejemplares.append(ejemplar.codigo_barras)
 
             # Create the HttpResponse object with the appropriate PDF headers.
             response = HttpResponse(content_type='application/pdf')
-            filename = 'Ejemplares (' + datos['titulo'] + '-' + datos['autor'] + ')'
+            filename = 'EjemplaresCBs'
             response['Content-Disposition'] = 'filename={0}.pdf'.format(filename)
             buff = BytesIO()
             # Create an A4 portrait (210mm x 297mm) sheets with 2 columns and 11 rows of
             # labels. Each label is 70mm x 25mm. The margins are automatically calculated.
-            specs = labels.Specification(210, 297, datos['ancho'], datos['alto'],
-                                         (210 // datos['ancho']),
-                                         ((297 - 11 - 11) // datos['alto']),
+            specs = labels.Specification(210, 297, ancho, alto,
+                                         (210 / ancho),
+                                         ((297 - 11 - 11) / alto),
                                          top_margin=11, bottom_margin=11,
                                          left_margin=0, right_margin=0,
                                          right_padding=0, left_padding=0,
@@ -368,12 +365,12 @@ def imprime_cb_ejemplares(request, titulo=None, autor=None, ancho=None, alto=Non
             sheet = labels.Sheet(specs, draw_label, border=False)
             # Mark some of the labels on the first page as already used.
             blancos = []
-            for i in range(1, datos['inicio']):
-                fila, col = divmod(i, datos['ancho'])
-                b = [fila + 1 if col != 0 else fila, col if  col != 0 else datos['ancho']]
+            for i in range(1, inicio):
+                fila, col = divmod(i, ancho)
+                b = [fila + 1 if col != 0 else fila, col if  col != 0 else ancho]
                 blancos.append(b)
             sheet.partial_page(1, blancos)
-            sheet.add_labels(datos['ejemplares'])
+            sheet.add_labels(ejemplares)
             sheet.save(buff)
             # Save the file and we are done.
             response.write(buff.getvalue())
