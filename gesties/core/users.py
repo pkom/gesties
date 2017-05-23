@@ -63,6 +63,12 @@ class user_status(object):
         else:
             return False
 
+    def es_informatico(self):
+        if self.user.groups.filter(name='informaticos').exists():
+            return True
+        else:
+            return False
+
     def es_jefe(self):
         if self.jefaturas.exists():
             return True

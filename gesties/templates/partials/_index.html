@@ -47,6 +47,11 @@
 
                     <div class="col-sm-6">
                         <ul>
+                            {% if status.es_informatico %}
+                                <li>
+                                    <b>Es administrador/a informático en el centro</b>
+                                </li>
+                            {% endif %}
                             {% if status.es_administrativo %}
                                 <li>
                                     <b>Es administrativ@ en el centro</b>

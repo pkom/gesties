@@ -5,9 +5,12 @@ from django.shortcuts import render
 from django.template.loader import render_to_string
 from django.contrib.auth.decorators import login_required
 from django.template.response import TemplateResponse
+from django.views.generic import View
+
+from braces.views import LoginRequiredMixin, GroupRequiredMixin, AjaxResponseMixin
 
 from gesties.core.users import get_current_users
-
+from .forms import TraspasoForm
 from .users import user_status
 
 
@@ -38,6 +41,17 @@ def load_index(request):
     else:
         HttpResponseBadRequest(u'El método no está permitido')
     return TemplateResponse(request, 'partials/_index.html', context)
+
+
+class load_traspaso(LoginRequiredMixin, GroupRequiredMixin, AjaxResponseMixin, View):
+
+    group_required = ['informaticos']
+
+    def get(self, request, *args, **kwargs):
+        form = TraspasoForm()
+        context = dict()
+        context['form'] = form
+        return TemplateResponse(request, 'partials/core/_traspaso_list.html', context)
 
 
 @login_required

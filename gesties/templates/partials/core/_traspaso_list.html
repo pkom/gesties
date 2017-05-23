@@ -1,0 +1,420 @@
+{% load staticfiles i18n %}
+
+
+<title>Traspaso de Datos - Gesties</title>
+
+<link rel="stylesheet" href="{% static 'ace/components/chosen/chosen.css' %}" />
+
+<div class="page-header">
+	<h1>
+		Traspaso de Datos
+		<small>
+			<i class="ace-icon fa fa-angle-double-right"></i>
+			Migración de Grupos y Alumn@s entre cursos
+		</small>
+	</h1>
+</div>
+
+<div class="row">
+    <div class="col-xs-12 col-sm-6">
+        <label for="{{ form.curso_origen.id_for_label }}">Curso Origen:</label>
+        {{ form.curso_origen }}
+    </div>
+
+    <div class="col-xs-12 col-sm-6">
+        <label for="{{ form.curso_destino.id_for_label }}">Curso Destino:</label>
+        {{ form.curso_destino }}
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-xs-12 col-sm-5">
+        <label for="{{ form.curso_grupo_origen.id_for_label }}">Grupo Origen:</label>
+        {{ form.curso_grupo_origen }}
+    </div>
+
+    <div class="col-xs-12 col-sm-2">
+        <div class="space"></div>
+        <button class="btn btn-sm btn-success js-crea-grupo"
+                data-url="{% url 'api:grupos-create' %}"
+                data-toggle="tooltip" title="Crea el grupo en el destino">
+		    <i class="ace-icon">Crea Grupo</i>
+        </button>
+    </div>
+
+
+    <div class="col-xs-12 col-sm-5">
+        <label for="{{ form.curso_grupo_destino.id_for_label }}">Grupo Destino:</label>
+        {{ form.curso_grupo_destino }}
+    </div>
+</div>
+
+<div class="hr hr-24"></div>
+
+<div class="row">
+    <div class="col-xs-12 col-md-5">
+        <label for="{{ form.curso_grupo_alumno_origen.id_for_label }}">Alumnado Grupo Origen</label>
+        {{ form.curso_grupo_alumno_origen }}
+    </div>
+
+    <div class="col-xs-12 col-md-2">
+        <div class="space"></div>
+        <button class="btn btn-sm btn-success js-asignar" data-url="{% url 'api:grupos-create-alumnos' %}"
+                data-toggle="tooltip" title="Asignar alumnado al Grupo">
+		    <i class="ace-icon">Asignar Alu</i>
+        </button>
+        <div class="space"></div>
+        <button class="btn btn-sm btn-danger js-desasignar" data-url="{% url 'api:grupos-delete-alumnos' %}"
+                data-toggle="tooltip" title="Desasignar alumnado del Grupo">
+		    <i class="ace-icon">Desasignar</i>
+        </button>
+    </div>
+
+    <div class="col-xs-12 col-md-5">
+        <label for="{{ form.curso_grupo_alumno_destino.id_for_label }}">Alumnado Grupo Destino</label>
+        {{ form.curso_grupo_alumno_destino }}
+    </div>
+
+</div>
+
+
+<div class="hr hr-24"></div>
+
+
+<script type="text/javascript">
+    var scripts = [null,
+        "{% static 'ace/components/chosen/chosen.jquery.js'%}",
+        null];
+    $('.page-content-area').ace_ajax('loadScripts', scripts, function() {
+        jQuery(function($) {
+            $curso_origen = $('#id_curso_origen');
+            $curso_destino = $('#id_curso_destino');
+            $curso_grupo_origen = $('#id_curso_grupo_origen');
+            $curso_grupo_destino = $('#id_curso_grupo_destino');
+            $curso_grupo_alumno_origen = $('#id_curso_grupo_alumno_origen');
+            $curso_grupo_alumno_destino = $('#id_curso_grupo_alumno_destino');
+            $curso_grupo_alumno_origen_sel_todos = $('#id_curso_grupo_alumno_origen_sel_todos');
+            $curso_grupo_alumno_destino_sel_todos = $('#id_curso_grupo_alumno_destino_sel_todos');
+
+            $('select').chosen();
+
+            $curso_grupo_origen.prop('disabled', true);
+            $curso_grupo_alumno_origen.prop('disabled', true);
+            $curso_grupo_destino.prop('disabled', true);
+            $curso_grupo_alumno_destino.prop('disabled', true);
+
+            $curso_origen.on('change', $curso_origen, changeCursoOrigen);
+            $curso_grupo_origen.on('change', $curso_grupo_origen, changeCursoGrupoOrigen);
+            $curso_destino.on('change', $curso_destino, changeCursoDestino);
+            $curso_grupo_destino.on('change', $curso_grupo_destino, changeCursoGrupoDestino);
+
+            $btnAsignar = $('.js-asignar');
+            $btnDesasignar = $('.js-desasignar');
+            $btnCreaGrupo = $('.js-crea-grupo');
+
+            $btnCreaGrupo.on('click', $btnCreaGrupo, creaGrupo);
+            $btnAsignar.on('click', $btnAsignar, AsignaAlumnos);
+            $btnDesasignar.on('click', $btnDesasignar, DesAsignaAlumnos);
+
+            json_cursos = [];
+
+            //$btnAsignar.on('click', $btnAsignar, asignaAlumnos);
+            //$btnDesasignar.on('click', $btnDesasignar, desasignaAlumnos);
+
+            // load select cursos
+            $.ajax({
+                type: 'GET',
+                url: $curso_origen.attr('data-url'),
+                dataType: 'json',
+                success: function(cursos) {
+                    json_cursos = cursos;
+                    $curso_origen.append('<option value=""> </option>');
+                    $curso_destino.append('<option value=""> </option>');
+                    $.each(cursos, function (i, curso) {
+                        $curso_origen.append('<option value="'+curso.id+'">'+curso.curso+'</option>');
+                        $curso_destino.append('<option value="'+curso.id+'">'+curso.curso+'</option>');
+
+                    });
+                    $curso_origen.trigger("chosen:updated");
+                    $curso_destino.trigger("chosen:updated");
+                    emptyCursoGrupoOrigen();
+                    emptyCursoGrupoDestino();
+                },
+                error: errorAjax
+            });
+        });
+
+
+        function emptyCursoGrupoOrigen() {
+            // vaciamos grupos y alumnos en origen y desactivamos
+            $curso_grupo_origen.find('option').remove();
+            $curso_grupo_origen.prop('disabled', true);
+            $curso_grupo_origen.trigger("chosen:updated");
+            emptyCursoGrupoAlumnoOrigen;
+        }
+
+        function emptyCursoGrupoDestino() {
+            // vaciamos grupos y alumnos en destino y desactivamos
+            $curso_grupo_destino.find('option').remove();
+            $curso_grupo_destino.prop('disabled', true);
+            $curso_grupo_destino.trigger("chosen:updated");
+            emptyCursoGrupoAlumnoDestino;
+        }
+
+        function emptyCursoGrupoAlumnoOrigen() {
+            // vaciamos alumnos del grupo en origen y desactivamos
+            $curso_grupo_alumno_origen.find('option').remove();
+            $curso_grupo_alumno_origen.prop('disabled', true);
+            $curso_grupo_alumno_origen.trigger("chosen:updated");
+        }
+
+        function emptyCursoGrupoAlumnoDestino() {
+            // vaciamos alumnos del grupo en destino y desactivamos
+            $curso_grupo_alumno_destino.find('option').remove();
+            $curso_grupo_alumno_destino.prop('disabled', true);
+            $curso_grupo_alumno_destino.trigger("chosen:updated");
+        }
+
+        function changeCursoOrigen () {
+            // $this tiene el option del select del curso seleccionado
+            $this = $(this);
+            // vaciamos grupos origen
+            emptyCursoGrupoOrigen();
+            // cargamos por ajax los grupos del curso
+            $.ajax({
+                type: 'GET',
+                url: $curso_grupo_origen.attr('data-url'),
+                data: {'curso': $curso_origen.val() },
+                dataType: 'json',
+                success: function(grupos) {
+                    $curso_grupo_origen.find('option').remove();
+                    $curso_grupo_origen.append('<option value=""> </option>');
+                    $.each(grupos, function (i, grupo) {
+                        $curso_grupo_origen.append('<option value="'+grupo.id+'">'+grupo.grupo_desc+'</option>');
+                    });
+                    if (grupos.length == 0) {
+                        $curso_grupo_origen.prop('disabled', true);
+                    }
+                    else {
+                        $curso_grupo_origen.prop('disabled', false);
+                    }
+                    $curso_grupo_origen.trigger("chosen:updated");
+                    $curso_grupo_alumno_origen.find('option').remove();
+                    $curso_grupo_alumno_origen.prop('disabled', true);
+                    $curso_grupo_alumno_origen.trigger("chosen:updated");
+                    // debemos modificar el select de curso destino y quitar el seleccionado, vaciando sus selects
+                    $curso_destino.find('option').remove();
+                    $curso_destino.append('<option value=""> </option>');
+                    $.each(json_cursos, function(i, curso){
+                        if ($this.val() != curso.id) {
+                            // añadimos el curso no seleccionado a los cursos de destino
+                            $curso_destino.append('<option value="'+curso.id+'">'+curso.curso+'</option>');
+                        }
+                    });
+                    $curso_destino.trigger("chosen:updated");
+                    emptyCursoGrupoDestino();
+                },
+                error: errorAjax
+            });
+        }
+
+        function changeCursoDestino () {
+            // $this tiene el option del select del curso seleccionado
+            $this = $(this);
+            // vaciamos grupos destino
+            emptyCursoGrupoDestino();
+            // cargamos por ajax los grupos del curso
+            $.ajax({
+                type: 'GET',
+                url: $curso_grupo_destino.attr('data-url'),
+                data: {'curso': $curso_destino.val() },
+                dataType: 'json',
+                success: function(grupos) {
+                    $curso_grupo_destino.find('option').remove();
+                    $curso_grupo_destino.append('<option value=""> </option>');
+                    $.each(grupos, function (i, grupo) {
+                        $curso_grupo_destino.append('<option value="'+grupo.id+'">'+grupo.grupo_desc+'</option>');
+                    });
+                    if (grupos.length == 0) {
+                        $curso_grupo_destino.prop('disabled', true);
+                    }
+                    else {
+                        $curso_grupo_destino.prop('disabled', false);
+                    }
+                    $curso_grupo_destino.trigger("chosen:updated");
+                    $curso_grupo_alumno_destino.find('option').remove();
+                    $curso_grupo_alumno_destino.prop('disabled', true);
+                    $curso_grupo_alumno_destino.trigger("chosen:updated");
+                },
+                error: errorAjax
+            });
+        }
+
+
+        function changeCursoGrupoOrigen () {
+            // $this tiene el option del select del grupo origen seleccionado
+            $this = $(this);
+            // vaciamos grupos origen
+            emptyCursoGrupoAlumnoOrigen();
+            // cargamos por ajax los alumnos del grupo origen
+            $.ajax({
+                type: 'GET',
+                url: $curso_grupo_alumno_origen.attr('data-url'),
+                data: {'curso_grupo': $curso_grupo_origen.val() },
+                dataType: 'json',
+                success: function(alumnos) {
+                    $curso_grupo_alumno_origen.find('option').remove();
+                    $curso_grupo_alumno_origen.append('<option value=""> </option>');
+                    $.each(alumnos, function (i, alumno) {
+                        $curso_grupo_alumno_origen.append('<option selected value="'+alumno.id+'">'+alumno.alumno+'</option>');
+                    });
+                    $curso_grupo_alumno_origen.prop('disabled', false);
+                    $curso_grupo_alumno_origen.trigger("chosen:updated");
+                },
+                error: errorAjax
+            });
+        }
+
+        function changeCursoGrupoDestino () {
+            // $this tiene el option del select del grupo origen seleccionado
+            $this = $(this);
+            // vaciamos grupos origen
+            emptyCursoGrupoAlumnoDestino();
+            // cargamos por ajax los alumnos del grupo destino
+            $.ajax({
+                type: 'GET',
+                url: $curso_grupo_alumno_destino.attr('data-url'),
+                data: {'curso_grupo': $curso_grupo_destino.val() },
+                dataType: 'json',
+                success: function(alumnos) {
+                    $curso_grupo_alumno_destino.find('option').remove();
+                    $curso_grupo_alumno_destino.append('<option value=""> </option>');
+                    $.each(alumnos, function (i, alumno) {
+                        $curso_grupo_alumno_destino.append('<option selected value="'+alumno.id+'">'+alumno.alumno+'</option>');
+                    });
+                    $curso_grupo_alumno_destino.prop('disabled', false);
+                    $curso_grupo_alumno_destino.trigger("chosen:updated");
+                },
+                error: errorAjax
+            });
+        }
+
+
+        function creaGrupo() {
+            // chequeos varios
+            // que haya seleccionado grupo en el origen
+            if(!$curso_grupo_origen.val()) {
+                alert('Se ha de tener seleccionado un grupo en el origen para crearlo en el destino');
+                return false;
+            }
+            // que haya seleccionado un curso en el destino
+            if(!$curso_destino.val()) {
+                alert('Se ha de tener seleccionado un curso en el destino para crear el grupo');
+                return false;
+            }
+            // que no exista ese grupo en el destino
+
+            // llamamos con post para crear el grupo
+            $.ajax({
+                type: 'POST',
+                url: $btnCreaGrupo.attr('data-url'),
+                data: {
+                    'curso_destino': $curso_destino.val(),
+                    'curso_grupo_origen': $curso_grupo_origen.val()
+                },
+                dataType: 'json',
+                success: function(result) {
+                    if(result.status === 'OK') {
+                        // recargo el curso destino
+                        $curso_destino.change();
+                    }
+                    else {
+                        alert(result.error)
+                    }
+                },
+                error: errorAjax
+            });
+
+            return true;
+
+        }
+
+
+        function AsignaAlumnos() {
+            // chequeos varios
+            // que haya seleccionado grupo en el origen
+            if(!$curso_grupo_alumno_origen.val()) {
+                alert('Se ha de tener seleccionado algún alumno/a para traspasarlo al curso y grupo de destino');
+                return false;
+            }
+            // que haya seleccionado un curso en el destino
+            if(!$curso_grupo_destino.val()) {
+                alert('Se ha de tener seleccionado un grupo en el curso destino para traspasar');
+                return false;
+            }
+            // llamamos con post para crear alumnos en el curso y grupo de destino
+            $.ajax({
+                type: 'POST',
+                url: $btnAsignar.attr('data-url'),
+                data: {
+                    'curso_grupo_destino': $curso_grupo_destino.val(),
+                    'lista_alumnos_a_crear': $curso_grupo_alumno_origen.val()
+                },
+                dataType: 'json',
+                success: function(result) {
+                    if(result.status === 'OK') {
+                        // recargo el curso_grupo_destino
+                        $curso_grupo_destino.change();
+                    }
+                    else {
+                        alert(result.error)
+                    }
+                },
+                error: errorAjax
+            });
+
+            return true;
+
+        }
+
+
+        function DesAsignaAlumnos() {
+            // chequeos varios
+            // que haya seleccionado grupo en el destino
+            if(!$curso_grupo_alumno_destino.val()) {
+                alert('Se ha de tener seleccionado algún alumno/a para eliminar la asignación');
+                return false;
+            }
+            // llamamos con post para crear alumnos en el curso y grupo de destino
+            $.ajax({
+                type: 'POST',
+                url: $btnDesasignar.attr('data-url'),
+                data: {
+                    'lista_alumnos_a_borrar': $curso_grupo_alumno_destino.val()
+                },
+                dataType: 'json',
+                success: function(result) {
+                    if(result.status === 'OK') {
+                        // recargo el curso_grupo_destino
+                        $curso_grupo_destino.change();
+                    }
+                    else {
+                        alert(result.error)
+                    }
+                },
+                error: errorAjax
+            });
+
+            return true;
+
+        }
+
+
+
+        function errorAjax(jqXHR, exception) {
+                    alert(jqXHR.responseText);
+        }
+
+
+    });
+ </script>

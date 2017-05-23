@@ -16,10 +16,7 @@ class GrupoSerializer(serializers.ModelSerializer):
 
 class CursoGrupoSerializer(serializers.ModelSerializer):
 
-    #grupo = GrupoSerializer()
     grupo_desc = serializers.CharField(source='grupo.grupo')
-    #tutor = CursoProfesorSerializer()
-    #tutor = serializers.StringRelatedField()
     tutor_desc = serializers.CharField(source='tutor.profesor')
 
     class Meta:

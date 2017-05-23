@@ -6,6 +6,7 @@ from django.conf.urls import url, include
 from rest_framework.urlpatterns import format_suffix_patterns
 # from rest_framework.routers import DefaultRouter
 
+from gesties.api.views.cursos import *
 from gesties.api.views.grupos import *
 from gesties.api.views.alumnos import *
 from gesties.api.views.libros import *
@@ -18,9 +19,18 @@ from gesties.api.views.libros import *
 
 urlpatterns = [
     # url(r'^', include(router.urls)),
+
+    # api cursos académicos
+    url(r'^cursos/$', CursoList.as_view(), name='cursos-list'),
+
     # api grupos por curso
     url(r'^grupos/$', CursoGrupoList.as_view(), name='grupos-list'),
     url(r'^grupos/(?P<pk>[0-9]+)/$', CursoGrupoDetail.as_view(), name='grupos-detail'),
+    url(r'^grupos/create/$', CursoGrupoCreate.as_view(), name='grupos-create'),
+    # api traspaso de alumnos de un grupo y curso a otro, para préstamo de libros cuando no hay matrícula del curso
+    url(r'^grupos/create-alumnos/$', CursoGrupoCreateAlumnos.as_view(), name='grupos-create-alumnos'),
+    url(r'^grupos/borra-alumnos/$', CursoGrupoDeleteAlumnos.as_view(), name='grupos-delete-alumnos'),
+
     # api alumnos por grupo
     url(r'^alumnos-grupo/$', CursoGrupoAlumnoList.as_view(), name='alumnos-grupo-list'),
     url(r'^alumnos-grupo/(?P<pk>[0-9]+)/$', CursoGrupoAlumnoDetail.as_view(), name='alumnos-grupo-detail'),

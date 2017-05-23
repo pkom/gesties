@@ -78,6 +78,8 @@ def Userlogin(request, template_name='users/user_login.html',
                 request.session['esResponsable'] = True
             if request.user.groups.filter(name='administrativos').exists():
                 request.session['esAdministrativo'] = True
+            if request.user.groups.filter(name='informaticos').exists():
+                request.session['esInformatico'] = True
             cursoprofesor = CursoProfesor.objects.filter(curso=form.cleaned_data["curso_academico"], profesor=request.user)
             if cursoprofesor:
                 request.session['cursoprofesor'] = serializer(cursoprofesor[0]).serializer()

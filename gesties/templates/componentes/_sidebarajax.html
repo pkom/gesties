@@ -144,6 +144,20 @@
 {% endif %}
 
 
+{% if request.session.esInformatico %}
+                <li class="">
+                    <a data-url='{% url "inicio:traspaso_datos" %}' href="#{% url 'inicio:traspaso_datos' %}">
+                        <i class="menu-icon fa fa-clone"></i>
+                        <span class="menu-text">
+                            Traspaso Cursos
+                        </span>
+                    </a>
+                </li>
+{% endif %}
+
+
+
+
 
 
 

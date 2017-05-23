@@ -146,7 +146,7 @@ class PrestamoManualForm(forms.Form):
             'class': 'form-control',
             'data-curso': request.session['curso_academico']['pk'],
             'data-url': reverse('api:grupos-list'),
-            'data-placeholder' : 'Elige un grupo...',
+            'data-placeholder' : 'Selecciona Curso...',
         })
 
         self.fields['curso_grupo_alumno'].widget = forms.Select({
