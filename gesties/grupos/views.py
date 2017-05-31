@@ -84,8 +84,12 @@ def load_grupos_datatables(request):
                 "pkey": grupo.grupo.id
             },
             gru['grupo'] = grupo.grupo.grupo
-            gru['foto'] = grupo.tutor.profesor.foto_html()
-            gru['tutor'] = grupo.tutor.profesor.get_nombre_completo
+            if grupo.tutor is not None:
+                gru['foto'] = grupo.tutor.profesor.foto_html()
+                gru['tutor'] = grupo.tutor.profesor.get_nombre_completo
+            else:
+                gru['foto'] = ''
+                gru['tutor'] = 'Sin asignar tutoría'
             gru['alumnos'] = grupo.alumnos.all().count()
             gru['profesores'] = grupo.profesores.all().count()
             data['data'].append(gru)

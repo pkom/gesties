@@ -84,8 +84,12 @@ def load_departamentos_datatables(request):
                 "pkey": departamento.departamento.id
             },
             dpto['dpto'] = departamento.departamento.departamento
-            dpto['foto'] = departamento.jefe.profesor.foto_html()
-            dpto['jefe'] = departamento.jefe.profesor.get_nombre_completo
+            if departamento.jefe is not None:
+                dpto['foto'] = departamento.jefe.profesor.foto_html()
+                dpto['jefe'] = departamento.jefe.profesor.get_nombre_completo
+            else:
+                dpto['foto'] = ''
+                dpto['jefe'] = 'Sin asignar jefatura de departamento'
             dpto['profesores'] = departamento.profesores.all().count()
             data['data'].append(dpto)
     else:
