@@ -264,12 +264,12 @@ def imprime_cb_ejemplares(request):
             filename = 'EjemplaresCBs'
             response['Content-Disposition'] = 'filename={0}.pdf'.format(filename)
             buff = BytesIO()
-            # Create an A4 portrait (210mm x 297mm) sheets with 2 columns and 11 rows of
+            # Create an A4 portrait (210mm x 297mm) sheets with 3 columns and 11 rows of
             # labels. Each label is 70mm x 25mm. The margins are automatically calculated.
             specs = labels.Specification(210, 297, ancho, alto,
                                          (210 / ancho),
-                                         ((297 - 11 - 11) / alto),
-                                         top_margin=11, bottom_margin=11,
+                                         ((297 - 9 - 8) / alto),
+                                         top_margin=9, bottom_margin=8,
                                          left_margin=0, right_margin=0,
                                          right_padding=0, left_padding=0,
                                          top_padding=0, bottom_padding=0)
@@ -291,12 +291,13 @@ def imprime_cb_ejemplares(request):
                 barcode_width = d.width
                 barcode_height = d.height
 
-                # d.rotate(-90)
-                # d.translate( - barcode_height ,pad) # translate
+                #d.rotate(-90)
+                d.translate( - barcode_height, pad) # translate
 
-                #d.translate(width - barcode_width - pad / 2, 0)  # translate
+                d.translate(width - barcode_width - pad / 2, 0)  # translate
 
-                # pprint(d.dumpProperties())
+                #import pprint
+                #pprint(d.dumpProperties())
 
                 #D.add(d)
                 #label.add(D)
@@ -341,15 +342,16 @@ def imprime_cb_ejemplares(request):
                 label.add(s)
                 '''
 
-                shape_titulo = shapes.String(15, 0, titulo, fontSize=8)
+                shape_titulo = shapes.String(20, 0, titulo, fontSize=8)
                 shape_titulo.y = height - 10
                 shape_titulo.textAnchor = "start"
                 label.add(shape_titulo)
 
-                shape_autor = shapes.String(15, 0, autor, fontSize=8)
-                shape_autor.y = height - 20
-                shape_autor.textAnchor = "start"
-                label.add(shape_autor)
+                # josé no quiere autor
+                #shape_autor = shapes.String(15, 0, autor, fontSize=6)
+                #shape_autor.y = height - 20
+                #shape_autor.textAnchor = "start"
+                #label.add(shape_autor)
 
                 #label.add(shapes.String(15, 60, titulo, fontSize=8))
                 #label.add(shapes.String(15, 50, autor, fontSize=8))
