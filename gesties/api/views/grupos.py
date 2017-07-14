@@ -6,6 +6,7 @@ from django.views.generic import View
 
 from braces.views import LoginRequiredMixin, GroupRequiredMixin, AjaxResponseMixin
 from rest_framework import generics
+from rest_framework.permissions import AllowAny
 
 from gesties.alumnos.models import CursoAlumno
 from gesties.cursos.models import Curso
@@ -17,6 +18,7 @@ from gesties.api.serializers.grupos import CursoGrupoSerializer
 class CursoGrupoList(generics.ListAPIView):
     queryset = CursoGrupo.objects.all()
     serializer_class = CursoGrupoSerializer
+    permission_classes = (AllowAny, )
     filter_fields = ('curso', )
 
 
@@ -24,6 +26,7 @@ class CursoGrupoList(generics.ListAPIView):
 class CursoGrupoDetail(generics.RetrieveAPIView):
     queryset = CursoGrupo.objects.all()
     serializer_class = CursoGrupoSerializer
+    permission_classes = (AllowAny, )
 
 # crear grupo desde formulario de traspasos
 class CursoGrupoCreate(LoginRequiredMixin, GroupRequiredMixin, AjaxResponseMixin, View):

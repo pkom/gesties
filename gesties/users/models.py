@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals, absolute_import
 
+import jwt
+from datetime import datetime, timedelta
+
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.core.urlresolvers import reverse
@@ -67,6 +70,17 @@ class User(AbstractUser):
     def get_nombre_completo(self):
         return u"{0}, {1}".format(self.last_name, self.first_name)
 
+    @property
+    def token(self):
+        """
+        Allows us to get a user's token by calling `user.token` instead of
+        `user.generate_jwt_token().
+
+        The `@property` decorator above makes this possible. `token` is called
+        a "dynamic property".
+        """
+        return self._generate_jwt_token()
+
     def foto_html(self, width=48, heigth=48):
         return format_html(
             '<div style="height:{}px;width:{}px;background-repeat:no-repeat;background-position: 50%;'
@@ -76,6 +90,19 @@ class User(AbstractUser):
             self.foto.url if self.foto else static('avatars/nobody.png'),
         )
     foto_html.short_description = u'Fotografía'
+
+    def _generate_jwt_token(self):
+        """
+        Generates a JSON Web Token that stores this user's ID and has an expiry
+        date set to 60 days into the future.
+        """
+        dt = datetime.now() + timedelta(days=60)
+
+        token = jwt.encode({
+            'id': self.pk,
+            'exp': int(dt.strftime('%s'))
+        }, settings.SECRET_KEY, algorithm='HS256')
+        return token.decode('utf-8')
 
 #    def save(self, *args, **kwargs):
 #        super(User, self).save(*args, **kwargs)

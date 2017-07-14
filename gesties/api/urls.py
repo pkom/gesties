@@ -6,10 +6,12 @@ from django.conf.urls import url, include
 from rest_framework.urlpatterns import format_suffix_patterns
 # from rest_framework.routers import DefaultRouter
 
+from gesties.api.views.configies import *
 from gesties.api.views.cursos import *
 from gesties.api.views.grupos import *
 from gesties.api.views.alumnos import *
 from gesties.api.views.libros import *
+from gesties.api.views.authentication import LoginAPIView, UserRetrieveUpdateAPIView
 
 # Create a router and register our viewsets with it.
 # router = DefaultRouter()
@@ -19,6 +21,14 @@ from gesties.api.views.libros import *
 
 urlpatterns = [
     # url(r'^', include(router.urls)),
+
+    # api configies
+    url(r'^configies/?$', ConfigiesList.as_view(), name='lista-configies'),
+
+    # api listado de usuarios
+    url(r'^user/?$', UserRetrieveUpdateAPIView.as_view(), name='lista-usuarios'),
+    # api login de usuarios
+    url(r'^users/login/?$', LoginAPIView.as_view(), name="login-usuario"),
 
     # api cursos académicos
     url(r'^cursos/$', CursoList.as_view(), name='cursos-list'),

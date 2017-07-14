@@ -2,6 +2,7 @@
 from __future__ import absolute_import, unicode_literals
 
 from rest_framework import generics
+from rest_framework.permissions import AllowAny
 
 from gesties.grupos.models import CursoGrupoAlumno
 from gesties.libros.models import Libro, Ejemplar, Prestamo
@@ -14,6 +15,7 @@ class CursoGrupoAlumnoList(generics.ListAPIView):
     queryset = CursoGrupoAlumno.objects.all()
     serializer_class = CursoGrupoAlumnosSerializer
     filter_fields = ('curso_grupo', )
+    permission_classes = (AllowAny, )
 
 
 # detalle de alumno
