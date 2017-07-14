@@ -320,7 +320,8 @@
                 url: $btnCreaGrupo.attr('data-url'),
                 data: {
                     'curso_destino': $curso_destino.val(),
-                    'curso_grupo_origen': $curso_grupo_origen.val()
+                    'curso_grupo_origen': $curso_grupo_origen.val(),
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
                 },
                 dataType: 'json',
                 success: function(result) {
@@ -358,7 +359,8 @@
                 url: $btnAsignar.attr('data-url'),
                 data: {
                     'curso_grupo_destino': $curso_grupo_destino.val(),
-                    'lista_alumnos_a_crear': $curso_grupo_alumno_origen.val()
+                    'lista_alumnos_a_crear': $curso_grupo_alumno_origen.val(),
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
                 },
                 dataType: 'json',
                 success: function(result) {
@@ -390,7 +392,8 @@
                 type: 'POST',
                 url: $btnDesasignar.attr('data-url'),
                 data: {
-                    'lista_alumnos_a_borrar': $curso_grupo_alumno_destino.val()
+                    'lista_alumnos_a_borrar': $curso_grupo_alumno_destino.val(),
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
                 },
                 dataType: 'json',
                 success: function(result) {

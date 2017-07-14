@@ -228,7 +228,8 @@
             data = {
                 'id_ejemplar': $ejemplares.val(),
                 'curso_grupo_alumno': $alumnos.val(),
-                'codigo_barras': null
+                'codigo_barras': null,
+                csrfmiddlewaretoken: '{{ csrf_token }}'
             };
             $.ajax({
                 type: 'POST',
@@ -259,7 +260,8 @@
             data = {
                 'id_ejemplares': $prestados.val(),
                 'curso_grupo_alumno': $alumnos.val(),
-                'codigo_barras': null
+                'codigo_barras': null,
+                csrfmiddlewaretoken: '{{ csrf_token }}'
             };
             $.ajax({
                 type: 'POST',

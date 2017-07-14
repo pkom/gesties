@@ -257,7 +257,8 @@
                     data = {
                         'id_ejemplar': null,
                         'curso_grupo_alumno': $alumnos.val(),
-                        'codigo_barras': $codigo_barras.val()
+                        'codigo_barras': $codigo_barras.val(),
+                        csrfmiddlewaretoken: '{{ csrf_token }}'
                     };
                 }
                 else {
@@ -265,7 +266,8 @@
                     data = {
                         'id_ejemplares': null,
                         'curso_grupo_alumno': $alumnos.val(),
-                        'codigo_barras': $codigo_barras.val()
+                        'codigo_barras': $codigo_barras.val(),
+                        csrfmiddlewaretoken: '{{ csrf_token }}'
                     };
                 }
                 $.ajax({
