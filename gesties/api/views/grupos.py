@@ -4,7 +4,7 @@ from __future__ import absolute_import, unicode_literals
 from django.http import JsonResponse
 from django.views.generic import View
 
-from braces.views import LoginRequiredMixin, GroupRequiredMixin, AjaxResponseMixin
+from braces.views import LoginRequiredMixin, GroupRequiredMixin, AjaxResponseMixin, CsrfExemptMixin
 from rest_framework import generics
 from rest_framework.permissions import AllowAny
 
@@ -29,7 +29,7 @@ class CursoGrupoDetail(generics.RetrieveAPIView):
     permission_classes = (AllowAny, )
 
 # crear grupo desde formulario de traspasos
-class CursoGrupoCreate(LoginRequiredMixin, GroupRequiredMixin, AjaxResponseMixin, View):
+class CursoGrupoCreate(LoginRequiredMixin, GroupRequiredMixin, AjaxResponseMixin, CsrfExemptMixin, View):
 
     group_required = ['informaticos']
 
@@ -65,7 +65,7 @@ class CursoGrupoCreate(LoginRequiredMixin, GroupRequiredMixin, AjaxResponseMixin
 
 
 # crear alumnos en grupo destino desde formulario de traspasos
-class CursoGrupoCreateAlumnos(LoginRequiredMixin, GroupRequiredMixin, AjaxResponseMixin, View):
+class CursoGrupoCreateAlumnos(LoginRequiredMixin, GroupRequiredMixin, AjaxResponseMixin, CsrfExemptMixin, View):
 
     group_required = ['informaticos']
 
@@ -97,7 +97,7 @@ class CursoGrupoCreateAlumnos(LoginRequiredMixin, GroupRequiredMixin, AjaxRespon
 
 
 # eliminar alumnos en el grupo desde formulario de traspasos
-class CursoGrupoDeleteAlumnos(LoginRequiredMixin, GroupRequiredMixin, AjaxResponseMixin, View):
+class CursoGrupoDeleteAlumnos(LoginRequiredMixin, GroupRequiredMixin, AjaxResponseMixin, CsrfExemptMixin, View):
 
     group_required = ['informaticos']
 
