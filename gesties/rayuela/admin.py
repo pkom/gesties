@@ -2,6 +2,8 @@
 from __future__ import absolute_import, unicode_literals
 import os, os.path, shutil
 import xml.sax.handler
+
+from django.core.exceptions import MultipleObjectsReturned
 from pyexcel_ods3 import get_data
 import json
 
@@ -88,8 +90,22 @@ def import_data(modeladmin, request, queryset):
                                                                                          curso=curso)
                     if created:
                         self.resultado += u'<li>Se ha creado el departamento %s en el curso %s</li>' % (departamento, curso)
-                    cursodepartamentoprofesor, created = CursoDepartamentoProfesor.objects.get_or_create(curso_departamento=cursodepartamento,
-                                                                                               curso_profesor=cursoprofesor)
+
+                    # aquí debemos controlar si ya existe una asignación de este profesor a algún dpto, y en caso
+                    # de ser así, debemos cambiar el atributo curso_departamento con el del nuevo curso_departamento
+
+                    try:
+                        cursodepartamentoprofesor, created = CursoDepartamentoProfesor.objects.update_or_create(curso_profesor=cursoprofesor,
+                                                                                defaults={'curso_departamento': cursodepartamento})
+                    except MultipleObjectsReturned:
+                            self.resultado += u'<li style="color: red;">PROBLEMA>>>>>>>>>>>>>>>: ' \
+                                              u'profesor %s en más de un departamento en el curso %s</li>' % \
+                                            (cursoprofesor, curso)
+
+
+                    #cursodepartamentoprofesor, created = CursoDepartamentoProfesor.objects.get_or_create(curso_departamento=cursodepartamento,
+                    #                                                                           curso_profesor=cursoprofesor)
+
                     if created:
                         self.resultado += u'<li>Se ha asignado el profesor %s al departamento %s en el curso %s</li>' %\
                                         (cursoprofesor, cursodepartamento, curso)
@@ -215,11 +231,31 @@ def import_data(modeladmin, request, queryset):
                     cursogrupo, created = CursoGrupo.objects.get_or_create(grupo=grupo, curso=curso)
                     if created:
                         self.resultado += u'<li>Se ha creado el grupo %s en el curso %s</li>' % (grupo, curso)
-                    cursogrupoalumno, created = CursoGrupoAlumno.objects.get_or_create(curso_grupo=cursogrupo,
-                                                                                curso_alumno=cursoalumno)
+
+                    # aquí debemos controlar si ya existe una asignación de este alumno a algún grupo, y en caso
+                    # de ser así, debemos cambiar el atributo curso_grupo con el del nuevo curso_grupo
+                    # Primero buscar asignación de alumno (cursoalumno)
+
+                    try:
+                        cursogrupoalumno, created = CursoGrupoAlumno.objects.update_or_create(curso_alumno=cursoalumno,
+                                                                                defaults={'curso_grupo': cursogrupo})
+                    except MultipleObjectsReturned:
+                            self.resultado += u'<li style="color: red;">PROBLEMA>>>>>>>>>>>>>>>: ' \
+                                              u'alumno %s en más de un grupo en el curso %s</li>' % \
+                                            (cursoalumno, curso)
+
+                    #cursogrupoalumno, created = CursoGrupoAlumno.objects.get_or_create(curso_grupo=cursogrupo,
+                    #                                                             curso_alumno=cursoalumno)
+
                     if created:
                         self.resultado += u'<li>Se ha asignado el alumno %s al grupo %s en el curso %s</li>' %\
                                         (cursoalumno, cursogrupo, curso)
+                    else:
+                        self.resultado += u'<li>Se ha cambiado el alumno %s al grupo %s en el curso %s</li>' %\
+                                        (cursoalumno, cursogrupo, curso)
+
+
+
                 self.resultado += u'</ul>'
             elif name == "nie":
                 self.inField = 0
