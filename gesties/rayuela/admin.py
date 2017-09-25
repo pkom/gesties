@@ -90,25 +90,23 @@ def import_data(modeladmin, request, queryset):
                                                                                          curso=curso)
                     if created:
                         self.resultado += u'<li>Se ha creado el departamento %s en el curso %s</li>' % (departamento, curso)
-
-                    # aquí debemos controlar si ya existe una asignación de este profesor a algún dpto, y en caso
-                    # de ser así, debemos cambiar el atributo curso_departamento con el del nuevo curso_departamento
-
                     try:
                         cursodepartamentoprofesor, created = CursoDepartamentoProfesor.objects.update_or_create(curso_profesor=cursoprofesor,
                                                                                 defaults={'curso_departamento': cursodepartamento})
+                        if created:
+                            self.resultado += u'<li>Se ha asignado el profesor %s al departamento %s en el curso %s</li>' %\
+                                            (cursoprofesor, cursodepartamento, curso)
+                        else:
+                            self.resultado += u'<li>Se ha cambiado el profesor %s al departamento %s en el curso %s</li>' %\
+                                            (cursoprofesor, cursodepartamento, curso)
                     except MultipleObjectsReturned:
                             self.resultado += u'<li style="color: red;">PROBLEMA>>>>>>>>>>>>>>>: ' \
                                               u'profesor %s en más de un departamento en el curso %s</li>' % \
                                             (cursoprofesor, curso)
 
-
                     #cursodepartamentoprofesor, created = CursoDepartamentoProfesor.objects.get_or_create(curso_departamento=cursodepartamento,
                     #                                                                           curso_profesor=cursoprofesor)
 
-                    if created:
-                        self.resultado += u'<li>Se ha asignado el profesor %s al departamento %s en el curso %s</li>' %\
-                                        (cursoprofesor, cursodepartamento, curso)
                 if self.grupos:
                     for grupoit in self.grupos:
                         grupo, created = Grupo.objects.get_or_create(grupo=grupoit)
@@ -231,14 +229,15 @@ def import_data(modeladmin, request, queryset):
                     cursogrupo, created = CursoGrupo.objects.get_or_create(grupo=grupo, curso=curso)
                     if created:
                         self.resultado += u'<li>Se ha creado el grupo %s en el curso %s</li>' % (grupo, curso)
-
-                    # aquí debemos controlar si ya existe una asignación de este alumno a algún grupo, y en caso
-                    # de ser así, debemos cambiar el atributo curso_grupo con el del nuevo curso_grupo
-                    # Primero buscar asignación de alumno (cursoalumno)
-
                     try:
                         cursogrupoalumno, created = CursoGrupoAlumno.objects.update_or_create(curso_alumno=cursoalumno,
                                                                                 defaults={'curso_grupo': cursogrupo})
+                        if created:
+                            self.resultado += u'<li>Se ha asignado el alumno %s al grupo %s en el curso %s</li>' %\
+                                            (cursoalumno, cursogrupo, curso)
+                        else:
+                            self.resultado += u'<li>Se ha cambiado el alumno %s al grupo %s en el curso %s</li>' %\
+                                            (cursoalumno, cursogrupo, curso)
                     except MultipleObjectsReturned:
                             self.resultado += u'<li style="color: red;">PROBLEMA>>>>>>>>>>>>>>>: ' \
                                               u'alumno %s en más de un grupo en el curso %s</li>' % \
@@ -246,15 +245,6 @@ def import_data(modeladmin, request, queryset):
 
                     #cursogrupoalumno, created = CursoGrupoAlumno.objects.get_or_create(curso_grupo=cursogrupo,
                     #                                                             curso_alumno=cursoalumno)
-
-                    if created:
-                        self.resultado += u'<li>Se ha asignado el alumno %s al grupo %s en el curso %s</li>' %\
-                                        (cursoalumno, cursogrupo, curso)
-                    else:
-                        self.resultado += u'<li>Se ha cambiado el alumno %s al grupo %s en el curso %s</li>' %\
-                                        (cursoalumno, cursogrupo, curso)
-
-
 
                 self.resultado += u'</ul>'
             elif name == "nie":
@@ -325,7 +315,7 @@ def import_data(modeladmin, request, queryset):
             data = get_data(rayuela.archivo.path)
             datos_alumnos = data['Alumnado del centro'][1:]
             for datos_alumno in datos_alumnos:
-                alumno = Alumno.objects.get(nie=datos_alumno[2])
+                alumno = Alumno.objects.filter(nie=datos_alumno[2]).first()
                 if alumno:
                     rayuela.resultado += u'<li>Procesando alumno {}</li>'.format(alumno)
                     alumno.dni = datos_alumno[3]
@@ -367,6 +357,10 @@ def import_data(modeladmin, request, queryset):
                         lista_tutores.append(tutor)
                     if len(lista_tutores) > 0:
                         alumno.tutores.set(lista_tutores)
+                else:
+                    rayuela.resultado += u'<li style="color: red;">PROBLEMA>>>>>>>>>>>>>>>: ' \
+                                         u'alumno {} con nie {} no existe</li>'.format(datos_alumno[0], datos_alumno[2])
+
             rayuela.resultado += u'</ul>'
         elif rayuela.tipo == 'TU':
             rayuela.resultado = u'<h5>Resultado del proceso</h5><ul>'
