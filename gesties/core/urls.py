@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 from django.conf.urls import include, url
 
-from .listados import listin_telefonico, etiquetas_alumnos, imprime_cb_ejemplares
+from .listados import listin_telefonico, etiquetas_alumnos, imprime_cb_ejemplares, imprime_libros, imprime_ejemplares_prestados
 from .views import load_index, load_traspaso, load_sidebar, locales
 
 
@@ -16,6 +16,10 @@ urlpatterns = [
 
     # impresión de códigos de barras ejemplares
     url(r'^imprime_cb_ejemplares/$', imprime_cb_ejemplares, name='imprime_cb_ejemplares'),
+    # impresión de informe de libros
+    url(r'^imprime_libros/$', imprime_libros, name='imprime_libros'),
+    # impresión de informe de ejemplares de libros prestados
+    url(r'^imprime_ejemplares_prestados/$', imprime_ejemplares_prestados, name='imprime_ejemplares_prestados'),
 
     url(r'^listin/$', listin_telefonico, name='listin_defecto'),
     url(r'^listin/(?P<curso>[\w-]+)/$', listin_telefonico, name='listin_curso'),

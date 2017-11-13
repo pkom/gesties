@@ -18,16 +18,4 @@ urlpatterns = [
     url(r'^carga_grupo_info/(?P<grupo>\w+)/$', views.ver_grupo, name='ver_grupo'),
     url(r'^carga_grupo_info/$', views.ver_grupo, name='ver_grupo'),
 
-
-    url(
-        regex=r'^$',
-        view=views.CursoGrupoListView.as_view(),
-        name='list-grupos'
-    ),
-    url(
-        regex=r'(?P<pk>\d+)/$',
-        view=views.CursoGrupoDetailView.as_view(),
-        name='detail-grupo'
-    ),
-
 ]

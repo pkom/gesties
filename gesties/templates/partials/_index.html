@@ -35,13 +35,15 @@
                             <li>Id. Rayuela: <b>{{ request.user.id_usuario }}</b></li>
                             <li>Alta en el sistema: <b>{{ request.user.date_joined }}</b></li>
                             <li>Último login: <b>{{ request.user.last_login }}</b></li>
+                            <!--
                             <li>Usuarios con sesiones no caducadas
                             <ul>
-                            {%  for usuario in usuarios %}
-                                <li>{{ usuario.get_full_name }}</li>
-                            {% endfor %}
+                                {#%  for usuario in usuarios %#}
+                                    <li>{#{ usuario.get_full_name }#}</li>
+                                {#% endfor %#}
                             </ul>
                             </li>
+                            -->
                         </ul>
                     </div>
 

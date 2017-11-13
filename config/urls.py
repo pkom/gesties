@@ -7,16 +7,12 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.views import defaults as default_views
 
-from gesties.core.views import index, index_no_ajax, about
+from gesties.core.views import index
 
 admin.site.site_header = u"Administración Gesties"
 
 urlpatterns = [
     url(r'^$', index, name='home'),
-
-    url(r'^index$', index_no_ajax, name='home-no-ajax'),
-
-    url(r'^about/$', about, name='about'),
 
     # Django Admin, use {% url 'admin:index' %}
     url(settings.ADMIN_URL, admin.site.urls),

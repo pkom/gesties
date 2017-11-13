@@ -15,8 +15,8 @@ from gesties.api.views.authentication import LoginAPIView, UserRetrieveUpdateAPI
 
 # Create a router and register our viewsets with it.
 # router = DefaultRouter()
-# router.register(r'snippets', views.SnippetViewSet)
-# router.register(r'users', views.UserViewSet)
+# router.register(r'snippets', viewsaborrar.SnippetViewSet)
+# router.register(r'users', viewsaborrar.UserViewSet)
 
 
 urlpatterns = [

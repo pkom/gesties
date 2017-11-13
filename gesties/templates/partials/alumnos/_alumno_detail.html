@@ -32,7 +32,7 @@
                                 <li>Grupos y tutores:
                                     <ul>
                                         {% for grupo in alumno.get_grupos %}
-                                            <li><b>{{ grupo.curso_grupo.grupo }}</b> -
+                                            <li><b>{{ grupo.curso_grupo.grupo }} ({{ grupo.curso_grupo.curso }})</b> -
                                                 {% if grupo.curso_grupo.tutor %}
                                                     <b>{{ grupo.curso_grupo.tutor.profesor }}
                                                 {% else %}Sin Asignar tutoría{% endif %}</b>

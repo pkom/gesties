@@ -20,23 +20,10 @@ def index(request):
 
 
 @login_required
-def index_no_ajax(request):
-    contexto = {'usuarios': get_current_users()}
-    contexto['status'] = user_status(request,username=request.user.username)
-    # messages.debug(request, 'debug')
-    # messages.info(request, 'Mensajes para usuari@s')
-    # messages.success(request, 'success')
-    # messages.warning(request, 'warning')
-    # messages.error(request, 'error')
-    return TemplateResponse(request, 'pages/index.html', contexto)
-#    return TemplateResponse(request, 'baseajax.html', contexto)
-
-
-@login_required
 def load_index(request):
     context = dict()
     if request.method == 'GET':
-        context['usuarios'] = get_current_users()
+        #context['usuarios'] = get_current_users()
         context['status'] = user_status(request, username=request.user.username)
     else:
         HttpResponseBadRequest(u'El método no está permitido')
@@ -63,17 +50,6 @@ def load_sidebar(request):
     else:
         data['error'] = u'El método no está autorizado'
     return JsonResponse(data)
-
-
-@login_required
-def about(request):
-    contexto = {}
-    # messages.debug(request, 'debug')
-    # messages.info(request, 'info')
-    # messages.success(request, 'success')
-    # messages.warning(request, 'warning')
-    # messages.error(request, 'error')
-    return TemplateResponse(request, 'pages/about.html', contexto)
 
 
 # para comprobar los locales del sistema donde está corriento la aplicación

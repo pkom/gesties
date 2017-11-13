@@ -2,8 +2,6 @@
 from __future__ import absolute_import, unicode_literals
 
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.views.generic import DetailView, ListView
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.template.response import TemplateResponse
 from django.template.loader import render_to_string
@@ -124,34 +122,3 @@ def ver_departamento(request, departamento=None):
             return JsonResponse(data, status=405)
     else:
         return HttpResponseBadRequest(u'Lo siento, esto es una vista AJAX')
-
-
-class CursoDepartamentoListView(LoginRequiredMixin, ListView):
-
-    model = CursoDepartamento
-    template_name = 'departamentos/cursodepartamento_list.html'
-
-    def get_queryset(self):
-        qs = CursoDepartamento.objects.filter(curso=self.request.session['curso_academico']['pk'])\
-                .order_by('departamento__departamento')
-        return qs
-
-    def get_context_data(self, **kwargs):
-        # Call the base implementation first to get a context
-        context = super(CursoDepartamentoListView, self).get_context_data(**kwargs)
-        context['mdatos'] = True
-        context['mdepartamentos'] = True
-        return context
-
-
-class CursoDepartamentoDetailView(LoginRequiredMixin, DetailView):
-
-    model = CursoDepartamento
-    template_name = 'departamentos/cursodepartamento_detail.html'
-
-    def get_context_data(self, **kwargs):
-        # Call the base implementation first to get a context
-        context = super(CursoDepartamentoDetailView, self).get_context_data(**kwargs)
-        context['mdatos'] = True
-        context['mdepartamentos'] = True
-        return context

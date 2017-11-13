@@ -85,7 +85,7 @@ class Libro(TimeStampedModel):
     anio_edicion = models.CharField('Año Edición', help_text='Año de la edición', blank=True, max_length=4)
     area_conocimiento = models.ForeignKey(Area, on_delete=models.SET_NULL, null=True, blank=True)
     isbn = models.CharField('ISBN', blank=True, max_length=50)
-    codigo_barras = models.CharField('Código de barras', max_length=50, unique=True, blank=True)
+    codigo_barras = models.CharField('Código de barras', max_length=50, unique=True, blank=True, db_index=True)
     nivel = models.ForeignKey(Nivel, on_delete=models.SET_NULL, null=True, blank=True)
     numero_ejemplares = models.SmallIntegerField('Número de Ejemplares', default=1)
 #    bajas = models.SmallIntegerField('Número de Ejemplares dados de baja', default=0)
@@ -163,15 +163,22 @@ class Ejemplar(TimeStampedModel):
 
     libro = models.ForeignKey(Libro, on_delete=models.CASCADE)
     estado = models.CharField(
+        db_index=True,
         max_length=4,
         choices=ESTADO_EJEMPLAR_CHOICES,
         default=DISPONIBLE,
     )
-    codigo_barras = models.CharField('Código de barras', max_length=50, unique=True, blank=True)
+    codigo_barras = models.CharField('Código de barras', max_length=50, unique=True, blank=True, db_index=True)
 
     def __str__(self):
-
         return u"{0}, {1}-({2})".format(self.libro, self.estado, self.codigo_barras)
+
+    @property
+    def alumno(self):
+        alumno = self.prestamo_set.filter(fecha_fin_prestamo__isnull=True).first()
+        if alumno:
+            return "({}) {}".format(alumno.curso_grupo_alumno.curso_grupo.grupo, alumno.curso_grupo_alumno.curso_alumno.alumno)
+        return u"Sin préstamo a alumn@"
 
     def save(self, *args, **kwargs):
 
@@ -194,7 +201,7 @@ class Prestamo(TimeStampedModel):
     ejemplar = models.ForeignKey(Ejemplar, on_delete=models.CASCADE)
     curso_grupo_alumno = models.ForeignKey(CursoGrupoAlumno, on_delete=models.CASCADE)
     fecha_inicio_prestamo = models.DateTimeField(auto_now_add=True, blank=True)
-    fecha_fin_prestamo = models.DateTimeField(blank=True, null=True)
+    fecha_fin_prestamo = models.DateTimeField(blank=True, null=True, db_index=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     user_devolucion = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='user_dev',
                                         on_delete=models.CASCADE, blank=True, null=True)

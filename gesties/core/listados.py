@@ -5,35 +5,35 @@ import re
 from django.http import HttpResponse, Http404
 from django.contrib.auth.decorators import login_required
 
-from reportlab.platypus import BaseDocTemplate, PageTemplate, Frame
+from reportlab.lib import colors
+from reportlab.lib.enums import TA_CENTER, TA_RIGHT
+from reportlab.platypus import BaseDocTemplate, PageTemplate, Frame, TableStyle
 from reportlab.platypus.flowables import Flowable
-from reportlab.lib.styles import getSampleStyleSheet
-from reportlab.graphics import shapes, barcode
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.graphics import shapes
 from reportlab.graphics.barcode.widgets import BarcodeCode128
 from reportlab.graphics.barcode import getCodes, getCodeNames, createBarcodeDrawing
 from reportlab.graphics.shapes import Drawing
 from reportlab.graphics import renderPDF
 from reportlab.platypus import SimpleDocTemplate, Table, Paragraph
-from reportlab.lib.pagesizes import A4
+from reportlab.lib.pagesizes import landscape, A4
 from reportlab.lib.units import mm, cm
 from reportlab.pdfbase.pdfmetrics import stringWidth
 import labels
-from PIL import Image
 
 from gesties.cursos.models import Curso
 from gesties.grupos.models import CursoGrupoAlumno
 from gesties.configies.models import Configies
-from gesties.libros.models import Ejemplar
+from gesties.libros.models import Nivel, Libro, Ejemplar
 
 
 class EntradaListin(Flowable):
-
     def __init__(self, size=None, alumno=None):
-        if size is None: size=2.6*cm
-        #self.xoffset = xoffset
+        if size is None: size = 2.6 * cm
+        # self.xoffset = xoffset
         self.size = size
         # normal size is 4 inches
-        #self.scale = size/(4.0*cm)
+        # self.scale = size/(4.0*cm)
         self.alumno = alumno
 
     def wrap(self, *args):
@@ -60,39 +60,40 @@ class EntradaListin(Flowable):
             canvas.drawString(390, 5 + l, tutor.telefono1 + '/' + tutor.telefono2)
             l += 10
 
-        canvas.setFont("Helvetica", size = 10)
+        canvas.setFont("Helvetica", size=10)
         canvas.drawString(50, 45 + l, "Alumno/a:")
-        canvas.setFont("Helvetica-Bold", size = 10)
+        canvas.setFont("Helvetica-Bold", size=10)
         canvas.drawString(105, 45 + l, str(self.alumno.curso_alumno.alumno))
-        canvas.setFont("Helvetica", size = 10)
+        canvas.setFont("Helvetica", size=10)
         canvas.drawString(415, 45 + l, "Grupo:")
-        canvas.setFont("Helvetica-Bold", size = 10)
+        canvas.setFont("Helvetica-Bold", size=10)
         canvas.drawString(450, 45 + l, str(self.alumno.curso_grupo.grupo))
-        canvas.setFont("Helvetica", size = 10)
+        canvas.setFont("Helvetica", size=10)
         canvas.drawString(50, 35 + l, "Expediente:")
-        canvas.setFont("Helvetica-Bold", size = 10)
+        canvas.setFont("Helvetica-Bold", size=10)
         canvas.drawString(105, 35 + l, self.alumno.curso_alumno.alumno.expediente)
-        canvas.setFont("Helvetica", size = 10)
+        canvas.setFont("Helvetica", size=10)
         canvas.drawString(135, 35 + l, "Fecha Nac.:")
-        canvas.setFont("Helvetica-Bold", size = 10)
+        canvas.setFont("Helvetica-Bold", size=10)
         canvas.drawString(190, 35 + l, self.alumno.curso_alumno.alumno.fecha_nacimiento.strftime('%d/%m/%Y'))
-        canvas.setFont("Helvetica", size = 10)
+        canvas.setFont("Helvetica", size=10)
         canvas.drawString(245, 35 + l, "D.N.I.:")
-        canvas.setFont("Helvetica-Bold", size = 10)
+        canvas.setFont("Helvetica-Bold", size=10)
         canvas.drawString(275, 35 + l, self.alumno.curso_alumno.alumno.dni)
-        canvas.setFont("Helvetica", size = 10)
+        canvas.setFont("Helvetica", size=10)
         canvas.drawString(340, 35 + l, "N.I.E.:")
-        canvas.setFont("Helvetica-Bold", size = 10)
+        canvas.setFont("Helvetica-Bold", size=10)
         canvas.drawString(370, 35 + l, self.alumno.curso_alumno.alumno.nie)
-        canvas.setFont("Helvetica", size = 10)
+        canvas.setFont("Helvetica", size=10)
         canvas.drawString(50, 25 + l, "Teléfonos:")
-        canvas.setFont("Helvetica-Bold", size = 10)
+        canvas.setFont("Helvetica-Bold", size=10)
         canvas.drawString(105, 25 + l, self.alumno.curso_alumno.alumno.telefono)
-        canvas.setFont("Helvetica", size = 10)
+        canvas.setFont("Helvetica", size=10)
         canvas.drawString(50, 15 + l, "Dirección:")
-        canvas.setFont("Helvetica-Bold", size = 10)
-        canvas.drawString(105, 15 + l, self.alumno.curso_alumno.alumno.direccion + ' ' + self.alumno.curso_alumno.alumno.localidad + ' (' +
-                                   self.alumno.curso_alumno.alumno.codigo_postal + ') ' + self.alumno.curso_alumno.alumno.provincia)
+        canvas.setFont("Helvetica-Bold", size=10)
+        canvas.drawString(105, 15 + l,
+                          self.alumno.curso_alumno.alumno.direccion + ' ' + self.alumno.curso_alumno.alumno.localidad + ' (' +
+                          self.alumno.curso_alumno.alumno.codigo_postal + ') ' + self.alumno.curso_alumno.alumno.provincia)
         canvas.setFont("Helvetica", size=10)
         canvas.drawString(50, 5 + l, "Tutor Grup:")
         canvas.setFont("Helvetica-Bold", size=10)
@@ -116,24 +117,27 @@ def listin_telefonico(request, curso=None, grupo=None):
         raise Http404
     # Create the HttpResponse object with the appropriate PDF headers.
     response = HttpResponse(content_type='application/pdf')
-    #response['Content-Disposition'] = 'attachment; filename="listin.pdf"'
+    # response['Content-Disposition'] = 'attachment; filename="listin.pdf"'
     response['Content-Disposition'] = 'filename="listin.pdf"'
     # Create the PDF object, using the response object as its "file."
     buff = BytesIO()
     styles = getSampleStyleSheet()
     Elements = []
-    doc = BaseDocTemplate(buff, leftMargin = 2 * cm, rightMargin = 0.5 * cm,
-                          topMargin = 2 * cm, bottomMargin = 1 * cm, showBoundary=0)
+    doc = BaseDocTemplate(buff, leftMargin=2 * cm, rightMargin=0.5 * cm,
+                          topMargin=2 * cm, bottomMargin=1 * cm, showBoundary=0)
     cabecera1 = request.session.get('centro', Configies.objects.all()[0].nombre_centro)
-    cabecera2 = "Curso "+str(alumnos[0].curso_grupo.curso)+" - Listado telefónico de alumno/as " + (("- Grupo: "+grupo) if grupo else "")
+    cabecera2 = "Curso " + str(alumnos[0].curso_grupo.curso) + " - Listado telefónico de alumno/as " + (
+    ("- Grupo: " + grupo) if grupo else "")
+
     def cabeceraYpie(canvas, doc):
         canvas.saveState()
         canvas.setFont('Helvetica-Bold', 14)
         canvas.drawCentredString(21 * cm / 2, 29 * cm, cabecera1)
         canvas.drawCentredString(21 * cm / 2, 28 * cm, cabecera2)
         canvas.setFont('Times-Roman', 10)
-        canvas.drawCentredString(21 * cm /2, cm, "Página {}".format(doc.page))
+        canvas.drawCentredString(21 * cm / 2, cm, "Página {}".format(doc.page))
         canvas.restoreState()
+
     # normal frame as for SimpleFlowDocument
     frameT = Frame(doc.leftMargin, doc.bottomMargin, doc.width, doc.height, id='normal')
     for alumno in alumnos:
@@ -163,7 +167,7 @@ def etiquetas_alumnos(request, curso=None, grupo=None):
         raise Http404
     # Create the HttpResponse object with the appropriate PDF headers.
     response = HttpResponse(content_type='application/pdf')
-    #response['Content-Disposition'] = 'attachment; filename="listin.pdf"'
+    # response['Content-Disposition'] = 'attachment; filename="listin.pdf"'
     response['Content-Disposition'] = 'filename="etiquetas.pdf"'
     buff = BytesIO()
     # Create an A4 portrait (210mm x 297mm) sheets with 2 columns and 8 rows of
@@ -178,7 +182,7 @@ def etiquetas_alumnos(request, curso=None, grupo=None):
     def draw_label(label, width, height, obj):
         # Just convert the object to a string and print this at the bottom left of
         # the label.
-        #print("Generando etiqueta de {}".format(obj.alumno))
+        # print("Generando etiqueta de {}".format(obj.alumno))
         label.add(shapes.String(50, 40, "Apellidos:", fontName="Helvetica", fontSize=10))
         label.add(shapes.String(100, 40, obj.curso_alumno.alumno.apellidos, fontName="Helvetica-Bold", fontSize=10))
         label.add(shapes.String(50, 30, "Nombre:", fontName="Helvetica", fontSize=10))
@@ -186,31 +190,32 @@ def etiquetas_alumnos(request, curso=None, grupo=None):
         label.add(shapes.String(50, 20, "Tfnos.:", fontName="Helvetica", fontSize=10))
         label.add(shapes.String(100, 20, obj.curso_alumno.alumno.telefono, fontName="Helvetica-Bold", fontSize=10))
         label.add(shapes.String(50, 10, "Dirección:", fontName="Helvetica", fontSize=10))
-        label.add(shapes.String(100, 10, obj.curso_alumno.alumno.direccion+' '+obj.curso_alumno.alumno.localidad+
-                                ' ('+obj.curso_alumno.alumno.codigo_postal+
-                                ') '+obj.curso_alumno.alumno.provincia,
+        label.add(shapes.String(100, 10, obj.curso_alumno.alumno.direccion + ' ' + obj.curso_alumno.alumno.localidad +
+                                ' (' + obj.curso_alumno.alumno.codigo_postal +
+                                ') ' + obj.curso_alumno.alumno.provincia,
                                 fontName="Helvetica-Bold", fontSize=10))
         tutores = obj.curso_alumno.alumno.tutores.all()
         l = 0
         for tutor in tutores:
-            label.add(shapes.String(200, 40-l, "Tutor:", fontName="Helvetica", fontSize=10))
-            label.add(shapes.String(230, 40-l, str(tutor), fontName="Helvetica-Bold", fontSize=10))
-            label.add(shapes.String(390, 40-l, "Tfnos:", fontName="Helvetica", fontSize=10))
-            label.add(shapes.String(420, 40-l, tutor.telefono1+'/'+tutor.telefono2,
+            label.add(shapes.String(200, 40 - l, "Tutor:", fontName="Helvetica", fontSize=10))
+            label.add(shapes.String(230, 40 - l, str(tutor), fontName="Helvetica-Bold", fontSize=10))
+            label.add(shapes.String(390, 40 - l, "Tfnos:", fontName="Helvetica", fontSize=10))
+            label.add(shapes.String(420, 40 - l, tutor.telefono1 + '/' + tutor.telefono2,
                                     fontName="Helvetica-Bold", fontSize=10))
             l += 10
         label.add(shapes.String(230, 20, "Fecha Nac.:", fontName="Helvetica", fontSize=10))
-        label.add(shapes.String(290, 20, obj.curso_alumno.alumno.fecha_nacimiento.strftime('%d/%m/%Y'), fontName="Helvetica-Bold", fontSize=10))
+        label.add(shapes.String(290, 20, obj.curso_alumno.alumno.fecha_nacimiento.strftime('%d/%m/%Y'),
+                                fontName="Helvetica-Bold", fontSize=10))
         label.add(shapes.String(345, 20, "Expediente:", fontName="Helvetica", fontSize=10))
         label.add(shapes.String(400, 20, obj.curso_alumno.alumno.expediente, fontName="Helvetica-Bold", fontSize=10))
         label.add(shapes.String(430, 20, "D.N.I.:", fontName="Helvetica", fontSize=10))
         label.add(shapes.String(460, 20, obj.curso_alumno.alumno.dni, fontName="Helvetica-Bold", fontSize=10))
         if obj.curso_alumno.alumno.foto:
             try:
-                label.add(shapes.Image(5,5,40,40,obj.curso_alumno.alumno.foto.path))
+                label.add(shapes.Image(5, 5, 40, 40, obj.curso_alumno.alumno.foto.path))
             except:
                 pass
-        label.add(shapes.String(420, 5, 'Grupo:',fontName="Helvetica", fontSize=12))
+        label.add(shapes.String(420, 5, 'Grupo:', fontName="Helvetica", fontSize=12))
         label.add(shapes.String(460, 5, str(obj.curso_grupo.grupo), fontName="Helvetica-Bold", fontSize=12))
         label.add(shapes.String(50, 2, 'Tutor grupo:', fontName="Helvetica", fontSize=8))
         label.add(shapes.String(100, 2, str(obj.curso_grupo.tutor), fontName="Helvetica-Bold", fontSize=8))
@@ -220,30 +225,30 @@ def etiquetas_alumnos(request, curso=None, grupo=None):
     # Create the sheet.
     sheet = labels.Sheet(specs, draw_label, border=True)
 
-    #for alumno in alumnos:
+    # for alumno in alumnos:
     #    sheet.add_label(alumno)
     sheet.add_labels(alumnos)
 
     # Add a couple of labels.
-    #sheet.add_label("Hello")
-    #sheet.add_label("World")
+    # sheet.add_label("Hello")
+    # sheet.add_label("World")
 
     # We can also add each item from an iterable.
-    #sheet.add_labels(range(3, 22))
+    # sheet.add_labels(range(3, 22))
 
     # Note that any oversize label is automatically trimmed to prevent it messing up
     # other labels.
-    #sheet.add_label("Oversized label here")
+    # sheet.add_label("Oversized label here")
     sheet.save(buff)
     # Save the file and we are done.
     response.write(buff.getvalue())
     buff.close()
-    #print("{0:d} label(s) output on {1:d} page(s).".format(sheet.label_count, sheet.page_count))
+    # print("{0:d} label(s) output on {1:d} page(s).".format(sheet.label_count, sheet.page_count))
     return response
 
 
 def imprime_cb_ejemplares(request):
-    #, ejemplares, ancho=3, alto=8, inicio=1):
+    # , ejemplares, ancho=3, alto=8, inicio=1):
     # se le pasa por get la lista de ejemplares, el ancho, alto y la etiqueta de inicio
     if request.method == 'POST':
         # para PDFs
@@ -282,25 +287,26 @@ def imprime_cb_ejemplares(request):
                 pad = 10
 
                 # section 1 : barcode
-                #D = Drawing(width, height)
-                #d = createBarcodeDrawing('Code128', value=obj, width=50*mm, barHeight=15 * mm, humanReadable=True)
-                d = createBarcodeDrawing('Code128', value=obj, width=width * 2/3, barHeight=height * 5/9, humanReadable=True)
+                # D = Drawing(width, height)
+                # d = createBarcodeDrawing('Code128', value=obj, width=50*mm, barHeight=15 * mm, humanReadable=True)
+                d = createBarcodeDrawing('Code128', value=obj, width=width * 2 / 3, barHeight=height * 5 / 9,
+                                         humanReadable=True)
 
                 # d = createBarcodeDrawing('I2of5', value=the_num,  barHeight=10*mm, humanReadable=True)
 
                 barcode_width = d.width
                 barcode_height = d.height
 
-                #d.rotate(-90)
-                d.translate( - barcode_height, pad) # translate
+                # d.rotate(-90)
+                d.translate(- barcode_height, pad)  # translate
 
                 d.translate(width - barcode_width - pad / 2, 0)  # translate
 
-                #import pprint
-                #pprint(d.dumpProperties())
+                # import pprint
+                # pprint(d.dumpProperties())
 
-                #D.add(d)
-                #label.add(D)
+                # D.add(d)
+                # label.add(D)
                 label.add(d)
 
                 '''
@@ -348,20 +354,20 @@ def imprime_cb_ejemplares(request):
                 label.add(shape_titulo)
 
                 # josé no quiere autor
-                #shape_autor = shapes.String(15, 0, autor, fontSize=6)
-                #shape_autor.y = height - 20
-                #shape_autor.textAnchor = "start"
-                #label.add(shape_autor)
+                # shape_autor = shapes.String(15, 0, autor, fontSize=6)
+                # shape_autor.y = height - 20
+                # shape_autor.textAnchor = "start"
+                # label.add(shape_autor)
 
-                #label.add(shapes.String(15, 60, titulo, fontSize=8))
-                #label.add(shapes.String(15, 50, autor, fontSize=8))
+                # label.add(shapes.String(15, 60, titulo, fontSize=8))
+                # label.add(shapes.String(15, 50, autor, fontSize=8))
 
 
-                #barcode_image_raw = barcode.createBarcodeImageInMemory('Code128', value=obj, width=150 * mm, height=30 * mm)
-                #cb = Image.open(BytesIO(barcode_image_raw))
-                #cb.save("cb.png")
-                #label.add(shapes.Image(5, 15, width=150, height=30, path="cb.png"))
-                #label.add(shapes.String(40, 5, obj))
+                # barcode_image_raw = barcode.createBarcodeImageInMemory('Code128', value=obj, width=150 * mm, height=30 * mm)
+                # cb = Image.open(BytesIO(barcode_image_raw))
+                # cb.save("cb.png")
+                # label.add(shapes.Image(5, 15, width=150, height=30, path="cb.png"))
+                # label.add(shapes.String(40, 5, obj))
 
             # Create the sheet.
             sheet = labels.Sheet(specs, draw_label, border=False)
@@ -369,7 +375,7 @@ def imprime_cb_ejemplares(request):
             blancos = []
             for i in range(1, inicio):
                 fila, col = divmod(i, ancho)
-                b = [fila + 1 if col != 0 else fila, col if  col != 0 else ancho]
+                b = [fila + 1 if col != 0 else fila, col if col != 0 else ancho]
                 blancos.append(b)
             sheet.partial_page(1, blancos)
             sheet.add_labels(ejemplares)
@@ -380,11 +386,11 @@ def imprime_cb_ejemplares(request):
             return response
 
 
-#----------------------------------------------------------------------
+# ----------------------------------------------------------------------
 # adjust fontsize down until it fits a width/height limit
 # should really range for value instead of timidly crepping towards target
-#----------------------------------------------------------------------
-def fit_text_in_area(the_text,font_name,text_width_limit,text_height_limit):
+# ----------------------------------------------------------------------
+def fit_text_in_area(the_text, font_name, text_width_limit, text_height_limit):
     font_size = text_height_limit
     text_width = stringWidth(the_text, font_name, font_size)
     while ((text_width > text_width_limit) or (font_size > text_height_limit)):
@@ -392,19 +398,19 @@ def fit_text_in_area(the_text,font_name,text_width_limit,text_height_limit):
         text_width = stringWidth(the_text, font_name, font_size)
 
     s = shapes.String(0, 0, the_text, fontName=font_name, fontSize=font_size, textAnchor="start")
-    #pprint("text_height_limit = " + str(text_height_limit))
-    #pprint(s.dumpProperties())
-    #pprint(s)
+    # pprint("text_height_limit = " + str(text_height_limit))
+    # pprint(s.dumpProperties())
+    # pprint(s)
     return s
 
 
-#----------------------------------------------------------------------
+# ----------------------------------------------------------------------
 # adjust str height if there are any low-hanging letters (ie decenders)
-#----------------------------------------------------------------------
-def get_font_height(size,str):
+# ----------------------------------------------------------------------
+def get_font_height(size, str):
     pattern = re.compile(r'[gjpqy]')
     if pattern.findall(str):
-       size *= 1.1
+        size *= 1.1
     return size
 
 
@@ -425,7 +431,7 @@ class BarCode(Flowable):
     def draw(self):
         # Flowable canvas
         bar_code = BarcodeCode128(value=self.value)
-        #bar_code = Ean13BarcodeWidget(value=self.value)
+        # bar_code = Ean13BarcodeWidget(value=self.value)
         bounds = bar_code.getBounds()
         bar_width = bounds[2] - bounds[0]
         bar_height = bounds[3] - bounds[1]
@@ -437,7 +443,7 @@ class BarCode(Flowable):
 
 
 def imprime_cb_ejemplares_1(request, titulo=None, autor=None, ancho=None, alto=None, inicio=None, ejemplares=None):
-    #, ejemplares, ancho=3, alto=8, inicio=1):
+    # , ejemplares, ancho=3, alto=8, inicio=1):
     # se le pasa por get la lista de ejemplares, el ancho, alto y la etiqueta de inicio
     if request.method == 'GET':
         # para PDFs
@@ -461,13 +467,14 @@ def imprime_cb_ejemplares_1(request, titulo=None, autor=None, ancho=None, alto=N
             pdf_name = "etiquetas.pdf"
             response['Content-Disposition'] = 'filename={0}.pdf'.format(pdf_name)
             buff = BytesIO()
-            doc = SimpleDocTemplate(buff, pagesize=A4, leftMargin=10, rightMargin=10, topMargin=25, bottomMargin=20, showBoundary=1)
+            doc = SimpleDocTemplate(buff, pagesize=A4, leftMargin=10, rightMargin=10, topMargin=25, bottomMargin=20,
+                                    showBoundary=1)
             (ancho_pagina, largo_pagina) = A4
             styleSheet = getSampleStyleSheet()
             iCols = datos['ancho']
             iRows = round(len(datos['ejemplares']) / iCols)
             iRowsPerPage = largo_pagina / datos['alto'] + 10
-            table_data = [[ [] for col in range(iCols) ] for row in range(iRows) ]
+            table_data = [[[] for col in range(iCols)] for row in range(iRows)]
             iCells = len(datos['ejemplares'])
             texto1 = Paragraph('Hola', styleSheet["BodyText"])
             texto2 = Paragraph('Adios', styleSheet["BodyText"])
@@ -487,7 +494,7 @@ def imprime_cb_ejemplares_1(request, titulo=None, autor=None, ancho=None, alto=N
             #               [BarCode(value='0600670100030025'), BarCode(value='0600670100030026'), BarCode(value='0600670100030027')],
             #               ]
             barcode_table = Table(table_data, colWidths=[ancho_pagina / iCols] * iCols,
-                                rowHeights=[iRowsPerPage] * iRows)
+                                  rowHeights=[iRowsPerPage] * iRows)
 
             parts = []
             parts.append(barcode_table)
@@ -495,3 +502,104 @@ def imprime_cb_ejemplares_1(request, titulo=None, autor=None, ancho=None, alto=N
             response.write(buff.getvalue())
             buff.close()
             return response
+
+
+def imprime_libros(request):
+    def cabecera_pie(canvas, doc):
+        canvas.saveState()
+        styles = getSampleStyleSheet()
+        styles.add(ParagraphStyle(name='TitCentrado', alignment=TA_CENTER, parent=styles['Heading1']), alias='CENT')
+        centro = request.session.get('centro', Configies.objects.all()[0].nombre_centro)
+        header = Paragraph(centro + ' - ' + "Informe de Libros de Texto", styles['TitCentrado'])
+        w, h = header.wrap(doc.width, doc.topMargin)
+        header.drawOn(canvas, doc.leftMargin, doc.height + doc.topMargin - h)
+        styles.add(ParagraphStyle(name='Paginador', alignment=TA_RIGHT, parent=styles['Normal']), alias='PAG')
+        footer = Paragraph("Página {}".format(doc.page), styles['Paginador'])
+        w, h = footer.wrap(doc.width, doc.bottomMargin)
+        footer.drawOn(canvas, doc.leftMargin, h)
+
+    qslibros = Libro.objects.all().order_by('titulo')
+    if len(qslibros) == 0:
+        raise Http404
+    # Create the HttpResponse object with the appropriate PDF headers.
+    response = HttpResponse(content_type='application/pdf')
+    # response['Content-Disposition'] = 'attachment; filename="libros.pdf"'
+    response['Content-Disposition'] = 'filename="libros.pdf"'
+    # Create the PDF object, using the response object as its "file."
+    buff = BytesIO()
+    doc = SimpleDocTemplate(buff, pagesize=landscape(A4), leftMargin=1 * cm, rightMargin=1 * cm,
+                            topMargin=2 * cm, bottomMargin=1 * cm)
+    libros = []
+    headings = ('Título', 'Autor', 'Editorial', 'Año', 'Área', 'Nivel', 'Precio', 'Total', 'Prest',
+                'Disp', 'Bajas', 'Deter', 'Inicio', 'Fin')
+    todoslibros = [(l.titulo[:46], l.autor.autor[:9], l.editorial.editorial[:9], l.anio_edicion, l.area_conocimiento,
+                    "{} {}".format(l.nivel.nivel, l.nivel.ciclo.ciclo),
+                    l.precio, l.numero_ejemplares, l.prestados, l.disponibles, l.bajas, l.deteriorados,
+                    l.fecha_inicio.isoformat(), l.fecha_fin.isoformat()) for l in qslibros]
+    t = Table([headings] + todoslibros, colWidths=[8 * cm, 2 * cm, 2 * cm, 1.2 * cm, 1.2 * cm, 1.2 * cm, 1.2 * cm,
+                                                   1 * cm, 1 * cm, 1 * cm, 1 * cm, 1 * cm, 2 * cm, 2 * cm],
+              repeatRows=1)
+    t.setStyle(TableStyle(
+        [
+            ('FONTSIZE', (0, 0), (-1, -1), 8),
+            # ('GRID', (0, 0), (13, -1), 1, colors.dodgerblue),
+            ('LINEBELOW', (0, 0), (-1, 0), 1, colors.darkblue),
+            ('LINEBELOW', (0, 1), (-1, -1), 1, colors.black),
+            ('LINEBEFORE', (0, 1), (0, -1), 1, colors.black),
+            ('LINEAFTER', (-1, 1), (-1, -1), 1, colors.black),
+            ('BACKGROUND', (0, 0), (-1, 0), colors.dodgerblue),
+            ('ALIGN', (6, 0), (-3, -1), 'RIGHT')
+        ]
+    ))
+    libros.append(t)
+    doc.build(libros, onFirstPage=cabecera_pie, onLaterPages=cabecera_pie)
+    response.write(buff.getvalue())
+    buff.close()
+    return response
+
+
+def imprime_ejemplares_prestados(request):
+    def cabecera_pie(canvas, doc):
+        canvas.saveState()
+        styles = getSampleStyleSheet()
+        styles.add(ParagraphStyle(name='TitCentrado', alignment=TA_CENTER, parent=styles['Heading1']), alias='CENT')
+        centro = request.session.get('centro', Configies.objects.all()[0].nombre_centro)
+        header = Paragraph(centro + ' - ' + "Informe de Préstamos de Libros", styles['TitCentrado'])
+        w, h = header.wrap(doc.width, doc.topMargin)
+        header.drawOn(canvas, doc.leftMargin, doc.height + doc.topMargin - h)
+        styles.add(ParagraphStyle(name='Paginador', alignment=TA_RIGHT, parent=styles['Normal']), alias='PAG')
+        footer = Paragraph("Página {}".format(doc.page), styles['Paginador'])
+        w, h = footer.wrap(doc.width, doc.bottomMargin)
+        footer.drawOn(canvas, doc.leftMargin, h)
+
+    qs_ejemplares_prestados = Ejemplar.objects.filter(estado=Ejemplar.PRESTADO)\
+        .order_by('libro__nivel__nivel', 'libro__titulo', 'codigo_barras')
+    # Create the HttpResponse object with the appropriate PDF headers.
+    response = HttpResponse(content_type='application/pdf')
+    # response['Content-Disposition'] = 'attachment; filename="libros.pdf"'
+    response['Content-Disposition'] = 'filename="EjemplaresPrestados.pdf"'
+    # Create the PDF object, using the response object as its "file."
+    buff = BytesIO()
+    doc = SimpleDocTemplate(buff, pagesize=A4, leftMargin=1 * cm, rightMargin=1 * cm,
+                            topMargin=2 * cm, bottomMargin=1 * cm)
+    libros = []
+    headings = ('Libro', 'Ejemplar', 'Alumn@')
+    todosejemplares = [(l.libro.titulo, l.codigo_barras, l.alumno) for l in qs_ejemplares_prestados]
+
+    t = Table([headings] + todosejemplares, repeatRows=1)
+    t.setStyle(TableStyle(
+        [
+            ('FONTSIZE', (0, 1), (-1, -1), 8),
+            # ('GRID', (0, 0), (13, -1), 1, colors.dodgerblue),
+            ('LINEBELOW', (0, 0), (-1, 0), 2, colors.darkblue),
+            ('LINEBELOW', (0, 1), (-1, -1), 1, colors.black),
+            ('LINEBEFORE', (0, 1), (0, -1), 1, colors.black),
+            ('LINEAFTER', (-1, 1), (-1, -1), 1, colors.black),
+            ('BACKGROUND', (0, 0), (-1, 0), colors.dodgerblue),
+        ]
+    ))
+    libros.append(t)
+    doc.build(libros, onFirstPage=cabecera_pie, onLaterPages=cabecera_pie)
+    response.write(buff.getvalue())
+    buff.close()
+    return response

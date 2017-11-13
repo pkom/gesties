@@ -97,7 +97,6 @@ class EjemplarForm(forms.ModelForm):
             "codigo_barras": {
                 "unique": "Ya existe un ejemplar con este código de barras",
             }
-
         }
 
     def clean(self):

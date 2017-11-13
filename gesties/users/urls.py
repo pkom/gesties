@@ -30,25 +30,4 @@ urlpatterns = [
     # update username
     url(r'^update_name/$', views.modifica_name, name='modifica_name'),
 
-    url(
-        regex=r'profesores/$',
-        view=views.CursoProfesorListView.as_view(),
-        name='list-profesores'
-    ),
-    url(
-        regex=r'profesores/~redirect/$',
-        view=views.UserRedirectView.as_view(),
-        name='redirect-profesores'
-    ),
-    url(
-        regex=r'profesores/(?P<username>[\w.@+-]+)/$',
-        view=views.CursoProfesorDetailView.as_view(),
-        name='detail-profesor'
-    ),
-    url(
-        regex=r'profesores/~update/$',
-        view=views.UserUpdateView.as_view(),
-        name='update-profesor'
-    ),
-
 ]

@@ -72,28 +72,28 @@ def load_libros_datatables(request):
                 qs = qs.order_by('titulo')
             else:
                 qs = qs.order_by('-titulo')
+        #if ordercol == '1':
+        #    if orderdir == 'asc':
+        #        qs = qs.order_by('autor__autor')
+        #    else:
+        #        qs = qs.order_by('-autor__autor')
         if ordercol == '1':
-            if orderdir == 'asc':
-                qs = qs.order_by('autor__autor')
-            else:
-                qs = qs.order_by('-autor__autor')
-        if ordercol == '2':
             if orderdir == 'asc':
                 qs = qs.order_by('editorial__editorial')
             else:
                 qs = qs.order_by('-editorial__editorial')
-        if ordercol == '4':
+        if ordercol == '2':
             if orderdir == 'asc':
                 qs = qs.order_by('area_conocimiento__area')
             else:
                 qs = qs.order_by('-area_conocimiento__area')
 
-        if ordercol == '7':
+        if ordercol == '4':
             if orderdir == 'asc':
                 qs = qs.order_by('nivel')
             else:
                 qs = qs.order_by('-nivel')
-        if ordercol == '8':
+        if ordercol == '5':
             if orderdir == 'asc':
                 qs = qs.order_by('numero_ejemplares', 'titulo')
             else:

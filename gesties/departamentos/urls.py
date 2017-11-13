@@ -18,16 +18,4 @@ urlpatterns = [
     url(r'^carga_departamento_info/(?P<departamento>\w+)/$', views.ver_departamento, name='ver_departamento'),
     url(r'^carga_departamento_info/$', views.ver_departamento, name='ver_departamento'),
 
-
-    url(
-        regex=r'^$',
-        view=views.CursoDepartamentoListView.as_view(),
-        name='list-departamentos'
-    ),
-    url(
-        regex=r'(?P<pk>\d+)/$',
-        view=views.CursoDepartamentoDetailView.as_view(),
-        name='detail-departamento'
-    ),
-
 ]

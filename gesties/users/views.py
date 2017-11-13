@@ -15,15 +15,12 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.views.decorators.csrf import csrf_protect, csrf_exempt
 from django.utils.http import is_safe_url
-from django.shortcuts import resolve_url, redirect
+from django.shortcuts import resolve_url
 from django.http import JsonResponse, HttpResponseRedirect, HttpResponseNotAllowed, HttpResponseBadRequest
 from django.views.decorators.cache import never_cache
-from django.core.urlresolvers import reverse
 from django.template.response import TemplateResponse
 from django.template.loader import render_to_string
-from django.views.generic import DetailView, ListView, RedirectView, UpdateView
 from django.contrib.auth import get_user_model
-from django.contrib.auth.mixins import LoginRequiredMixin
 
 from gesties.core.decorators import ajax_required
 from gesties.core.serializers import serializer
@@ -32,7 +29,7 @@ from gesties.configies.models import Configies
 from gesties.grupos.models import CursoGrupo
 from gesties.departamentos.models import CursoDepartamento
 
-from gesties.users.forms import AutenticacionForm, UserForm, UserFotoForm
+from gesties.users.forms import AutenticacionForm, UserFotoForm
 from gesties.users.models import CursoProfesor
 from gesties.departamentos.models import CursoDepartamentoProfesor
 
@@ -367,78 +364,3 @@ def modifica_name(request):
         else:
             result['status'] = 'err'
             return HttpResponseBadRequest('No se ha podido actualizar ')
-
-
-class CursoProfesorListView(LoginRequiredMixin, ListView):
-
-    model = CursoProfesor
-    template_name = 'users/cursoprofesor_list.html'
-    paginate_by = 5
-
-    def get_queryset(self):
-        q = self.request.GET.get("q", None)
-        qs = CursoProfesor.objects.filter(curso=self.request.session['curso_academico']['pk'])\
-                .order_by('profesor__last_name', 'profesor__first_name')
-        if q is not None:
-            ape = Q(profesor__last_name__icontains=q)
-            nom = Q(profesor__first_name__icontains=q)
-            qs = qs.filter(ape | nom)
-        return qs
-
-    def get_context_data(self, **kwargs):
-        # Call the base implementation first to get a context
-        context = super(CursoProfesorListView, self).get_context_data(**kwargs)
-        context['mdatos'] = True
-        context['mprofesores'] = True
-        return context
-
-
-
-class CursoProfesorDetailView(LoginRequiredMixin, DetailView):
-
-    model = User
-    template_name = 'users/cursoprofesor_detail.html'
-    slug_field = 'username'
-    slug_url_kwarg = 'username'
-
-    def get_context_data(self, **kwargs):
-        # Call the base implementation first to get a context
-        context = super(CursoProfesorDetailView, self).get_context_data(**kwargs)
-        context['status'] = user_status(self.request,username=kwargs['object'].username)
-        context['mdatos'] = True
-        context['mprofesores'] = True
-        return context
-
-
-
-class UserRedirectView(LoginRequiredMixin, RedirectView):
-
-    permanent = False
-
-    def get_redirect_url(self):
-        return reverse('users:detail-profesor',
-                       kwargs={'username': self.request.user.username})
-
-
-class UserUpdateView(LoginRequiredMixin, UpdateView):
-
-    fields = ['name', 'foto', ]
-    template_name = 'users/user_form.html'
-    # we already imported User in the view code above, remember?
-    model = User
-
-    # send the user back to their own page after a successful update
-    def get_success_url(self):
-        return reverse('inicio:index')
-
-    def get_object(self):
-        # Only get the User record for the user making the request
-        return User.objects.get(username=self.request.user.username)
-
-    def get_context_data(self, **kwargs):
-        # Call the base implementation first to get a context
-        context = super(UserUpdateView, self).get_context_data(**kwargs)
-        # context['status'] = user_status(self.request,username=kwargs['object'].username)
-        context['mdatos'] = True
-        context['mprofesores'] = True
-        return context
