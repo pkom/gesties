@@ -22,6 +22,7 @@ class CursoGrupoAlumnoList(generics.ListAPIView):
 class CursoGrupoAlumnoDetail(generics.RetrieveAPIView):
     queryset = CursoGrupoAlumno.objects.all()
     serializer_class = CursoGrupoAlumnosSerializer
+    permission_classes = (AllowAny, )
 
 
 # libros de los cuales el alumno no tiene ningún prestamo

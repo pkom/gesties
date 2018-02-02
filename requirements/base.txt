@@ -44,3 +44,5 @@ djangorestframework==3.6.2
 django-filter==1.0.2
 django-widget-tweaks==1.4.1
 PyJWT==1.4.0
+django-cors-headers==2.1.0
+

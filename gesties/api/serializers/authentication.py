@@ -21,7 +21,8 @@ class LoginSerializer(serializers.Serializer):
     es_usuario = serializers.BooleanField(read_only=True)
     id_usuario = serializers.CharField(read_only=True)
     telefono = serializers.CharField(read_only=True)
-    foto = serializers.CharField(read_only=True)
+    curso = serializers.IntegerField()
+    foto_url = serializers.CharField(read_only=True)
     password = serializers.CharField(max_length=128, write_only=True)
     token = serializers.CharField(max_length=255, read_only=True)
 
@@ -33,6 +34,14 @@ class LoginSerializer(serializers.Serializer):
         # our database.
         username = data.get('username', None)
         password = data.get('password', None)
+        curso = data.get('curso', None)
+
+        #cursoM = Curso.objects.filter(cu).first()
+        if curso is None:
+            raise serializers.ValidationError(
+                'No existe ese curso académico.'
+            )
+        #cursoSerializer = CursoSerializer(cursoM)
 
         # As mentioned above, an email is required. Raise an exception if an
         # email is not provided.
@@ -70,11 +79,14 @@ class LoginSerializer(serializers.Serializer):
                 'Este usuario ha sido desactivado.'
             )
 
+        # Check if course exists
 
 
         # The `validate` method should return a dictionary of validated data.
         # This is the data that is passed to the `create` and `update` methods
         # that we will see later on.
+
+        # We have to return additional course data, user type, tutor and groups, departments and chiefs
 
         return {
             'id': user.id,
@@ -88,9 +100,15 @@ class LoginSerializer(serializers.Serializer):
             'name': user.name,
             'dni': user.dni,
             'usuario_rayuela': user.usuario_rayuela,
-            'foto': user.foto,
+            'foto_url': self.context.get('request').build_absolute_uri(user.foto.url),
             'es_usuario': user.es_usuario,
             'id_usuario': user.id_usuario,
             'telefono': user.telefono,
+            'curso': curso,
+            'user_type': 'responsible', #(informatico, administrativo, teacher
+            'tutor': False,
+            'tutorias': [{'id': '1', 'grupo': '2AE'},{'id': '2', 'grupo': '3AE'}],
+            'dpto': [{'id': '1', 'dpto': 'Matematicas'}, {'id': '2', 'grupo': 'Filosofia'}],
+            'jefe': False,
             'token': user.token
         }

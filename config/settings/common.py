@@ -35,6 +35,7 @@ DJANGO_APPS = (
     'django.contrib.admin',
 )
 THIRD_PARTY_APPS = (
+    'corsheaders', # django-cors-headers
     'crispy_forms',  # Form layouts
     'rest_framework', # djangorestframework
     'django_filters', # django filters
@@ -64,6 +65,9 @@ INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 MIDDLEWARE = (
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+
+    'corsheaders.middleware.CorsMiddleware',
+
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -362,3 +366,6 @@ AUTH_LDAP_GROUP_CACHE_TIMEOUT = 3600
 #logger.setLevel(logging.DEBUG)
 
 ########## END DJANGO-AUTH-LDAP CONFIGURATION
+
+# django-cors-headers allowing requests froom anywhere
+CORS_ORIGIN_ALLOW_ALL = True
