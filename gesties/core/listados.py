@@ -504,7 +504,7 @@ def imprime_cb_ejemplares_1(request, titulo=None, autor=None, ancho=None, alto=N
             return response
 
 
-def imprime_libros(request):
+def imprime_libros(request, orden=None):
     def cabecera_pie(canvas, doc):
         canvas.saveState()
         styles = getSampleStyleSheet()
@@ -519,6 +519,9 @@ def imprime_libros(request):
         footer.drawOn(canvas, doc.leftMargin, h)
 
     qslibros = Libro.objects.all().order_by('titulo')
+    if orden:
+        qslibros = Libro.objects.all().order_by('nivel', 'titulo')
+
     if len(qslibros) == 0:
         raise Http404
     # Create the HttpResponse object with the appropriate PDF headers.

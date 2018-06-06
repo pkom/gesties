@@ -18,6 +18,8 @@ urlpatterns = [
     url(r'^imprime_cb_ejemplares/$', imprime_cb_ejemplares, name='imprime_cb_ejemplares'),
     # impresión de informe de libros
     url(r'^imprime_libros/$', imprime_libros, name='imprime_libros'),
+    # impresión de informe de libros
+    url(r'^imprime_libros/(?P<orden>[\w-]+)$', imprime_libros, name='imprime_libros_orden'),
     # impresión de informe de ejemplares de libros prestados
     url(r'^imprime_ejemplares_prestados/$', imprime_ejemplares_prestados, name='imprime_ejemplares_prestados'),
 

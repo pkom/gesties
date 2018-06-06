@@ -50,7 +50,11 @@
     </button>
     <a href="{% url 'inicio:imprime_libros' %}" target="_blank" class="btn btn btn-primary">
         <i class="glyphicon glyphicon-print"></i>
-        Libros
+        Libros Alfab.
+    </a>
+    <a href="{% url 'inicio:imprime_libros_orden' orden='grupo' %}" target="_blank" class="btn btn btn-primary">
+        <i class="glyphicon glyphicon-print"></i>
+        Libros Grupo
     </a>
     <a href="{% url 'inicio:imprime_ejemplares_prestados' %}" target="_blank" class="btn btn btn-primary">
         <i class="glyphicon glyphicon-print"></i>
