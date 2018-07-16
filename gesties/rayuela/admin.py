@@ -205,9 +205,14 @@ def import_data(modeladmin, request, queryset):
                 updated_values = {
                     'nombre': self.nombre,
                     'apellidos': '%s %s' % (self.primerapellido, self.segundoapellido),
-                    'fecha_nacimiento': self.fechanacimiento,
-                    'usuario_rayuela': self.login
+                    'fecha_nacimiento': self.fechanacimiento
+#                    'usuario_rayuela': self.login
                 }
+                try:
+                    updated_values['usuario_rayuela'] = self.login
+                except:
+                    pass
+
                 alumno, created = Alumno.objects.update_or_create(nie=self.nie, defaults=updated_values)
                 if self.nombrefichero:
                     ficherofoto = os.path.join(self.dirname, self.nombrefichero)
