@@ -20,10 +20,10 @@ django-crispy-forms==1.6.0
 django-model-utils==2.6
 
 # Images
-Pillow==3.4.1
+Pillow==6.2.1
 
 # Python-PostgreSQL Database Adapter
-psycopg2==2.6.2
+psycopg2==2.7.1
 
 # Unicode slugification
 awesome-slugify==1.6.5
