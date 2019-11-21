@@ -23,7 +23,7 @@ django-model-utils==2.6
 Pillow==6.2.1
 
 # Python-PostgreSQL Database Adapter
-psycopg2==2.7.1
+psycopg2-binary==2.8.4
 
 # Unicode slugification
 awesome-slugify==1.6.5

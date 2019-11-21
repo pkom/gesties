@@ -111,7 +111,7 @@ MANAGERS = ADMINS
 # ------------------------------------------------------------------------------
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#databases
 DATABASES = {
-    'default': env.db('DATABASE_URL', default='postgres://gesties:gesties@localhost/gesties_dev'),
+    'default': env.db('DATABASE_URL', default='postgres://gesties:gesties@ibm/gesties_dev'),
 }
 DATABASES['default']['ATOMIC_REQUESTS'] = True
 
