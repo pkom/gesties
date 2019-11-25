@@ -56,10 +56,15 @@
         <i class="glyphicon glyphicon-print"></i>
         Libros Grupo
     </a>
-    <a href="{% url 'inicio:imprime_ejemplares_prestados' %}" target="_blank" class="btn btn btn-primary">
+    <a href="{% url 'inicio:imprime_ejemplares_prestados' %}?tipo=agrupaporalumno" target="_blank" class="btn btn btn-primary">
         <i class="glyphicon glyphicon-print"></i>
-        Préstamos
+        Préstamos por Alumn@
     </a>
+    <a href="{% url 'inicio:imprime_ejemplares_prestados' %}?tipo=agrupapornivel" target="_blank" class="btn btn btn-primary">
+        <i class="glyphicon glyphicon-print"></i>
+        Préstamos por Nivel
+    </a>
+
 
 </p>
 

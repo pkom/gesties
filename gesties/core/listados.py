@@ -4,6 +4,7 @@ import re
 
 from django.http import HttpResponse, Http404
 from django.contrib.auth.decorators import login_required
+from django.db import connection
 
 from reportlab.lib import colors
 from reportlab.lib.enums import TA_CENTER, TA_RIGHT
@@ -567,7 +568,9 @@ def imprime_ejemplares_prestados(request):
         styles = getSampleStyleSheet()
         styles.add(ParagraphStyle(name='TitCentrado', alignment=TA_CENTER, parent=styles['Heading1']), alias='CENT')
         centro = request.session.get('centro', Configies.objects.all()[0].nombre_centro)
-        header = Paragraph(centro + ' - ' + "Informe de Préstamos de Libros", styles['TitCentrado'])
+        curso = request.session.get('curso', request.session["curso_academico"]["fields"]["curso"])
+        prestados = request.session.get('prestados', '0')
+        header = Paragraph(centro + ' - ' + "Informe de Préstamos de Libros" + ' - ' + curso + ' (' + str(prestados) +')', styles['TitCentrado'])
         w, h = header.wrap(doc.width, doc.topMargin)
         header.drawOn(canvas, doc.leftMargin, doc.height + doc.topMargin - h)
         styles.add(ParagraphStyle(name='Paginador', alignment=TA_RIGHT, parent=styles['Normal']), alias='PAG')
@@ -575,19 +578,122 @@ def imprime_ejemplares_prestados(request):
         w, h = footer.wrap(doc.width, doc.bottomMargin)
         footer.drawOn(canvas, doc.leftMargin, h)
 
-    qs_ejemplares_prestados = Ejemplar.objects.filter(estado=Ejemplar.PRESTADO)\
-        .order_by('libro__nivel__nivel', 'libro__titulo', 'codigo_barras')
+    curso_id = request.session["curso_academico"]["pk"]
+    tipo = request.GET.get('tipo', 'ordenaporalumno')
+
+    if tipo == 'agrupaporalumno':
+        SQL = ("SELECT " 
+              "libros_libro.titulo, "
+              "libros_nivel.nivel, "
+              "libros_ciclo.ciclo, "
+              "libros_ejemplar.codigo_barras, " 
+              "libros_ejemplar.estado, " 
+              "libros_prestamo.fecha_inicio_prestamo, " 
+              "libros_prestamo.fecha_fin_prestamo, " 
+              "alumnos_alumno.nombre, " 
+              "alumnos_alumno.apellidos, " 
+              "cursos_curso.curso, " 
+              "grupos_grupo.grupo "
+            "FROM " 
+              "public.libros_prestamo, " 
+              "public.libros_ejemplar, " 
+              "public.libros_libro, "
+              "public.libros_nivel, " 
+              "public.libros_ciclo, "        
+              "public.grupos_cursogrupoalumno, " 
+              "public.grupos_cursogrupo, "  
+              "public.alumnos_cursoalumno, " 
+              "public.alumnos_alumno, " 
+              "public.cursos_curso, " 
+              "public.grupos_grupo "
+            "WHERE " 
+              "libros_prestamo.curso_grupo_alumno_id = grupos_cursogrupoalumno.id AND "
+              "libros_ejemplar.id = libros_prestamo.ejemplar_id AND "
+              "libros_libro.id = libros_ejemplar.libro_id AND "
+              "libros_libro.nivel_id = libros_nivel.id AND "
+              "libros_nivel.ciclo_id = libros_ciclo.id AND "        
+              "grupos_cursogrupoalumno.curso_alumno_id = alumnos_cursoalumno.id AND "
+              "grupos_cursogrupoalumno.curso_grupo_id = grupos_cursogrupo.id AND "
+              "grupos_cursogrupo.grupo_id = grupos_grupo.id AND "
+              "alumnos_cursoalumno.alumno_id = alumnos_alumno.id AND "
+              "alumnos_cursoalumno.curso_id = cursos_curso.id AND "
+              "cursos_curso.id = %s AND " 
+              "libros_prestamo.fecha_fin_prestamo IS NULL " 
+            "ORDER BY "
+              "alumnos_alumno.apellidos ASC, " 
+              "alumnos_alumno.nombre ASC, "
+              "libros_libro.titulo ASC, " 
+              "libros_ejemplar.codigo_barras ASC;"
+               )
+    else:
+        SQL = ("SELECT " 
+              "libros_libro.titulo, "
+              "libros_nivel.nivel, "
+              "libros_ciclo.ciclo, "                
+              "libros_ejemplar.codigo_barras, " 
+              "libros_ejemplar.estado, " 
+              "libros_prestamo.fecha_inicio_prestamo, " 
+              "libros_prestamo.fecha_fin_prestamo, " 
+              "alumnos_alumno.nombre, " 
+              "alumnos_alumno.apellidos, " 
+              "cursos_curso.curso, " 
+              "grupos_grupo.grupo "
+            "FROM " 
+              "public.libros_prestamo, " 
+              "public.libros_ejemplar, " 
+              "public.libros_libro, "
+              "public.libros_nivel, " 
+              "public.libros_ciclo, "         
+              "public.grupos_cursogrupoalumno, " 
+              "public.grupos_cursogrupo, "  
+              "public.alumnos_cursoalumno, " 
+              "public.alumnos_alumno, " 
+              "public.cursos_curso, " 
+              "public.grupos_grupo "        
+            "WHERE " 
+              "libros_prestamo.curso_grupo_alumno_id = grupos_cursogrupoalumno.id AND "
+              "libros_ejemplar.id = libros_prestamo.ejemplar_id AND "
+              "libros_libro.id = libros_ejemplar.libro_id AND "
+              "libros_libro.nivel_id = libros_nivel.id AND "
+              "libros_nivel.ciclo_id = libros_ciclo.id AND "        
+              "grupos_cursogrupoalumno.curso_alumno_id = alumnos_cursoalumno.id AND "
+              "grupos_cursogrupoalumno.curso_grupo_id = grupos_cursogrupo.id AND "
+              "grupos_cursogrupo.grupo_id = grupos_grupo.id AND "
+              "alumnos_cursoalumno.alumno_id = alumnos_alumno.id AND "
+              "alumnos_cursoalumno.curso_id = cursos_curso.id AND "
+              "cursos_curso.id = %s AND " 
+              "libros_prestamo.fecha_fin_prestamo IS NULL " 
+            "ORDER BY "
+              "libros_nivel.nivel ASC, " 
+              "libros_libro.titulo ASC, " 
+              "libros_ejemplar.codigo_barras ASC, "        
+              "alumnos_alumno.apellidos ASC, " 
+              "alumnos_alumno.nombre ASC;"
+               )
+
+    #qs_ejemplares_prestados = Ejemplar.objects.filter(estado=Ejemplar.PRESTADO)\
+    #    .order_by('libro__nivel__nivel', 'libro__titulo', 'codigo_barras')
+
+    #qs_ejemplares_prestados = Ejemplar.objects.raw(SQL, [curso_id])
+    ejemplares = []
+    with connection.cursor() as cursor:
+        cursor.execute(SQL, [curso_id])
+        ejemplares = cursor.fetchall()
+        request.session['prestados'] = len(ejemplares)
+
     # Create the HttpResponse object with the appropriate PDF headers.
     response = HttpResponse(content_type='application/pdf')
     # response['Content-Disposition'] = 'attachment; filename="libros.pdf"'
     response['Content-Disposition'] = 'filename="EjemplaresPrestados.pdf"'
     # Create the PDF object, using the response object as its "file."
     buff = BytesIO()
-    doc = SimpleDocTemplate(buff, pagesize=A4, leftMargin=1 * cm, rightMargin=1 * cm,
+    doc = SimpleDocTemplate(buff, pagesize=landscape(A4), leftMargin=1.5 * cm, rightMargin=1.5 * cm,
                             topMargin=2 * cm, bottomMargin=1 * cm)
     libros = []
-    headings = ('Libro', 'Ejemplar', 'Alumn@')
-    todosejemplares = [(l.libro.titulo, l.codigo_barras, l.alumno) for l in qs_ejemplares_prestados]
+    headings = ('Nivel', 'Libro', 'Ejemplar', 'Estado', 'Fecha préstamo', 'Alumn@')
+    #todosejemplares = [(l.libro.titulo, l.codigo_barras, l.alumno) for l in qs_ejemplares_prestados]
+    todosejemplares = [ (str(ejemplar[1]) + '(' + ejemplar[2] + ')', ejemplar[0],  ejemplar[3], ejemplar[4], ejemplar[5].replace(tzinfo=None).isoformat(' ', 'minutes'), ejemplar[8] + ', ' + ejemplar[7] + ' (' + ejemplar[10] + ')') for ejemplar in ejemplares ]
+
 
     t = Table([headings] + todosejemplares, repeatRows=1)
     t.setStyle(TableStyle(
